@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-RETELL-PROD-GATE-84A
+- Work completed: Added an explicit production Retell ingress gate. The endpoint remains disabled by default in production and only accepts signed payloads when `RETELL_INGRESS_PROTOTYPE=enabled` and `RETELL_INGRESS_PRODUCTION=enabled` are both present. Writer persistence still separately requires `RETELL_INGRESS_LEAD_WRITER=enabled`, a valid `RETELL_INGRESS_CONNECTION_ID`, and server-only Supabase service-role configuration.
+- Files changed: `src/app/api/integrations/retell/route.ts`; `tests/retell-ingress.test.ts`; `tests/retell-lead-writer.test.ts`; `.env.example`; `docs/project/tasks/CEV-RETELL-PROD-GATE-84A.md`; `docs/project/handoffs/CEV-RETELL-PROD-GATE-84A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- Hosted configuration changes: None yet. Production env still needs explicit Retell variables and tenant mapping before live proof.
+- API or contract changes: `/api/integrations/retell` can now be enabled in production only by explicit env gate. Default production response remains disabled.
+- Verification commands and results: `pnpm test -- tests/retell-ingress.test.ts tests/retell-lead-writer.test.ts` PASS with 22 files / 749 tests through Vitest filter behavior. `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. `pnpm check` PASS with 22 Vitest files / 749 tests, all embedded DB suites, Retell lead-ingestion SQL suite and production build.
+- Known limitations: Code is ready, but hosted production Retell env variables, Supabase service-role secret, Retell connection mapping, and a signed fictional production payload have not been configured or tested yet.
+- Risks: Enabling the writer with the wrong agent/connection mapping will safely return `unmapped_tenant`, but using real provider secrets still needs careful handling. Service-role key must stay server-only in Vercel and never be exposed to the browser or committed.
+- Rollback notes: Clear `RETELL_INGRESS_PRODUCTION` and `RETELL_INGRESS_LEAD_WRITER` in Vercel to disable production ingestion immediately. Revert this code commit if the endpoint should return to unconditional production 404 behavior.
+- Exact next action: Push/deploy this code, create a server-owned Retell connection mapping for the production workspace and agent, add production env variables, then send one signed fictional `call_analyzed` payload and verify one AI receptionist lead appears.

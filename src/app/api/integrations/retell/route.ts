@@ -26,6 +26,12 @@ function writerEnabled() {
   return process.env.RETELL_INGRESS_LEAD_WRITER === "enabled";
 }
 
+function ingressEnabled() {
+  if (process.env.RETELL_INGRESS_PROTOTYPE !== "enabled") return false;
+  if (process.env.NODE_ENV === "production") return process.env.RETELL_INGRESS_PRODUCTION === "enabled";
+  return true;
+}
+
 async function persistLead(result: Extract<ReturnType<typeof verifyRetellPrototype>, { ok: true }>) {
   const connection = connectionIdSchema.safeParse(process.env.RETELL_INGRESS_CONNECTION_ID);
   if (!connection.success) return response(503, "unconfigured");
@@ -57,8 +63,9 @@ async function persistLead(result: Extract<ReturnType<typeof verifyRetellPrototy
 
 export async function POST(request: Request): Promise<Response> {
   if (request.method !== "POST") return methodNotAllowed();
-  // Local fictional-secret prototype only. No real Retell key or connection is read unless the reviewed writer gate is enabled.
-  if (process.env.NODE_ENV === "production" || process.env.RETELL_INGRESS_PROTOTYPE !== "enabled") {
+  // Disabled by default. Production requires a second explicit gate in addition
+  // to the reviewed prototype verifier and writer settings.
+  if (!ingressEnabled()) {
     return response(404, "disabled");
   }
   const secret = process.env.RETELL_INGRESS_TEST_SECRET;

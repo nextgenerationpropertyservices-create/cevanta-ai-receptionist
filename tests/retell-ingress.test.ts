@@ -95,8 +95,15 @@ describe("actual no-writer route", () => {
     vi.stubEnv("RETELL_INGRESS_PROTOTYPE", setting);
     return expect(POST(request()).then(result => result.status)).resolves.toBe(404);
   });
-  it("cannot enable in production", async () => {
+  it("stays disabled in production without the production gate", async () => {
     vi.stubEnv("NODE_ENV", "production"); expect((await POST(request())).status).toBe(404);
+  });
+  it("can verify in production only when the production gate is explicit", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RETELL_INGRESS_PRODUCTION", "enabled");
+    const response = await POST(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "verified_not_persisted", persisted: false, bookingCreated: false });
   });
   it("does not consume the body when disabled or unconfigured", async () => {
     vi.stubEnv("RETELL_INGRESS_TEST_SECRET", "");

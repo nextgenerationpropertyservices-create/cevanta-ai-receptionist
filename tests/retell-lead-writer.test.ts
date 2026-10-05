@@ -57,6 +57,17 @@ describe("Retell lead writer gate", () => {
     expect(await response.json()).toEqual({ status: "verified_not_persisted", persisted: false, bookingCreated: false });
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
+  it("keeps production writer disabled unless the production ingress gate is explicit", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
+    expect((await POST(request())).status).toBe(404);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+
+    vi.stubEnv("RETELL_INGRESS_PRODUCTION", "enabled");
+    const response = await POST(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "lead_created", persisted: true, bookingCreated: false });
+  });
   it("persists a safe lead draft through the RPC without payload tenant, transcript or recording", async () => {
     mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
     const response = await POST(request());
