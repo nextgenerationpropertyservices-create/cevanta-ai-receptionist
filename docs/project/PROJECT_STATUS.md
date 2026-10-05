@@ -462,3 +462,7 @@ CEV-RETELL-PROD-GATE-84A is implemented and accepted locally. The Retell endpoin
 ## Production Retell tenant mapping preparation — 2026-10-05
 
 CEV-RETELL-PROD-MAP-84B is accepted with limitations. A private Supabase Retell connection mapping now routes connection ID `49000000-0000-4000-8002-000000000001` and Retell agent ID `agent_a9182cc8117ac588f68bc52a3d` to production workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`, enabled true. This does not enable production ingestion by itself. Vercel Retell env vars, signed production payload verification, service-role writer env, and actual Retell/Make lead creation remain next.
+
+## Production Retell verifier-only proof — 2026-10-05
+
+CEV-RETELL-PROD-VERIFY-84C is accepted with limitations. Vercel Production now has verifier-only Retell settings by name and was redeployed after the changes. Production `/api/health` returned HTTP200 with databaseConfigured true. An unsigned fictional Retell POST to `/api/integrations/retell` returned HTTP401 `rejected` with no persistence or booking. A signed fictional Retell POST for `call_prod_verifier_20261005_01` returned HTTP200 `verified_not_persisted` with `persisted:false` and `bookingCreated:false`. This proves hosted signature verification is active while the writer remains off. It does not yet prove live Retell dashboard webhook delivery, Make write-through, lead creation, duplicate handling in production, SMS/email/calendar writes, or booking.

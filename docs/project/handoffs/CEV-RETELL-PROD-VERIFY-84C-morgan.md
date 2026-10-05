@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-RETELL-PROD-VERIFY-84C
+- Work completed: Added verifier-only Retell Production environment variables in Vercel by name (`RETELL_INGRESS_PROTOTYPE`, `RETELL_INGRESS_PRODUCTION`, `RETELL_INGRESS_CONNECTION_ID`, `RETELL_INGRESS_TEST_SECRET`) and created a fresh production redeploy from the current main deployment. Sent one unsigned fictional production Retell payload and one correctly signed fictional production Retell payload to the hosted endpoint.
+- Files changed: `docs/project/tasks/CEV-RETELL-PROD-VERIFY-84C.md`, `docs/project/handoffs/CEV-RETELL-PROD-VERIFY-84C-morgan.md`, `docs/project/PROJECT_STATUS.md`.
+- Database changes: None in this task. It relies on the private mapping from CEV-RETELL-PROD-MAP-84B.
+- API or contract changes: None in this task. Hosted endpoint behavior now proves the CEV-RETELL-PROD-GATE-84A production gate is active in Vercel.
+- Verification commands and results: Production `/api/health` returned HTTP 200 with `databaseConfigured:true`. Unsigned fictional POST to `/api/integrations/retell` returned HTTP 401 with `status:"rejected"`, `persisted:false`, `bookingCreated:false`. Signed fictional POST for `call_prod_verifier_20261005_01` returned HTTP 200 with `status:"verified_not_persisted"`, `persisted:false`, `bookingCreated:false`.
+- Known limitations: This proves hosted signature verification only. It does not prove the Retell dashboard webhook is pointed at Cevanta, does not create a lead, does not confirm Make write-through, and does not prove live Retell payload shape beyond the fictional verifier envelope. Service-role writer credentials were not added.
+- Risks: Enabling `RETELL_INGRESS_LEAD_WRITER` without a service-role key, Quinn review and one duplicate-safe live test could either fail writes or create duplicate/incorrect leads. Keep writer disabled until the next gate.
+- Rollback notes: Clear `RETELL_INGRESS_PRODUCTION` in Vercel to make production Retell ingress return disabled again. Clear `RETELL_INGRESS_LEAD_WRITER` before any writer rollback if it is later enabled.
+- Exact next action: Configure the actual Retell webhook target to the production Cevanta endpoint or send a real Retell test event, then enable writer mode only after owner approval for the service-role secret and Quinn security review.
