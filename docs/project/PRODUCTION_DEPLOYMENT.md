@@ -105,3 +105,7 @@ These checks remain before selling this as more than a managed pilot:
 5. Confirm installable app behavior from Windows Edge/Chrome and Android Chrome.
 6. Keep Retell live writer, SMS/email/calendar external writes and billing disabled until separately approved.
 
+
+## Read-only production health check
+
+2026-10-05: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with databaseConfigured true. This is read-only health evidence only; it does not prove live provider writers, billing, SMS/email/calendar, role-browser matrix or backup/restore readiness.

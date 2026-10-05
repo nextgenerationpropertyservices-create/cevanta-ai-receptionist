@@ -59,3 +59,8 @@ Local verification before deployment included `pnpm check` passing with typechec
 Production deployment exists, but this does not make Cevanta a fully automatic live-client SaaS yet. The remaining gates are live-provider writer activation, Make scenario activation, Retell/Make/Cevanta writer review, SMS/email/calendar writes, billing, role-browser matrix, backup/restore/CI evidence and first-client approval boundaries.
 
 No payment flow was enabled by this task. No SMS/email/calendar writer, Make always-on activation, Retell production writer or live booking automation is accepted by this deployment record.
+
+## Follow-up evidence
+
+2026-10-05 read-only production health check returned status ok with databaseConfigured true. This did not trigger provider calls, payments, SMS/email/calendar writes or production lead writer behavior.
+
