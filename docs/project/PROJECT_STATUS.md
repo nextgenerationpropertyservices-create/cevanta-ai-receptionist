@@ -458,3 +458,7 @@ CEV-LAUNCH-LIVE-83A is accepted with limitations. The authenticated production C
 ## Production Retell ingress gate — 2026-10-05
 
 CEV-RETELL-PROD-GATE-84A is implemented and accepted locally. The Retell endpoint no longer has an unconditional production block; production ingress still remains disabled by default and requires explicit `RETELL_INGRESS_PROTOTYPE=enabled` plus `RETELL_INGRESS_PRODUCTION=enabled`. Lead persistence still separately requires `RETELL_INGRESS_LEAD_WRITER=enabled`, a valid connection ID, a server-only service-role client and reviewed Supabase mapping. Evidence: focused Retell route/writer tests passed, `pnpm typecheck` PASS, `pnpm lint` PASS, `pnpm build` PASS, and `pnpm check` PASS with 22 Vitest files / 749 tests, all embedded DB suites and production build. Hosted env variables, tenant mapping and a signed fictional production payload remain next.
+
+## Production Retell tenant mapping preparation — 2026-10-05
+
+CEV-RETELL-PROD-MAP-84B is accepted with limitations. A private Supabase Retell connection mapping now routes connection ID `49000000-0000-4000-8002-000000000001` and Retell agent ID `agent_a9182cc8117ac588f68bc52a3d` to production workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`, enabled true. This does not enable production ingestion by itself. Vercel Retell env vars, signed production payload verification, service-role writer env, and actual Retell/Make lead creation remain next.

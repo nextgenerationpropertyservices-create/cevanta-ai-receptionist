@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-RETELL-PROD-MAP-84B
+- Work completed: Added/updated a private Supabase Retell connection mapping for the production workspace and current Retell agent ID so future verified Retell events can route to the right tenant when writer mode is explicitly enabled.
+- Files changed: `docs/project/tasks/CEV-RETELL-PROD-MAP-84B.md`; `docs/project/handoffs/CEV-RETELL-PROD-MAP-84B-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: Upserted `integration_private.retell_connections` for tenant `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`, connection ID `49000000-0000-4000-8002-000000000001`, provider account ID `agent_a9182cc8117ac588f68bc52a3d`, enabled true.
+- Hosted configuration changes: None in Vercel yet.
+- API or contract changes: None beyond CEV-RETELL-PROD-GATE-84A.
+- Verification commands and results: Supabase returned the expected enabled mapping row with the current tenant ID, connection ID and agent ID.
+- Known limitations: Vercel production env variables for Retell ingress are not configured yet. No signed production payload was sent. No lead was created by Retell/Make.
+- Risks: If the Retell agent ID is changed later, this mapping must be updated before enabling writer mode. Service-role key and signing secret still require careful Vercel-only storage.
+- Rollback notes: Disable the mapping by setting `enabled=false` for the connection/agent row, or clear Vercel Retell env vars to prevent ingestion.
+- Exact next action: Store verifier-only Retell env vars in Vercel Production, redeploy, then send a signed fictional `call_analyzed` payload and confirm the endpoint returns `verified_not_persisted` before enabling writer mode.
