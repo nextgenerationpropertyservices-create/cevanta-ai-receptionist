@@ -63,7 +63,7 @@ The owner confirmed that Cevanta must deliver a fully functional frontend dashbo
 
 Guided onboarding must cover first access through account creation or invitation, business details, services, hours, timezone, integrations, booking rules and escalation contacts. Setup must show progress, missing requirements, helpful errors and a readiness check. Clients must be able to complete ordinary setup and use the dashboard without editing code or configuration files. Desktop and mobile usability are required.
 
-This is a required outcome, not a claim that it already exists. Preserve all current gates: no production deployment, live provider activation, external messages/calls/calendar writers, priced estimate assumptions, payments, revenue claims or weakened authorization without separate approval and evidence. Complete acceptance requires verification of the journey from a new client's first access through onboarding to a usable dashboard.
+This is a required outcome, not a claim that it already exists. Preserve all current gates: no live provider writer activation, external messages/calls/calendar writers, priced estimate assumptions, payments, revenue claims or weakened authorization without separate approval and evidence. Production hosting exists, but it does not approve those live effects. Complete acceptance requires verification of the journey from a new client's first access through onboarding to a usable dashboard.
 
 
 Current guided journey task: CEV-ONBOARD-38. Atlas is assigned to design invitation-based first access, setup data contracts, saved progress and backend-derived readiness before implementation. CEV-JOURNEY-GAP-37 is accepted as a gap audit only; it does not mean the journey is complete.
@@ -93,22 +93,11 @@ CEV-ONBOARD-RPC-46 and CEV-ONBOARD-COMMAND-TESTS-47 are accepted with limitation
 - 2026-10-05: CEV-MAKE-MCP-77D confirmed the official Make plugin/MCP connection and created separate scenario `Cevanta Receptionist — MCP Intake Receiver` (`6515719`) with webhook intake, a Make-only data-store review log and a safe webhook response. Fictional payload learning and a Make-side happy-path dry run passed. Wrong-event handling stopped safely. Duplicate call IDs did not create duplicate review records, but Make still logs duplicate-key execution errors and needs a clean duplicate branch/response before live use. Do not store the webhook URL. Do not connect live sends, bookings or Cevanta production writes until clean retry handling, tenant routing, dedupe and quality review are complete.
 
 
-## Twilio business verification facts
+## Twilio business verification status
 
 Date: 2026-10-05.
 
-Owner provided an IRS EIN notice for Cevanta verification. Do not store the EIN, full IRS notice, barcode, QR code, or image in project files.
-
-Safe facts for Twilio Trust Hub:
-- Legal EIN record name shown on the IRS notice: `HEATH W HERRICK`.
-- Trade/brand name shown below the legal name: `CEVANTA`.
-- Business type for Twilio profile should remain consistent with the IRS record, likely sole proprietorship unless owner has separate entity documentation.
-- Name control is known from the IRS notice but should be entered only in Twilio/Persona as needed, not stored in project files.
-- Twilio rejection reason observed on 2026-10-05: business registration number failed verification; Twilio requested legal company name and EIN exactly as found in tax records.
-- Website owner provided for Twilio profile: https://cevanta.base44.app/
-- Twilio profile should not use `CEVANTA` as legal business name unless Twilio provides a separate DBA/trade-name field. Use `CEVANTA` only as brand/DBA/friendly name when available.
-- For current launch planning, keep SMS disabled until business verification and A2P/10DLC or equivalent messaging compliance is approved.
-
+Private tax-verification details are intentionally not stored in project files. Use the owner's private IRS/Twilio records directly in Twilio Trust Hub when needed. Current launch planning keeps SMS disabled until business verification and messaging compliance are approved. Retell-first voice remains the preferred pilot path.
 ## Retell-first launch path
 
 Date: 2026-10-05.
@@ -170,19 +159,14 @@ CEV-PACKAGE-79A added installable-app support for the hosted Cevanta dashboard: 
 
 Latest verification for this slice: focused installable-app test passed with 4 tests; typecheck, lint and production build passed after the final change; full `pnpm check` passed with 22 files / 747 tests before the final local safe-context service-worker adjustment.
 
-## Production deployment blocker
+## Production deployment state
 
 Date: 2026-10-05.
 
-Cevanta production deployment is prepared but not deployed. Local release checks pass. Vercel is connected through the app plugin, but there is no linked Git project and this folder has no Git remote. Local Vercel CLI login is blocked by an invalid saved token and current CLI auth package resolution failure under the local pnpm/Node runtime.
+Cevanta is deployed on Vercel at `https://cevanta-ai-receptionist.vercel.app/`. The GitHub repository is `https://github.com/nextgenerationpropertyservices-create/cevanta-ai-receptionist.git`. Production health returned status ok with databaseConfigured true. Supabase Auth redirects are configured for the production origin. Retell and Make bridge endpoints are verifier-only/no-writer unless separately approved.
 
-Safe unblock options:
-1. Fix Vercel CLI login on this Windows machine.
-2. Push this project to a GitHub/GitLab/Bitbucket repo and connect it to Vercel.
-3. Add a valid Vercel token securely as a local environment variable, without pasting it into chat or source.
+Do not enable Retell/Make production writers, SMS/email/calendar external writes, billing, paid provider changes or public client commitments without explicit owner approval and recorded evidence.
 
-Do not enable Retell production writer, SMS/email/calendar external writes, billing or public client onboarding until the production URL, Supabase Auth redirects and post-deploy checks pass.
+Current recommended launch path: managed pilot with office review. Use `docs/business/PILOT_LAUNCH_WALKTHROUGH.md`, `docs/business/FIRST_CLIENT_SALES_PACKET.md`, `docs/business/FIRST_CLIENT_INTAKE.md` and the in-app Launch/Integrations/Pilot pages.
 
-Local release commit prepared: `cdca042` on `main`. It is not pushed because no GitHub remote URL is configured in this checkout.
 
-Production release candidate pushed to GitHub on 2026-10-05: `https://github.com/nextgenerationpropertyservices-create/cevanta-ai-receptionist.git`, branch `main`, local commit `e1d75a3`. Vercel import remains blocked until Vercel is granted access to the private GitHub repo.

@@ -49,11 +49,11 @@ The embedded database check executes the real migration, fictional seed and SQL 
 
 ## Windows and Android app packaging
 
-Cevanta now includes an installable app manifest, icons and a safe service-worker shell for Windows and Android install support. The first pilot should use the hosted HTTPS dashboard as an installable app. Signed Windows installers and Android store packages require a final production URL, package choice and owner approval. See [Windows and Android packaging](docs/project/WINDOWS_ANDROID_PACKAGING.md).
+Cevanta includes an installable app manifest, icons and a safe service-worker shell for Windows and Android install support. The first pilot should use the production HTTPS dashboard as an installable browser app. Signed Windows installers and Android store packages require a separate package choice, publisher/signing decisions and owner approval. See [Windows and Android packaging](docs/project/WINDOWS_ANDROID_PACKAGING.md).
 
 ## Production deployment
 
-Production deployment is prepared for Vercel, but the actual deploy requires a working Vercel project link or CLI login on the machine running the deploy. Environment variable names and post-deploy checks are documented in [production deployment](docs/project/PRODUCTION_DEPLOYMENT.md). Do not store secret values in source or chat.
+Production is deployed on Vercel at https://cevanta-ai-receptionist.vercel.app/. Environment variable names, verifier-only provider gates and remaining post-deploy checks are documented in [production deployment](docs/project/PRODUCTION_DEPLOYMENT.md). Do not store secret values in source or chat.
 
 ## Roles
 
@@ -63,4 +63,5 @@ Owners, admins, and dispatchers can add CRM records. Owners and admins can chang
 
 Seven native Codex specialists are defined in .codex/agents. Start with [team instructions](docs/agents/README.md), [current project status](docs/project/PROJECT_STATUS.md), and [prioritized backlog](docs/project/BACKLOG.md). See [requirements](docs/product/PRODUCT_REQUIREMENTS.md), [roadmap](docs/product/MVP_ROADMAP.md), and [architecture](docs/agents/ARCHITECTURE.md).
 
-AI calls, jobs, calendar, handoffs, estimates, and revenue reporting follow the ordered roadmap. No production deployment is authorized or performed. See operations for staging setup, backups, forward repair and rollback.
+AI calls, jobs, calendar, handoffs, estimates, and revenue reporting follow the ordered roadmap. Production hosting exists, but live provider writers, SMS/email/calendar writes, billing and full self-service SaaS remain approval-gated. See operations for staging setup, backups, forward repair and rollback.
+

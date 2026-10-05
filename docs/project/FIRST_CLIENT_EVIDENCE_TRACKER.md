@@ -14,6 +14,7 @@ This tracker is for evidence, not secrets. Do not paste API keys, webhook URLs, 
 | Local walkthrough checklist | Ready as documentation | `docs/project/PILOT_LOCAL_WALKTHROUGH.md` | Run before demo |
 | Make/Retell dry-run checklist | Ready as documentation | `docs/ops/MAKE_RETELL_DRY_RUN_CHECKLIST.md` | Run in safe scenario only |
 | Sales packet | Ready as documentation | `docs/business/FIRST_CLIENT_SALES_PACKET.md` | Use managed-pilot language |
+| Managed pilot launch walkthrough | Ready as documentation | `docs/business/PILOT_LAUNCH_WALKTHROUGH.md` | Use as the step-by-step launch path before client commitment |
 | Live provider readiness | Blocked | 2026-10-05: Retell dashboard opens; Make requires sign-in; Twilio number exists as individual but SMS/business rollout waits for registration; local Retell writer fails safely until server-only Supabase key is configured. | Sign in to Make, add server-only local service key, then rerun signed Retell HTTP writer test. |
 | Production deployment | PASS WITH LIMITATIONS | 2026-10-05: Vercel production app exists at https://cevanta-ai-receptionist.vercel.app/; production lead/customer persistence smokes accepted with limitations. Provider writers, billing, role-browser matrix, backup/restore and live pilot gates remain open. | Sell only as managed pilot after owner-approved boundary. |
 
@@ -321,6 +322,8 @@ Date: 2026-10-05
 | Vercel production URL | PASS WITH LIMITATIONS | 2026-10-05: GitHub repo connected and Vercel production URL is https://cevanta-ai-receptionist.vercel.app/. | Continue only no-cost checks unless owner approves paid/provider actions. |
 | Supabase production redirects | PASS WITH LIMITATIONS | 2026-10-05: Production origin and auth callback/recovery URLs configured for Vercel and local support. | Keep testing confirmation/recovery emails with private owner-approved inboxes only. |
 | Installable Windows/Android app | READY TO TEST | HTTPS production URL exists and app shell is ready. | Test browser install on Windows/Android before promising app-store style installers. |
+
+
 
 
 
