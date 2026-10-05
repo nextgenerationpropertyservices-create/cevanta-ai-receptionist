@@ -446,3 +446,7 @@ CEV-DEPLOY-80A is accepted with limitations for initial Vercel production deploy
 ## Production launch smoke — 2026-10-05
 
 CEV-LAUNCH-SMOKE-81A is accepted with limitations. Production `/api/health` returned HTTP200 with databaseConfigured true. Public production auth pages `/sign-in`, `/sign-up`, `/forgot-password` and `/auth/recovery` returned HTTP200. Installable app assets `/manifest.webmanifest`, `/sw.js`, `/icons/icon-192.png` and `/icons/icon-512.png` returned HTTP200. Browser check of `/sign-up` confirmed the owner-account form rendered and reported no console warnings/errors. No real signup, email delivery, password recovery token exchange, authenticated workspace persistence, install prompt or live Retell/Make/Twilio writer flow was executed.
+
+## Production authenticated lead persistence — 2026-10-05
+
+CEV-LAUNCH-LIVE-82A is accepted with limitations. Owner production workspace overview loaded for Heath Herrick. Authenticated production routes `/leads`, `/jobs`, `/calendar`, `/onboarding`, `/launch` and `/integrations` finished loading without console errors after wait. A clearly fictional production lead `Fictional Launch Smoke Lead 2026-10-05` was created through the UI with fictional contact/test data; the app reported `Lead saved successfully`, inbox count increased to 3, and the record remained visible after reload. This proves one hosted authenticated create/read path only. Remaining gates include customer/job/calendar persistence, edit flows, multiuser isolation, install prompt behavior, and live Retell/Make/Twilio writer flows.

@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-LAUNCH-LIVE-82A
+- Work completed: Verified authenticated production owner workspace routes and created one clearly fictional lead in the hosted production app. Reloaded the leads page and confirmed the record persisted.
+- Files changed: `docs/project/tasks/CEV-LAUNCH-LIVE-82A.md`; `docs/project/handoffs/CEV-LAUNCH-LIVE-82A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: One fictional production lead record was created through the app UI: `Fictional Launch Smoke Lead 2026-10-05`, source Manual, status new, priority normal, follow-up `2026-10-06`, email `launch-smoke@example.test`, phone `5550100199`, with fictional test request notes.
+- Hosted configuration changes: None.
+- API or contract changes: None.
+- Verification commands and results: Production workspace overview loaded for owner Heath Herrick. Authenticated production routes `/leads`, `/jobs`, `/calendar`, `/onboarding`, `/launch`, and `/integrations` finished loading after wait and reported no console errors. Lead creation returned `Lead saved successfully`; inbox count increased to 3. After page reload, `Fictional Launch Smoke Lead 2026-10-05` remained visible and no console errors were reported.
+- Known limitations: This proves one hosted authenticated create/read path only. It does not prove edit/delete, customer persistence, job persistence, calendar persistence, multiuser isolation, live Retell/Make/Twilio writers, or install prompt behavior.
+- Risks: The fictional lead is intentionally left in production as launch evidence. Remove it later only with owner approval because deletion is a production data change.
+- Rollback notes: Delete the fictional lead from the production UI or database only after owner approval.
+- Exact next action: Test one more core hosted flow: create/reload a fictional customer or job, then test Windows/Android install behavior.
