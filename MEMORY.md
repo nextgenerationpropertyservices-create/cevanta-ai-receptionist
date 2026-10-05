@@ -184,3 +184,5 @@ Safe unblock options:
 Do not enable Retell production writer, SMS/email/calendar external writes, billing or public client onboarding until the production URL, Supabase Auth redirects and post-deploy checks pass.
 
 Local release commit prepared: `cdca042` on `main`. It is not pushed because no GitHub remote URL is configured in this checkout.
+
+Production release candidate pushed to GitHub on 2026-10-05: `https://github.com/nextgenerationpropertyservices-create/cevanta-ai-receptionist.git`, branch `main`, local commit `e1d75a3`. Vercel import remains blocked until Vercel is granted access to the private GitHub repo.

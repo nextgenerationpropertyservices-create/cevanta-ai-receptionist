@@ -108,3 +108,5 @@ After Vercel returns a production URL:
 7. Confirm the app can be installed from Windows Edge/Chrome and Android Chrome.
 8. Keep Retell live writer, SMS/email/calendar external writes and billing disabled until separately approved.
 Local release commit prepared: `cdca042` on branch `main`. It has no remote configured yet, so it is not pushed to GitHub.
+
+GitHub push completed: branch `main` was pushed to `https://github.com/nextgenerationpropertyservices-create/cevanta-ai-receptionist.git` from local commit `e1d75a3`. Vercel Git import remains blocked because the Vercel team currently shows no linked Git projects/origin connection, and `_create_git_project` returned `INVALID_ARGUMENT` for both repo slug and full GitHub URL. The likely next action is granting Vercel GitHub access to the new private repository from the Vercel dashboard/import flow.
