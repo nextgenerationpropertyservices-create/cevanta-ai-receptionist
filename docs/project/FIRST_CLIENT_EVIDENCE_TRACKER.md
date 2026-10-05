@@ -15,7 +15,7 @@ This tracker is for evidence, not secrets. Do not paste API keys, webhook URLs, 
 | Make/Retell dry-run checklist | Ready as documentation | `docs/ops/MAKE_RETELL_DRY_RUN_CHECKLIST.md` | Run in safe scenario only |
 | Sales packet | Ready as documentation | `docs/business/FIRST_CLIENT_SALES_PACKET.md` | Use managed-pilot language |
 | Live provider readiness | Blocked | 2026-10-05: Retell dashboard opens; Make requires sign-in; Twilio number exists as individual but SMS/business rollout waits for registration; local Retell writer fails safely until server-only Supabase key is configured. | Sign in to Make, add server-only local service key, then rerun signed Retell HTTP writer test. |
-| Production readiness | Not proven | Hosted/browser/provider gates remain open | Do not sell as production-ready |
+| Production deployment | PASS WITH LIMITATIONS | 2026-10-05: Vercel production app exists at https://cevanta-ai-receptionist.vercel.app/; production lead/customer persistence smokes accepted with limitations. Provider writers, billing, role-browser matrix, backup/restore and live pilot gates remain open. | Sell only as managed pilot after owner-approved boundary. |
 
 ## Sales demo go/no-go
 
@@ -124,15 +124,15 @@ These must be explicit before the action happens.
 
 | Action | Approval status | Approval evidence | Notes |
 | --- | --- | --- | --- |
-| Make scenario always-on activation | Not approved |  |  |
-| Retell webhook registration/change | Not approved |  |  |
+| Make scenario always-on activation | Not approved |  | Scenario remains inactive; do not activate if it can consume operations or process live calls without explicit owner approval. |
+| Retell webhook registration/change | Partially completed with limitations | 2026-10-05: Retell is pointed to Make for call analysis flow; Cevanta verifier endpoints exist. | Do not change to writer/live client behavior without approval. |
 | Twilio phone routing to Retell | Not approved |  |  |
 | Live test call | Not approved |  |  |
 | SMS send | Not approved |  |  |
 | Email send | Not approved |  |  |
 | Google Calendar create/update | Not approved |  |  |
-| Production Cevanta write from Make/Retell | Not approved |  |  |
-| Production deployment | Not approved |  |  |
+| Production Cevanta write from Make/Retell | Not approved |  | Make/Retell production endpoints are verifier-only; writer env remains gated. |
+| Production deployment | Approved/completed with limitations | 2026-10-05: Owner connected GitHub/Vercel and production app is live. | Does not approve paid credits, billing, Make always-on activation, provider writers, SMS/email/calendar writes or live client commitments. |
 
 ## Live pilot go/no-go
 
@@ -318,6 +318,9 @@ Date: 2026-10-05
 | --- | --- | --- | --- |
 | Vercel config | READY | 2026-10-05: `vercel.json` and `.vercelignore` added for Next.js production deployment. | Link project or repair CLI auth. |
 | Local release checks | PASS | 2026-10-05: `pnpm check` passed with typecheck, lint, 22 files / 747 tests, embedded DB suites, Retell lead-ingestion and production build. | Use this as the current release-candidate evidence. |
-| Vercel production URL | BLOCKED | No Git remote/linked Vercel project; CLI auth blocked by invalid saved token/current CLI auth failure. | Owner fixes Vercel login or connects Git repo. |
-| Supabase production redirects | BLOCKED | Needs final production URL first. | Add production URL, `/auth/callback` and `/auth/recovery` after deploy. |
-| Installable Windows/Android app | BLOCKED ON URL | App shell ready, but install testing needs HTTPS production URL. | Test install after deployment. |
+| Vercel production URL | PASS WITH LIMITATIONS | 2026-10-05: GitHub repo connected and Vercel production URL is https://cevanta-ai-receptionist.vercel.app/. | Continue only no-cost checks unless owner approves paid/provider actions. |
+| Supabase production redirects | PASS WITH LIMITATIONS | 2026-10-05: Production origin and auth callback/recovery URLs configured for Vercel and local support. | Keep testing confirmation/recovery emails with private owner-approved inboxes only. |
+| Installable Windows/Android app | READY TO TEST | HTTPS production URL exists and app shell is ready. | Test browser install on Windows/Android before promising app-store style installers. |
+
+
+

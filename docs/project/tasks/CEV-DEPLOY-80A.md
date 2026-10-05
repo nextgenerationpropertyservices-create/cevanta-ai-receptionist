@@ -1,18 +1,19 @@
 # CEV-DEPLOY-80A — Production deployment preparation
 
 Owner: Morgan — Product Manager and Orchestrator
-Status: blocked on Vercel authentication/linking
+Status: accepted with limitations
 Date: 2026-10-05
 
 ## Scope
 
-Prepare the Cevanta dashboard for production deployment on Vercel and attempt deployment if the connected project/authentication state allows it.
+Prepare the Cevanta dashboard for production deployment on Vercel and record the production candidate after the owner connected GitHub and Vercel.
 
 ## Dependencies
 
 - CEV-PACKAGE-79A installable app shell.
-- Hosted Supabase development/project settings already available.
-- Vercel account/team access.
+- Hosted Supabase project settings.
+- GitHub repository connected by owner.
+- Vercel project connected by owner.
 
 ## Allowed files
 
@@ -31,33 +32,30 @@ Prepare the Cevanta dashboard for production deployment on Vercel and attempt de
 
 - Production build configuration is recorded for Vercel. PASS.
 - Production environment variables are listed by name only; no secret values are stored. PASS.
-- Deployment blockers and exact owner action are recorded. PASS.
-- If Vercel CLI or connected project is usable, deploy production and record URL/status. BLOCKED.
-- If deployment is blocked by auth/linking, record that as a blocked external action rather than claiming deployment. PASS.
+- Deployment blockers and exact owner action are recorded when blocked. PASS for earlier blocked state.
+- If Vercel CLI or connected project is usable, deploy production and record URL/status. PASS by GitHub/Vercel connected deployment.
+- If deployment is blocked by auth/linking, record that as a blocked external action rather than claiming deployment. PASS for the earlier state; superseded after owner connected GitHub and Vercel.
 - Verification commands/results are recorded. PASS.
 
 ## Evidence
 
-- Vercel connector shows team `nextgenerationpropertyservices-1486's projects` but no linked Git projects.
-- Local Git has no remote repository configured.
-- `pnpm dlx vercel@latest --version` succeeded after approval and reported Vercel CLI 62.2.0.
-- `pnpm dlx vercel@latest whoami` failed because `@vercel/cli-auth` could not be resolved under the pnpm/Node runtime.
-- `pnpm dlx vercel@46.1.1 whoami` ran but reported an invalid saved token.
-- `pnpm dlx vercel@46.1.1 login nextgenerationpropertyservices@gmail.com` failed because Vercel disabled the legacy login flow.
-- `pnpm dlx --package vercel@latest --package @vercel/cli-auth vercel login` still failed to resolve `@vercel/cli-auth`.
-- `pnpm typecheck` PASS.
-- `pnpm lint` PASS.
-- `pnpm build` PASS with protected workspace routes included.
-- `pnpm check` PASS: typecheck, lint, 22 Vitest files / 747 tests, embedded database suites, Retell lead-ingestion embedded suite and production build.
+Earlier local Vercel CLI deployment was blocked by CLI auth/linking issues. The owner then connected GitHub and Vercel outside the local CLI path.
 
-## Current blocker
+Current production records:
 
-Production deployment is blocked until either:
+- GitHub repository: `https://github.com/nextgenerationpropertyservices-create/cevanta-ai-receptionist.git`
+- Vercel production URL: `https://cevanta-ai-receptionist.vercel.app/`
+- Vercel project: `cevanta-ai-receptionist`
+- Production Supabase Auth URL configuration was updated for the Vercel origin during the launch work.
+- Production sign-up/sign-in and authenticated workspace loading were owner-reported working.
+- CEV-LAUNCH-LIVE-82A accepted with limitations for production lead persistence smoke.
+- CEV-LAUNCH-LIVE-83A accepted with limitations for production customer persistence smoke.
+- Hosted Retell and Make verifier routes are configured in no-writer mode; signed fictional verifier requests were accepted and unsigned requests rejected.
 
-1. Vercel CLI login is repaired on this Windows machine, or
-2. The project is pushed to a GitHub/GitLab/Bitbucket repository that the connected Vercel team can access, or
-3. A valid Vercel token is provided through a secure local environment, not pasted into chat or source.
+Local verification before deployment included `pnpm check` passing with typecheck, lint, app tests, embedded database suites, Retell lead-ingestion embedded suite and production build. Hosted browser and provider checks are recorded in their later launch tasks and handoffs.
 
-## Limitations
+## Remaining limitations
 
-No production URL exists yet. Supabase Auth production redirect URLs cannot be completed until a production URL exists. No live Retell writer, SMS/email/calendar writer, billing or public client commitment was activated.
+Production deployment exists, but this does not make Cevanta a fully automatic live-client SaaS yet. The remaining gates are live-provider writer activation, Make scenario activation, Retell/Make/Cevanta writer review, SMS/email/calendar writes, billing, role-browser matrix, backup/restore/CI evidence and first-client approval boundaries.
+
+No payment flow was enabled by this task. No SMS/email/calendar writer, Make always-on activation, Retell production writer or live booking automation is accepted by this deployment record.

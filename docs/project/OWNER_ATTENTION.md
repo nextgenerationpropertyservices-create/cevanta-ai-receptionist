@@ -36,16 +36,19 @@ Cevanta can be sold as a managed AI receptionist pilot with office review. It sh
 Approve this first offer wording before any real sales call:
 
 “Cevanta is a managed AI receptionist pilot for HVAC businesses. It answers calls, captures service requests, and puts them into an office review flow. During the pilot, your office confirms appointments and customer messages before anything is finalized.”
-
-## Production deployment unblock
+## Current launch gates after production deployment
 
 Priority: High
-Why it matters: Cevanta cannot get a production URL, Supabase production Auth redirects, or Windows/Android install testing until Vercel can deploy this local project.
+Why it matters: The public Vercel app exists, but live client use still depends on provider and business gates.
 
-What happened: the app is ready from a code/build standpoint and `pnpm check` passed, but deployment is blocked because the local folder has no Git remote/linked Vercel project and the Vercel CLI login on this machine is broken by an invalid saved token plus current CLI auth failure.
+Current state: production app is deployed at `https://cevanta-ai-receptionist.vercel.app/`; owner production sign-in and limited fictional lead/customer persistence are accepted with limitations; Retell and Make bridge endpoints are in verifier-only no-writer mode.
 
-Ready action when you return: choose one unblock path:
+Do not complete without owner approval if it can charge money or contact/change a live external system:
 
-1. Log into Vercel successfully from this Windows machine, then I can run the deploy.
-2. Push this project to GitHub/GitLab/Bitbucket and connect it to Vercel.
-3. Add a valid Vercel token securely to the local environment without pasting it into chat/source.
+1. Add Retell credits or change billing/recharge settings.
+2. Activate Make as always-on for live calls.
+3. Enable Cevanta production writer envs for Make/Retell lead creation.
+4. Send SMS/email or create/update external calendar events.
+5. Enable billing/payments or sell a committed self-service plan.
+6. Run a live client pilot outside the managed office-review boundary.
+

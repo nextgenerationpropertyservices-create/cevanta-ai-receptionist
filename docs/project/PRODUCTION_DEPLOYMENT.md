@@ -40,15 +40,24 @@ These Vercel Production variables are configured:
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser Supabase client | Publishable browser key only; no service-role key was added. |
 | `APP_ORIGIN` | Auth redirect/callback origin | Set to `https://cevanta-ai-receptionist.vercel.app`. |
 
-These server-only/live-provider variables remain intentionally unset or unverified for this managed-pilot release:
+These server-only verifier variables are configured by name only. Secret values are not stored in source or docs:
+
+- `RETELL_INGRESS_PROTOTYPE`
+- `RETELL_INGRESS_PRODUCTION`
+- `RETELL_INGRESS_CONNECTION_ID`
+- `RETELL_INGRESS_TEST_SECRET`
+- `MAKE_RETELL_INGRESS_ENABLED`
+- `MAKE_RETELL_INGRESS_PRODUCTION`
+- `MAKE_RETELL_INGRESS_CONNECTION_ID`
+- `MAKE_RETELL_INGRESS_SECRET`
+
+These server-only/live-provider writer variables remain intentionally unset or unverified for this managed-pilot release:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `RETELL_INGRESS_PROTOTYPE`
-- `RETELL_INGRESS_TEST_SECRET`
 - `RETELL_INGRESS_LEAD_WRITER`
-- `RETELL_INGRESS_CONNECTION_ID`
+- `MAKE_RETELL_INGRESS_LEAD_WRITER`
 
-Do not add service-role or live writer secrets until the Retell writer path, tenant mapping, dedupe, logging and quality review are approved.
+Do not add service-role or live writer secrets until the Retell/Make writer path, tenant mapping, dedupe, logging and quality review are approved.
 
 ## Supabase production Auth settings
 
@@ -95,3 +104,4 @@ These checks remain before selling this as more than a managed pilot:
 4. Test setup save/reload, lead save/reload, job save/reload and calendar save/reload with fictional data.
 5. Confirm installable app behavior from Windows Edge/Chrome and Android Chrome.
 6. Keep Retell live writer, SMS/email/calendar external writes and billing disabled until separately approved.
+
