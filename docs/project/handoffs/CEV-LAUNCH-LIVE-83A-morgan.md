@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-LAUNCH-LIVE-83A
+- Work completed: Created one clearly fictional customer in the hosted production app and reloaded the Customers page to confirm persistence.
+- Files changed: `docs/project/tasks/CEV-LAUNCH-LIVE-83A.md`; `docs/project/handoffs/CEV-LAUNCH-LIVE-83A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: One fictional production customer record was created through the app UI: `Fictional Launch Smoke Customer 2026-10-05`, email `customer-smoke@example.test`, phone `5550100200`, notes `Fictional production launch smoke test customer. No real customer.`
+- Hosted configuration changes: None.
+- API or contract changes: None.
+- Verification commands and results: Production Customers page loaded for owner Heath Herrick. Customer creation returned `Saved successfully`; customer count changed to 1. After page reload, `Fictional Launch Smoke Customer 2026-10-05` remained visible and no console errors were reported.
+- Known limitations: This proves one hosted authenticated customer create/read path only. It does not prove customer detail edit, service locations, equipment, jobs/calendar persistence, multiuser isolation, install prompt behavior, or live Retell/Make/Twilio writer flows.
+- Risks: The fictional customer is intentionally left in production as launch evidence. Remove it later only with owner approval because deletion is a production data change.
+- Rollback notes: Delete the fictional customer from the production UI or database only after owner approval.
+- Exact next action: Test one hosted job or calendar create/reload flow with fictional data, then test Windows/Android install behavior.
