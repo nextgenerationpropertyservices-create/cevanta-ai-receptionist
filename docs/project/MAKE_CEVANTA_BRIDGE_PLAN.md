@@ -4,23 +4,24 @@ Date: 2026-10-05
 
 ## Current state
 
-Retell agent `agent_a9182cc8117ac588f68bc52a3d` still sends analyzed-call events to Make. The newest safe receiver scenario is Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`. It is inactive and currently:
+Retell agent `agent_a9182cc8117ac588f68bc52a3d` sends analyzed-call events to Make. The safe receiver scenario is Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`. It is inactive and currently:
 
 - Receives Retell webhook events.
 - Ignores non-`call_analyzed` events.
 - Checks the Make data store for an existing record by `call.call_id`.
 - Creates one safe office-review record only when the call ID is new.
 - Returns duplicate acknowledgement when the call ID already exists.
+- Has Make canvas note `353828` attached to the create/response section explaining the future Cevanta bridge step.
 
-Cevanta now has a production-deployed bridge endpoint at:
+Cevanta has a production bridge endpoint at:
 
 `POST https://cevanta-ai-receptionist.vercel.app/api/integrations/make/retell-lead`
 
-It is live and disabled by default.
+Production verifier mode is enabled and writer mode is off. Signed fictional requests return `verified_not_persisted`; unsigned requests are rejected. No lead, booking, SMS, email or calendar write is created while writer mode stays off.
 
 ## Safe Cevanta payload from Make
 
-When the Make bridge is enabled, Make should send only this minimal JSON shape after the duplicate check succeeds and before returning the normal success response:
+When the Make bridge is wired, Make should send only this minimal JSON shape after the duplicate check succeeds and before returning the normal success response:
 
 ```json
 {
@@ -46,8 +47,8 @@ Do not send transcripts, recordings, raw provider payloads, webhook URLs, secret
 - `Content-Type: application/json`
 - `x-cevanta-make-signature: v=<unix-ms>,d=<hmac-sha256(rawBody + timestamp)>`
 
-The signing secret must be stored only in Vercel and Make, never in source or docs.
+The signing secret must be stored only in Vercel and Make, never in source, docs, screenshots or chat messages.
 
-## Remaining approval gate
+## Remaining gate
 
-Before hosted signed testing, Morgan needs owner approval to create and store a new Make bridge secret in Vercel Production and later in Make. The first hosted test should keep `MAKE_RETELL_INGRESS_LEAD_WRITER` unset so the route returns `verified_not_persisted`. Writer mode should only be enabled after the signed hosted test passes and the Make scenario patch is ready.
+The route is ready for verifier-only Make testing, but the private bridge secret still needs a safe entry path into Make. Do not paste the secret into docs or source. Do not activate the scenario as always-on and do not enable `MAKE_RETELL_INGRESS_LEAD_WRITER` until Quinn review and owner approval for live production writes.
