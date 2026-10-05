@@ -9,3 +9,5 @@
 - Risks: Enabling both direct Retell writer and Make writer can duplicate processing if identities diverge; this route deliberately uses the same `call_analyzed:{call_id}` identity to reduce that risk. Make must sign the exact outgoing body. Do not paste private webhook URLs, secrets, transcripts or recordings into docs.
 - Rollback notes: Leave `MAKE_RETELL_INGRESS_ENABLED`, `MAKE_RETELL_INGRESS_PRODUCTION` or `MAKE_RETELL_INGRESS_LEAD_WRITER` unset to keep it disabled. To remove the route, revert this commit; no database rollback is required.
 - Exact next action: Add production Vercel environment values for the Make bridge, redeploy, verify signed fictional production payload in verifier-only mode, then patch the Make scenario to call the endpoint only after a successful Retell analyzed-call path.
+
+Hosted follow-up: after commit `b3f395a` deployed from GitHub, production `POST /api/integrations/make/retell-lead` returned HTTP404 JSON `status:"disabled"`, `persisted:false`, `bookingCreated:false`. This confirms the route is live and closed by default before any Make secret or writer settings are added.
