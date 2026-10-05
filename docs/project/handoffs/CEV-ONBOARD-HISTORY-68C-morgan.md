@@ -1,0 +1,23 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-HISTORY-68C
+- Work completed: Morgan reviewed and accepted Atlas's documentation-only owner/admin retained setup history and re-enable API contract with limitations. The contract defines future owner/admin history reads, paging/cursors, filters, item shapes, safe errors, private contact rules, and re-enable lock/replay behavior for disabled services, disabled escalation contacts and inactive date exceptions.
+- Files changed:
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68C.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-ONBOARD-HISTORY-68C-morgan.md
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68D.md
+- Database changes: None by Morgan or Atlas for 68C.
+- API or contract changes: Documentation-only API contract accepted. No runtime API exists yet.
+- Verification commands and results:
+  - Morgan review: PASS for owner/admin-only history boundaries, cursor/privacy constraints, re-enable compare-and-swap/replay requirements, safe error handling and follow-up task split.
+  - Atlas documentation validation: PASS for required sections, required API-contract terms, handoff fields and ASCII.
+  - Runtime checks were not run for this documentation-only acceptance.
+- Known limitations:
+  - No backend API, UI panel, SQL test, browser evidence, live Supabase Auth/JWT/PostgREST, hosted refresh, provider behavior or production deployment was implemented or verified.
+- Risks:
+  - Future implementation must avoid private retained contact leakage through role projections, cursors, logs or fixtures.
+  - Re-enable implementation must preserve tenant-scoped row ownership and LOCK60 request/replay behavior.
+- Rollback notes: Remove docs/architecture/ONBOARDING_HISTORY_API_CONTRACT.md and these 68C acceptance/status updates if the contract is replaced.
+- Exact next action: Blake owns CEV-ONBOARD-HISTORY-68D for backend implementation of the accepted history/re-enable APIs, with Atlas and Quinn reviews required before Morgan acceptance.

@@ -1,0 +1,36 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65A
+- Work completed: Added a backend-only onboarding settings Server Action for tenant name, trade and timezone alignment. The action delegates to the accepted `save_business_profile` onboarding RPC path, so validation, authenticated session lookup, owner/admin membership enforcement, current `config_revision` compare-and-swap, replay, request-reuse and safe failure semantics stay on the Atlas-approved command contract. The action requires the preserved business contact fields in the submitted reviewed payload, so a future UI cannot omit them and silently clear contact data. It revalidates the workspace layout only after confirmed saved or replayed setup results and keeps confirmed copy if revalidation itself fails.
+- Files changed:
+  - `src/app/actions/onboarding-settings.ts`
+  - `tests/onboarding-settings.test.ts`
+  - `docs/project/handoffs/CEV-ONBOARD-SETTINGS-65A-blake.md`
+- Database changes: None. No migrations, hosted writes, SQL tests or schema changes were made.
+- API or contract changes: Added a new server action export, `saveOnboardingSettings(input)`, for future UI wiring. Input intentionally uses the existing onboarding `save_business_profile` shape: `tenant_id`, `request_id`, `expected_config_revision`, and a payload with `name`, `trade`, `timezone`, `business_contact_name`, `business_email`, and `business_phone`. The contact fields are preservation fields from the reviewed snapshot, not new settings edits. No shared contract files were changed.
+- Verification commands and results:
+  - `pnpm test -- tests/onboarding-settings.test.ts` PASS. The script ran the full Vitest suite under native config loading: 14 files, 627 tests passed, including 27 new onboarding settings tests.
+  - `pnpm typecheck` PASS.
+  - `pnpm lint` PASS.
+  - `pnpm check` PASS: typecheck, lint, 627 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage SQL, embedded onboarding command SQL, and Next production build all passed.
+- Meaningful coverage:
+  - Owner and admin successful settings saves through ordinary authenticated onboarding RPC behavior.
+  - Dispatcher, technician and viewer denial before mutation.
+  - Missing or failed verified identity denial without private error leakage.
+  - Invalid name, trade, timezone, unknown fields and invalid revision shape rejected before session or RPC.
+  - Preserved contact fields required; omission returns validation failure before auth/RPC.
+  - Stale revision, request reuse, version exhaustion, unavailable and retryable outcomes preserved without revalidation.
+  - Current no-op and same-request replay outcomes accepted from the locked RPC and revalidated.
+  - Corrupt RPC results fail closed.
+  - Confirmed save remains confirmed when workspace revalidation fails.
+  - Framework control-flow exceptions are rethrown.
+  - Missing Supabase configuration and gateway errors map to safe retryable semantics.
+- Known limitations:
+  - No UI is wired yet by task scope. Future Nova wiring must pass preserved contact values from an authorized reviewed snapshot with the same `expected_config_revision`.
+  - This task does not retire or modify the legacy `updateTenantSettings` action. Morgan must assign ownership before that path can be replaced or redirected.
+  - Local mocks and embedded SQL evidence do not prove live Supabase Auth/JWT/PostgREST behavior, hosted migration state, genuine multi-connection concurrency, rendered Server Action HTTP behavior, or browser save/reload behavior.
+  - The Supabase changelog markdown endpoint could not be fetched by the available web tool in this session; implementation relied on accepted Atlas contracts and installed project code.
+- Risks:
+  - If a future UI fetches current contact fields inside the submit path instead of using the reviewed snapshot, it could reintroduce silent stale rebasing. The new action is shaped to avoid that, but UI wiring must honor it.
+  - Until the legacy settings writer is transferred and aligned or retired, two settings paths can still exist. Existing schema triggers should continue revision invalidation, but retry/receipt semantics are only on the new onboarding settings action.
+- Rollback notes: Remove `src/app/actions/onboarding-settings.ts`, `tests/onboarding-settings.test.ts`, and this handoff. No database rollback is required.
+- Exact next action: Quinn reviews CEV-ONBOARD-SETTINGS-65A for security and cross-module behavior. After Quinn review, Morgan decides whether to accept this backend slice and when to assign Nova/Blake ownership for UI wiring and legacy settings replacement.

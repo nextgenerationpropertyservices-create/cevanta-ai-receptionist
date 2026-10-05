@@ -1,0 +1,11 @@
+# Quinn customer/contact quality review
+- Task ID: CEV-CRM-02.
+- Work completed: APPROVED source/security and embedded scope for coordinator integration. Reviewed customer/contact edits and create-contact interface, same-tenant full contact parent chain, office roles, field stripping and safe zero-row/error handling. Reviewed prefilling, connected actions and read-only gating; existing location/equipment flows retained.
+- Files changed: tests/security.test.ts; this handoff. Application/SQL/UI inspected read-only.
+- Database changes: None.
+- API or contract changes: None by Quinn. Reviewed updateCustomer/updateContact interfaces using existing schemas and restricted business-column grants.
+- Verification commands and results: node node_modules/vitest/vitest.mjs run tests/security.test.ts --configLoader native PASS 146 tests; node scripts/test-db-embedded.mjs PASS all current migrations, fictional seed and real RLS/role/parent/identity/atomic-audit assertions; node node_modules/typescript/bin/tsc --noEmit PASS; node node_modules/eslint/bin/eslint.js tests/security.test.ts PASS. New regression cases cover auth/setup, member failures and roles, malformed/missing IDs, invalid fields, cross-parent denial, office success, hostile identity fields, absent/racing/error updates and create-contact trusted parent. Reviewed paths have no ordinary service-role client, credentials or real fixtures; generic errors suppress provider details.
+- Known limitations: Function tests mock transport; SQL uses disposable PGlite Auth compatibility rather than live JWT/PostgREST. No authenticated browser persistence check performed by Quinn. Coordinator owns global build/lint/browser and release acceptance.
+- Risks: No blocking source defect found. Hosted live multiuser and authenticated customer/contact saves remain acceptance requirements.
+- Rollback notes: Revert added test block and this handoff to undo verification-only changes. No migration or deployed data change by Quinn.
+- Exact next action: Morgan integrate global checks and safe browser coverage, record hosted/authenticated limits and decide acceptance from evidence.

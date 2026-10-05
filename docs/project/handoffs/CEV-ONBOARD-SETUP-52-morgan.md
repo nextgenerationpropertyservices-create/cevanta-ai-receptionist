@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETUP-52.
+- Work completed: Morgan accepted Nova's services and weekly-hours Setup editors with limitations after Quinn independent source/security review. Owners/admins now have UI controls for services and weekly hours using accepted onboarding configuration actions; limited roles remain read-only.
+- Files changed: src/app/workspaces/[tenantId]/onboarding/page.tsx; src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx; src/app/globals.css; tests/onboarding-ui.test.ts; docs/project/handoffs/CEV-ONBOARD-SETUP-52-nova.md; docs/project/handoffs/CEV-ONBOARD-SETUP-52-quinn.md; docs/project/handoffs/CEV-ONBOARD-SETUP-52-morgan.md; docs/project/tasks/CEV-ONBOARD-SETUP-52.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md.
+- Database changes: None. UI calls existing accepted RPC/backend actions.
+- API or contract changes: None.
+- Verification commands and results: Morgan ran `pnpm check` PASS exit0. Quinn independently ran `pnpm check` PASS exit0. Evidence includes typecheck, lint, 574 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage/onboarding command SQL suites and production build.
+- Known limitations: Authenticated browser save/reload for services/hours, mounted retry/duplicate/conflict/rebase/refresh-failure behavior, mobile/keyboard runtime checks, actual Server Action oversize/Origin/logging checks, live Supabase Auth/JWT/PostgREST, genuine concurrency, hosted migration/advisors, providers and production remain unverified.
+- Risks: Multiple setup sections share one revision; users must review refreshed data before saving another section. Attempt identity is memory-only. Source checks do not prove persisted runtime behavior.
+- Rollback notes: Remove services/hours editor integrations, scoped CSS and tests from Nova-owned files if needed. No data rollback.
+- Exact next action: Assign booking preferences and escalation contacts editor slice, then keep credentialed browser/live HTTP gates visible.

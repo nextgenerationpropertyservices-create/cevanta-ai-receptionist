@@ -1,0 +1,21 @@
+# Agent handoff
+- Task ID: CEV-PILOT-DEMO-69B
+- Work completed: Created first-client demo preparation documents for a managed pilot sales walkthrough without live provider or production claims.
+- Files changed:
+  - docs/project/tasks/CEV-PILOT-DEMO-69B.md
+  - docs/business/FIRST_CLIENT_DEMO_SCRIPT.md
+  - docs/project/PILOT_LOCAL_WALKTHROUGH.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-PILOT-DEMO-69B-morgan.md
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results:
+  - Documentation inspection PASS: demo script includes managed-pilot promise, prohibited claims, fictional company/caller, 10-minute flow, discovery questions and demo stop rules.
+  - Documentation inspection PASS: walkthrough checklist includes local setup checks, Setup/Onboarding, Settings, role privacy, CRM/work management, voice/Make dry-run readiness, evidence capture, non-closed gates and go/no-go rules.
+  - Runtime checks were not run because this task is documentation-only.
+- Known limitations: These documents do not prove app browser behavior, hosted Supabase behavior, Make/Retell live behavior, SMS/email/calendar automation, or production readiness.
+- Risks: Demo language must stay aligned with accepted evidence. Do not use this to claim production readiness or live provider automation until those gates pass.
+- Rollback notes: Remove the new demo/walkthrough documents and revert status/backlog/context updates if a different sales demo package replaces them.
+- Exact next action: Run the local walkthrough with fictional data when the owner is ready, then prepare Make/Retell fictional dry-run evidence.

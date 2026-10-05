@@ -1,0 +1,12 @@
+# Isolated Make runtime check
+- Task ID: CEV-MAKE-20.
+- Owner: Morgan browser test; Quinn independent evidence review.
+- Scope: Test only private simulation scenario6495889 with fictional call_id; record owner-approved 60-minute appointment duration. No parent execution or changes, no activation, external writers, real calls/messages/bookings.
+- Dependencies: Task18 construction and task19 offline contract accepted. Owner explicitly chose 1hr in chat.
+- Allowed files: Morgan this task, docs/project/PROJECT_STATUS.md and docs/project/handoffs/CEV-MAKE-20-morgan.md and CEV-MAKE-20.png; Quinn docs/project/handoffs/CEV-MAKE-20-quinn.md. Morgan may run the two-module private stub manually only after fresh graph inspection; no adding modules or granting access.
+- Acceptance: Inspect Start2 → Return3 only, run supplied fictional call_id twice if current UI supports inactive manual execution, verify unchanged ID/Boolean simulation true/status simulated_not_persisted; leave inactive. Missing-input test if supported without changing schema. Safe proof and independent review. Report unsupported runtime path without activating or calling parent.
+- Evidence: Prior reviewed construction, fresh inspected graph, output inspection, safe screenshot; no app code checks needed unless scope changes.
+- Approved business policy: Appointment duration 60 minutes, owner response 1hr. Actual extraction format/timezone/provenance/availability/dedupe remain gates.
+- State: accepted limited isolated simulation runtime, independently reviewed by Quinn. Operational integration remains open.
+- Evidence: Two manual fictional runs returned exact expected JSON including Boolean true. Missing input rejected in UI; scenario left inactive. CEV-MAKE-20.png and Morgan handoff saved.
+- Next: Quinn reviews runtime evidence; retain every parent blocker. Actual Retell datetime and booking integration remain separate.

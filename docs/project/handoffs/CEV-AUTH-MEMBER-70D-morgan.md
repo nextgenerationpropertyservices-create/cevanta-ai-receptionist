@@ -1,0 +1,17 @@
+# Agent handoff
+- Task ID: CEV-AUTH-MEMBER-70D
+- Work completed: Attempted to invite `jhherrick80@gmail.com`; Supabase returned `email rate limit exceeded`. As a fallback, provisioned existing Auth user `nextgenerationpropertyservices@gmail.com` as owner for the fictional Cevanta Demo HVAC workspace.
+- Files changed:
+  - `docs/project/tasks/CEV-AUTH-MEMBER-70D.md`
+  - `docs/project/handoffs/CEV-AUTH-MEMBER-70D-morgan.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/BACKLOG.md`
+  - `context/NEXT_TASK.md`
+- Database changes: Hosted development Supabase `public.memberships` now includes or already included (`on conflict do nothing`) tenant `10000000-0000-4000-8000-000000000001`, user `dea739e1-2fb9-44a3-8605-b5b7565effb5`, role `owner`.
+- API or contract changes: None.
+- Verification commands and results: Supabase SQL Editor returned one row with the expected tenant ID, user ID and role `owner`.
+- Known limitations: Invite email for `jhherrick80@gmail.com` remains blocked by Supabase email rate limiting. Actual local sign-in and backend journey testing remain pending.
+- Risks: This grants owner access to the demo workspace for the existing business email. This is development access setup, not production user onboarding.
+- Rollback notes: Delete only the exact membership row for the listed tenant/user if access should be revoked.
+- Exact next action: Sign in locally with `nextgenerationpropertyservices@gmail.com`, then open the demo workspace and test backend flows.

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-AUTH-03
+- Work completed: Reviewed safe sign-in diagnostics; added actual-action category, sanitization, failure and successful-redirect tests.
+- Files changed: tests/security.test.ts; docs/project/AUTH_SIGNIN_REVIEW.md; this handoff.
+- Database changes: None.
+- API or contract changes: No shared contract changes; fixed actionable error messages reviewed.
+- Verification commands and results: `node node_modules/vitest/vitest.mjs run tests/security.test.ts` — 54 tests passed, exit 0, with approved escalation after sandbox esbuild resolution failed.
+- Known limitations: Mocked provider tests do not establish hosted Auth success, JWT/RLS isolation or browser acceptance. Full checks are coordinator-owned.
+- Risks: Unknown errors remain generic; safe categories cannot diagnose every provider/network failure.
+- Rollback notes: Restore the preceding sign-in tests and action together; no database rollback.
+- Exact next action: Coordinator complete type/lint/build checks and diagnose live sign-in without extracting user credentials.

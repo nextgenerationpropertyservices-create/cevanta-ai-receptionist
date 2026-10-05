@@ -1,0 +1,25 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65B
+- Work completed: Updated workspace Settings so owner/admin editing uses the accepted `saveOnboardingSettings` path with the reviewed onboarding snapshot revision and preserved business contact fields. The Settings page avoids the legacy writer when an owner/admin snapshot is unavailable and shows a safe retry/unavailable state instead. Dispatcher, technician and viewer access remains read-only. The client form keeps typed values visible on validation, conflict and retryable outcomes, retries uncertain saves with the same frozen request, and requires refresh/review after saved, replayed, conflict or unavailable results. Product copy keeps provider, live booking and production gates pending.
+- Files changed:
+  - `src/app/workspaces/[tenantId]/settings/page.tsx`
+  - `src/app/workspaces/[tenantId]/settings/settings-form.tsx`
+  - `tests/settings-ui.test.ts`
+  - `docs/project/handoffs/CEV-ONBOARD-SETTINGS-65B-nova.md`
+- Database changes: None.
+- API or contract changes: None. The UI consumes the accepted `saveOnboardingSettings(input)` action from CEV-ONBOARD-SETTINGS-65A. Submitted input uses `tenant_id`, a fresh `request_id` for a new save, `expected_config_revision`, and payload fields `name`, `trade`, `timezone`, `business_contact_name`, `business_email`, and `business_phone`.
+- Verification commands and results:
+  - `pnpm test -- tests/settings-ui.test.ts` PASS. The repo script ran 635 Vitest tests, including 8 new Settings UI tests covering owner/admin snapshot action shape and contact preservation, limited-role read-only state, unavailable snapshot safe state, conflict/retryable copy, internal field leakage and no legacy settings export usage.
+  - `pnpm typecheck` PASS.
+  - `pnpm lint` PASS.
+  - `pnpm check` PASS: typecheck, lint, 635 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage/onboarding command database suites and production `next build`.
+  - Nonfatal existing warning: Vitest reports `MODULE_TYPELESS_PACKAGE_JSON` for `vitest.config.ts`; this was unchanged by this task.
+- Known limitations:
+  - No authenticated browser save/reload or limited-role browser session check was run.
+  - No live Supabase Auth/JWT/PostgREST, hosted database, hosted advisor, genuine multi-connection concurrency, rendered Server Action HTTP boundary, provider, invitation, production or deployment behavior was verified.
+  - The legacy `updateTenantSettings` action still exists outside this task's ownership; this task only removes it from the assigned Settings UI.
+- Risks:
+  - Runtime behavior still needs Quinn review and future browser evidence with fictional authenticated users.
+  - If a confirmed save refreshes but the server page does not return a fresh snapshot, the form correctly blocks another save until review, but the exact runtime user path still needs browser verification.
+- Rollback notes: Revert the four changed files above to return Settings to the previous legacy form and remove the focused Settings UI tests/handoff.
+- Exact next action: Quinn reviews CEV-ONBOARD-SETTINGS-65B for security/cross-module behavior, including the owner/admin action input shape, limited-role privacy, conflict/retry copy, internal-field exposure and absence of legacy Settings writer use in the UI.

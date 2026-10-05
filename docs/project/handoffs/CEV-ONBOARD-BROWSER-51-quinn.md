@@ -1,0 +1,37 @@
+# Agent handoff — Quinn rendered Setup browser checks
+
+- Task ID: CEV-ONBOARD-BROWSER-51. Date: 2026-10-04.
+- Owner: Quinn independent browser/security verification; Morgan acceptance, Nova retains implementation ownership. Confirmed scope, dependencies, allowed files, criteria and evidence. Disjoint writes/no commit; no source/backend/config/package/migration edits.
+- Decision: **PASS WITH LIMITATIONS for test delivery and executed anonymous behavior.** Authenticated persistence, role/browser privacy and actual oversized-action HTTP acceptance remain unverified; skipped tests do not satisfy those criteria.
+- Work completed/files reviewed: AGENTS/collaboration/project rules; task51; Nova50/Quinn50 and accepted backend48/transport49 handoffs; Playwright config, foundation spec and Setup UI files. Added seven cases with existing privacy configuration: anonymous protection/390px; owner and admin fictional contact save/reload/pending copy; dispatcher/technician/viewer no controls/private fields/390px; explicit blocked oversized-action case. Credential-dependent skips declared before page fixtures start.
+- Files changed: tests/e2e/onboarding.spec.ts; this handoff only.
+- Database/API changes: None. No authenticated data mutation executed. Future enabled owner/admin tests change only an optional synthetic business contact name in a disposable tenant, retaining current authoritative name/trade/timezone. No provider/external effects.
+
+## Privacy and test coverage
+
+- Uses existing E2E_EMAIL/E2E_PASSWORD for disposable owner; E2E_ADMIN_EMAIL/PASSWORD and E2E_DISPATCHER/TECHNICIAN/VIEWER_EMAIL/PASSWORD for separate roles; shared E2E_TENANT_ID and explicit E2E_AUTHENTICATED=1 required. Environment inventory reported presence booleans only; none were available. Never read private configuration values into evidence or borrow owner cookies.
+- Authenticated operations wrapped with sanitized failures so Playwright call logs/field values cannot enter reports. Assertions return booleans, not account/page values. No storageState, cookies/tokens, attachments, screenshots, traces or video. Existing config keeps those captures off. No page-body dump, console/network payload recording or synthetic token printing.
+- Anonymous automated case navigates the actual protected Setup route, waits for allowed sign-in/setup destination, verifies no profile mutation/contact controls, and measures document overflow at390x844. It covers the anonymous destination page layout, not an authenticated Setup layout.
+- Owner/admin cases require actual visible editor, pending readiness, no activation buttons, safe main-content metadata and narrow viewport; save unique fictional contact through rendered action then reload/value equality. Limited roles require actual approved heading before negative controls/contacts assertions; no incomplete navigation treated as denial.
+- Main-content scan catches internal metadata labels/sentinels, but is not comprehensive RSC/cache/network/private-data testing. No arbitrary action ID/header guessed. Browser methods do not log private submitted fields; unauthorized temporary endpoint not added.
+
+## Commands/results
+
+- Initial safe loopback probe: preview absent, ECONNREFUSED. Started task-owned production preview with `node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000`; ready. No dev screenshot/telemetry captures. Stopped that exact exec session using Ctrl-C after browser checks; intentional interrupted server exit1 is cleanup, not a verification failure.
+- First Playwright run: failed before page execution because bundled chromium_headless_shell executable was missing. No app/security defect inferred; authenticated cases initially reached fixture launch before their skips. Moved conditional skips to describe scope so unavailable credentials skip before browser setup.
+- Final run: set process-only E2E_CHROMIUM_PATH to installed `C:\Program Files\Google\Chrome\Application\chrome.exe`; `node node_modules/@playwright/test/cli.js test tests/e2e/onboarding.spec.ts` — **PASS exit0:1 passed,6 skipped**, clean runner completion. Used fresh isolated browser contexts; no stored user session.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false` and focused ESLint of new spec — PASS exit0 after final changes.
+- `pnpm check` — PASS exit0: global typecheck/lint/unit tests, all six registered embedded database suites and production build including onboarding route. Existing module-type warning only. Unit/SQL passes do not execute Playwright credential-dependent flows.
+- Ancillary Node fetch did not follow the browser's client redirect and retained requested pathname; this is not redirect evidence. The passed actual browser wait/assertion is the anonymous-protection evidence.
+
+## Skipped checks and exact blockers
+
+- Owner/admin save/reload and all three limited-role browser cases **SKIPPED**: no explicitly enabled disposable credentials/tenant available. No live JWT/PostgREST or authenticated Setup mobile/persistence/privacy outcome claimed.
+- Actual oversized Server Action **SKIPPED/OPEN**: requires approved fictional authenticated session and a harness observing the real rendered submit request/action reference, with bounded synthetic oversized body, safe response/UI/log checks and independent proof action/RPC/database did not mutate. Browser UI currently validates fields before submission; huge invalid input through normal form would prove client rejection only. No guessed private Next-Action ID or owner credential extraction allowed.
+- Next harness assignment needs exact allowed transport-test paths and agreed raw boundary: current global1MiB versus128KiB parsed/onboarding requirement remain distinct. Observe actual multipart/React overhead, Origin/Host handling, safe production/development errors and platform logging. No hosted proxy/admission claims from local source tests.
+- NOT RUN: full authenticated two-tenant role/direct API journey, actual browser retry/conflict/refresh-failure transitions, keyboard/screen-reader/contrast review, genuine multi-connection SQL races, hosted CI/restore/advisors, providers/delivery/new-account/continuation/deployment. New spec intentionally exposes these missing prerequisites rather than treating skips as passes.
+- No blocking UI defect reproduced within anonymous scope. Screenshot/trace/video files not created. Initial launch failures may create ignored generic error-context artifacts; no authenticated page or credentials were loaded, and no private evidence was captured.
+
+- Risks: Conditional tests remain unexecuted without approved identities; missing browser bundle requires configured installed executable; metadata regex cannot certify full network privacy; lost response/action overhead/host logs remain untested. Persistent synthetic tests require a disposable workspace to avoid changing business contacts.
+- Rollback notes: Remove only this assigned spec if needed; no app/data/config rollback. Loopback task server stopped. Preserve UI/backend/database guards and never weaken expected authorization to make an authenticated run pass.
+- Exact next action: Morgan accepts test delivery/anonymous evidence only, supplies separately authorized disposable role sessions and tenant prerequisites for gated runs, and assigns rendered action transport/no-mutation/logging harness ownership. Nova receives a scoped fix task only after a reproduced defect. Complete browser/HTTP/full-onboarding acceptance remains open.

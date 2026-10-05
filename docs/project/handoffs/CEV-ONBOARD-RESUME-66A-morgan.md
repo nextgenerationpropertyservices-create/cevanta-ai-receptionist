@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-RESUME-66A.
+- Work completed: Morgan accepted the persisted onboarding resume UI after Nova implementation, Morgan follow-up fix and Quinn PASS WITH LIMITATIONS review. Owner/admin users can save their own Setup resume point through the accepted saveOnboardingProgress action. The UI treats it only as a progress marker and does not change setup readiness, providers, invitations, accounts or production gates.
+- Files changed: docs/project/tasks/CEV-ONBOARD-RESUME-66A.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-RESUME-66A-morgan.md.
+- Database changes: None.
+- API or contract changes: No new backend contract. UI consumes existing saveOnboardingProgress and ResumeInput.
+- Verification commands and results: Nova and Quinn reported pnpm test -- tests/onboarding-ui.test.ts PASS and pnpm check PASS with typecheck, lint, 647 Vitest tests, embedded SQL suites and production build. Morgan reviewed implementation, requested an unavailable-state review fix, and reviewed the corrected result.
+- Known limitations: No authenticated browser save/reload, live Supabase Auth/JWT/PostgREST, genuine concurrency, hosted advisors, rendered HTTP boundary, provider, invitation or production evidence.
+- Risks: Runtime stale-tab/lost-response behavior still needs disposable browser evidence. Confirmed save followed by unavailable refreshed snapshot leaves the UI blocked until refresh/reopen, which is conservative and needs browser verification.
+- Rollback notes: Revert onboarding page/form/tests and RESUME66A handoffs to remove the resume-point UI. No database rollback required.
+- Exact next action: Assign date-specific hours exception UI using existing accepted exception commands, then Quinn review.

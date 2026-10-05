@@ -1,0 +1,24 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-EXCEPTIONS-67A
+- Work completed: Morgan reviewed Nova's implementation handoff and Quinn's independent PASS WITH LIMITATIONS review, then accepted the scoped date-specific hours exception UI with the recorded limitations. The accepted scope is owner/admin local-date office-hours exception editing only. It does not prove browser/runtime behavior, hosted Supabase Auth/JWT/PostgREST behavior, real multi-session concurrency, provider/calendar sync, appointment booking, production readiness, or deployment.
+- Files changed:
+  - docs/project/tasks/CEV-ONBOARD-EXCEPTIONS-67A.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-ONBOARD-EXCEPTIONS-67A-morgan.md
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68A.md
+- Database changes: None by Morgan. The accepted implementation used existing accepted onboarding configuration commands only.
+- API or contract changes: None by Morgan.
+- Verification commands and results:
+  - Quinn reported `pnpm test -- tests/onboarding-ui.test.ts` PASS, exit 0, with 660 Vitest tests total and 79 onboarding UI tests.
+  - Quinn reported `pnpm check` PASS, exit 0, covering typecheck, lint, Vitest, embedded database suites and production build.
+  - Morgan performed document/status acceptance updates only and did not rerun checks after those documentation edits.
+- Known limitations:
+  - Authenticated browser save/reload, real Server Action transport behavior, hosted Supabase Auth/JWT/PostgREST, genuine concurrency, hosted migrations/advisors, provider/calendar behavior and production deployment remain unverified.
+  - The local review does not prove live Retell, Make, Twilio, Google Calendar or Supabase-hosted behavior.
+- Risks:
+  - Browser-only defects could still affect retry, refresh/review, hydration, keyboard access, narrow layout or runtime payload behavior.
+  - Future work must keep date-specific hours exceptions separate from bookings, calendar sync, provider connection and production readiness.
+- Rollback notes: Revert Nova's CEV-ONBOARD-EXCEPTIONS-67A UI/test changes and remove these acceptance/status updates if a later browser or hosted defect requires rollback.
+- Exact next action: Atlas owns CEV-ONBOARD-HISTORY-68A to design retained onboarding history and bounded projections before implementation work expands the configuration editors.

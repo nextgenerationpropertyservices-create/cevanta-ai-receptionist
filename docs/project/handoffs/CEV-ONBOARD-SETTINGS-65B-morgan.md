@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65B.
+- Work completed: Morgan accepted the Settings UI wiring slice after Nova implementation and Quinn PASS WITH LIMITATIONS review. The accepted UI uses the reviewed onboarding owner/admin snapshot, saves through saveOnboardingSettings, preserves contact fields, avoids the legacy writer when the snapshot is unavailable, keeps limited roles read-only and keeps provider/live booking/production gates pending.
+- Files changed: docs/project/tasks/CEV-ONBOARD-SETTINGS-65B.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-SETTINGS-65B-morgan.md.
+- Database changes: None.
+- API or contract changes: No new runtime contract beyond consuming the accepted SETTINGS65A server action. No migration, provider, hosted or production behavior accepted.
+- Verification commands and results: Nova and Quinn each reported pnpm test -- tests/settings-ui.test.ts PASS and pnpm check PASS with typecheck, lint, 635 Vitest tests, embedded SQL suites and production build. Morgan reviewed the Settings page/form/tests and Quinn review.
+- Known limitations: No authenticated browser save/reload, RSC/network privacy inspection, genuine concurrency, live Supabase Auth/JWT/PostgREST, hosted advisors, provider, invitation or production evidence. Legacy updateTenantSettings backend export still exists outside this UI slice.
+- Risks: Contact preservation fields are passed as client props for backend preservation; browser/RSC network privacy needs later disposable-session review. Runtime stale-tab behavior still needs browser evidence.
+- Rollback notes: Revert Settings page/form/tests and handoffs if rejected. No database rollback required.
+- Exact next action: Assign backend cleanup to retire or safely block the legacy updateTenantSettings writer, then Quinn review.

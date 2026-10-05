@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-RPC-46.
+- Work completed: Morgan recovery only. Atlas began a guarded onboarding command migration but hit a usage limit before completion. The partial SQL file was moved out of active migrations so durable project checks do not execute incomplete database code. After quarantine, `pnpm check` passed.
+- Files changed: docs/project/tasks/CEV-ONBOARD-RPC-46.md; docs/project/handoffs/CEV-ONBOARD-RPC-46-atlas-partial.sql; docs/project/handoffs/CEV-ONBOARD-RPC-46-morgan-blocked.md.
+- Database changes: No active database migration accepted. The partial draft is preserved as documentation/evidence only and must not be applied.
+- API or contract changes: None accepted for CEV-ONBOARD-RPC-46.
+- Verification commands and results: `pnpm check` PASS exit 0 on 2026-10-04 after the incomplete migration draft was removed from active migrations. It ran typecheck, lint, 482 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding SQL suites and production build.
+- Known limitations: Protected onboarding commands/read projections are not implemented. No command SQL tests, backend review, security review, hosted migration, server actions or UI acceptance exists.
+- Risks: Resuming the draft without completing grants, role checks, receipt semantics and SQL isolation tests could weaken onboarding authorization. Treat the archived SQL as a draft only.
+- Rollback notes: Restore the archived draft to `supabase/migrations/202610020006_onboarding_commands.sql` only when actively completing CEV-ONBOARD-RPC-46 with its matching `supabase/tests/onboarding_commands.sql` and required reviews.
+- Exact next action: Atlas resumes CEV-ONBOARD-RPC-46 from the archived partial draft and produces a complete migration, SQL suite and handoff for Blake and Quinn review.

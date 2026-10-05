@@ -1,0 +1,25 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-HISTORY-68D
+- Work completed: Morgan accepted Blake's backend owner history/re-enable API slice with limitations after Blake fixed the cursor blocker and Atlas/Quinn re-reviewed PASS WITH LIMITATIONS. The accepted local implementation adds owner/admin history listing and one-row re-enable APIs, preserves bounded normal setup snapshots, protects cursors with private server-side cursor records, and covers tampering/other-actor/expiry behavior in embedded SQL tests.
+- Files changed:
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68D.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-ONBOARD-HISTORY-68D-morgan.md
+  - docs/project/tasks/CEV-PILOT-INTAKE-69A.md
+- Database changes: Accepted local source changes in migration 006 for history RPCs, receipt binding and private history cursor records. No hosted database was changed and no production deployment occurred.
+- API or contract changes: Local backend/server-action contracts now include retained history listing and re-enable operations for future UI use. Hosted environments still need owner-authorized forward refresh before these changes exist live.
+- Verification commands and results:
+  - Blake reported `pnpm test -- tests/onboarding-history-actions.test.ts` PASS, `pnpm test:onboarding:commands:db` PASS, `pnpm typecheck` PASS and `pnpm check` PASS with 702 Vitest tests and production build.
+  - Atlas re-review reported focused history action tests, onboarding command DB tests and typecheck PASS.
+  - Quinn re-review reported focused tests, onboarding command DB tests and full `pnpm check` PASS.
+  - Morgan source/status review confirmed the blocker was resolved before acceptance and did not rerun checks after documentation/status edits.
+- Known limitations:
+  - No hosted Supabase Auth/JWT/PostgREST proof, hosted migration/advisor verification, genuine multi-connection race, browser/RSC payload inspection, provider/calendar path, external writer or production deployment was performed.
+  - No owner history UI exists yet.
+- Risks:
+  - Hosted databases that already applied migration 006 require a separate owner-authorized forward refresh task before this local source change exists in hosted runtime.
+  - Live cursor/log behavior still needs hosted verification before exposing history UI to clients.
+- Rollback notes: Revert Blake's HISTORY68D implementation files and these acceptance/status updates. Do not delete retained setup rows as rollback.
+- Exact next action: Morgan owns CEV-PILOT-INTAKE-69A to create a practical first-client intake package for selling a managed pilot.

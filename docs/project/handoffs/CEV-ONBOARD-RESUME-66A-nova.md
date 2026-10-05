@@ -1,0 +1,25 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-RESUME-66A
+- Work completed: Added a narrow owner/admin Setup control for saving the current user's own resume point through the accepted `saveOnboardingProgress` action. The control uses snapshot `resume_step` and `resume_version`, sends a frozen `request_id` for uncertain retries, preserves the selected step on validation/conflict/retryable outcomes, and requires refresh/review after saved, replayed, conflict or unavailable results. Morgan follow-up fixed the unavailable state so it keeps the selection visible, stops further saves, and shows a clear refresh/review action before trying again. Product copy states this is only a progress marker and does not complete setup, change readiness, connect providers, issue invitations, create accounts or affect other users. Dispatcher, technician and viewer projections do not receive owner resume controls.
+- Files changed:
+  - `src/app/workspaces/[tenantId]/onboarding/page.tsx`
+  - `src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx`
+  - `tests/onboarding-ui.test.ts`
+  - `docs/project/handoffs/CEV-ONBOARD-RESUME-66A-nova.md`
+- Database changes: None.
+- API or contract changes: None. The UI consumes the existing `saveOnboardingProgress(input)` action and existing `ResumeInput` shape: `tenant_id`, `request_id`, `expected_version`, and `step_id`.
+- Verification commands and results:
+  - `pnpm test -- tests/onboarding-ui.test.ts` PASS. The repo script ran 647 Vitest tests, including 66 onboarding UI tests. New focused coverage checks owner/admin rendered resume controls, save input shape, retrying the same frozen request, invalid step validation before transport, conflict/retryable/unavailable review behavior, limited-role privacy, internal field leakage and absence of readiness/provider/production claims.
+  - `pnpm typecheck` PASS.
+  - `pnpm lint` PASS.
+  - `pnpm check` PASS: typecheck, lint, 647 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage/onboarding command database suites and production `next build`.
+  - Nonfatal existing warning: Vitest reports `MODULE_TYPELESS_PACKAGE_JSON` for `vitest.config.ts`; unchanged by this task.
+- Known limitations:
+  - No authenticated browser save/reload or limited-role browser session check was run.
+  - No live Supabase Auth/JWT/PostgREST, hosted database, hosted advisor, genuine multi-connection concurrency, rendered Server Action HTTP boundary, provider, invitation, production or deployment behavior was verified.
+  - This task does not change resume backend semantics; Quinn should review UI use of the accepted action and the progress-only copy.
+- Risks:
+  - Runtime stale-tab and lost-response behavior still needs browser evidence with fictional authenticated users.
+  - A confirmed save whose refreshed snapshot is unavailable leaves the UI blocked until refresh/reopen review, which matches the lock contract but needs runtime verification.
+- Rollback notes: Revert the four changed files above to remove the resume-point UI and focused tests. No database or contract rollback is required.
+- Exact next action: Quinn reviews CEV-ONBOARD-RESUME-66A for security/cross-module behavior, including owner/admin-only exposure, same-request retry behavior, version precondition use, internal-field privacy and progress-only readiness copy.

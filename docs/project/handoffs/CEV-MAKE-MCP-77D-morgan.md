@@ -1,0 +1,16 @@
+# Agent handoff
+- Task ID: CEV-MAKE-MCP-77D
+- Work completed: Confirmed official Make plugin/MCP connection, inspected existing Cevanta scenarios, created a new separate safe intake receiver scenario, added a Make-only review log, added a safe static webhook response, added a Make scenario note, learned one fictional Retell-style payload, ran one narrow active dry-run, then deactivated the scenario.
+- Files changed:
+  - `docs/project/tasks/CEV-MAKE-MCP-77D.md`
+  - `docs/project/handoffs/CEV-MAKE-MCP-77D-morgan.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `MEMORY.md`
+- Database changes: None.
+- API or contract changes: No Cevanta application contract changed. Make scenario `Cevanta Receptionist — MCP Intake Receiver` (`6515719`) now exists as an inactive webhook-to-Make-data-store-to-response dry-run proof. Make data store `Cevanta MCP Intake Review Log` was created for fictional review records. The webhook URL is intentionally not recorded.
+- Verification commands and results: Make MCP `environment_get` confirmed connection to `us2.make.com`; Make MCP `scenario_list` returned existing Cevanta scenarios; Make MCP `scenario_create` created scenario `6515719`; Make MCP `scenario_patch` added `gateway:WebhookRespond` and `datastore:AddRecord`; a fictional HTTPS POST to the Make webhook returned HTTP 200 for learning; Make MCP `scenario_trigger_inspect` showed learning mode off, detected top-level fields `event`, `event_id`, `created_at`, and `call`, zero queued deliveries, and accepted deliveries; a second fictional HTTPS POST during a narrow active window returned HTTP 200; Make MCP `scenario_execution_list` showed one successful run, `8b70fb6a305f406b8fc20586bc3bca97`, with three operations; Make MCP `scenario_execution_inspect` showed webhook intake, data-store add and webhook response each ran once with zero errors; Make MCP `data_store_list` showed the review log at one record; Make MCP `scenario_deactivate` returned the scenario to inactive.
+- Known limitations: This proves only a Make-side fictional dry-run. Wrong-event handling stopped safely. Duplicate call IDs did not create duplicate review records, but Make still logs duplicate-key execution errors instead of a clean duplicate branch/response. This does not prove Retell live delivery, Twilio routing, Cevanta writes, Gmail, SMS, Google Calendar, production deployment, clean retry behavior, tenant mapping, or live provider readiness.
+- Risks: Do not store or paste the webhook URL into repository files. Do not connect live Retell, SMS, calendar, email, or Cevanta writers until the learned payload, tenant mapping, dedupe, review state, and security checks are approved.
+- Rollback notes: Leave the scenario inactive or delete it from Make if it is no longer needed. No repository rollback is needed for external Make cleanup.
+- Exact next action: Add a proper duplicate branch/response in Make, then retest duplicate retry without execution errors before any live Retell/Twilio/Cevanta connection.

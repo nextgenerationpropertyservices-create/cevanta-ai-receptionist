@@ -1,0 +1,8 @@
+import Link from 'next/link';
+import { randomUUID } from 'node:crypto';
+import { getWorkspaces } from '@/lib/server/queries';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { Brand,Empty,Setup } from '@/components/ui';
+import { provisionWorkspace, signOut } from '@/app/actions/auth';
+import { ActionForm,Field } from '@/components/action-form';
+export default async function Workspaces() { if(!isSupabaseConfigured()) return <Setup/>; const workspaces = await getWorkspaces(); return <main id="main" className="workspace-picker"><Brand/><div className="page-heading"><span className="eyebrow">LET’S GET TO WORK</span><h1>Choose your workspace</h1><p>Each workspace keeps its customers and team access separate.</p></div><div className="workspace-grid">{workspaces.map(tenant => <Link className="panel workspace-card" key={tenant.id} href={`/workspaces/${tenant.id}`}><span className="avatar">{tenant.name.slice(0,1)}</span><h2>{tenant.name}</h2><p>{tenant.trade}</p><span className="card-link">Open workspace ↗</span></Link>)}</div>{!workspaces.length && <div className="panel"><Empty title="Create your first workspace">Start with an HVAC workspace for the receptionist demo. Provider connections and live phone activation are completed after setup.</Empty><ActionForm action={provisionWorkspace} submitLabel="Create workspace" hidden={{request_id: randomUUID()}}><Field label="Business name" name="name" required maxLength={160} autoComplete="organization"/><Field label="Trade" name="trade" required maxLength={80} defaultValue="HVAC"/><Field label="Timezone" name="timezone" required maxLength={80} defaultValue="America/New_York"/></ActionForm></div>}<form action={signOut}><button className="text-button">Sign out</button></form></main>; }

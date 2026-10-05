@@ -1,0 +1,5 @@
+-- TRUSTED ADMIN ONLY. Run in SQL editor after creating and verifying the user in Auth.
+-- Replace placeholders with real UUIDs at execution time. Do not commit user IDs or credentials.
+-- No public RPC, signup trigger, or application service-role client provisions access.
+-- insert into public.memberships (tenant_id,user_id,role)
+-- values ('<tenant UUID>'::uuid,'<verified Auth user UUID>'::uuid,'owner'::public.app_role);

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-LIVE-PREREQ-55.
+- Work completed: Morgan accepted Phoenix's onboarding browser/live prerequisite runbook as documentation only. It defines the fictional accounts, role memberships, environment variables, capture restrictions, start/stop commands, evidence handling, and skipped/pass interpretation needed before Quinn can run credentialed onboarding browser tests.
+- Files changed: docs/project/tasks/CEV-ONBOARD-LIVE-PREREQ-55.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-LIVE-PREREQ-55-morgan.md.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Phoenix reported read-only source/runbook inspection. No runtime browser, Auth, HTTP, hosted, provider or production checks were run for this documentation task.
+- Known limitations: No disposable accounts were created or inspected, no credentials were requested, no private session was used, and no skipped browser tests were converted to executed evidence.
+- Risks: Running the future browser suite with the wrong project or inherited private config could mutate useful data; missing role env can produce misleading skips. The runbook keeps those risks visible.
+- Rollback notes: Documentation only; remove the runbook and handoff if rejected.
+- Exact next action: Use the runbook as input for CEV-ONBOARD-ENV-59 and later Quinn browser execution after environment prerequisites are safe.

@@ -1,0 +1,19 @@
+# Agent handoff
+- Task ID: CEV-AUTH-PROXY-70B
+- Work completed: Fixed the public auth page rendering stall by skipping hosted Supabase `getUser()` refresh in the proxy for public auth entry routes. Protected routes and server actions retain verified-user checks.
+- Files changed:
+  - `src/proxy.ts`
+  - `tests/retell-proxy-path.test.ts`
+  - `docs/project/tasks/CEV-AUTH-PROXY-70B.md`
+  - `docs/project/handoffs/CEV-AUTH-PROXY-70B-morgan.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/BACKLOG.md`
+  - `context/NEXT_TASK.md`
+- Database changes: None.
+- API or contract changes: Proxy behavior changed for public auth pages only: `/`, `/sign-in`, `/forgot-password`, `/auth/callback` and `/auth/recovery` render without hosted Auth lookup in proxy.
+- Verification commands and results: `pnpm test -- tests/retell-proxy-path.test.ts` PASS with 706 Vitest tests due repository invocation behavior. `pnpm check` PASS with typecheck, lint, 706 Vitest tests, embedded database suites, onboarding command embedded checks and production build. Manual local HTTP check returned `/forgot-password` 200 in about 266 ms; dev server logged 79 ms after hot reload.
+- Known limitations: Does not prove reset email delivery, owner password update, local sign-in, hosted JWT/PostgREST, provider behavior or production readiness.
+- Risks: Public route list must stay narrow so protected app pages still run session refresh and server-side authorization. Existing tests cover the narrowed behavior.
+- Rollback notes: Remove the public route bypass and test if proxy session refresh must run for every matched route again; this would reintroduce the public-page stall when hosted Auth is unreachable.
+- Exact next action: Owner requests a fresh reset email from `/forgot-password`, opens the newest link, sets the password manually, then signs in locally.

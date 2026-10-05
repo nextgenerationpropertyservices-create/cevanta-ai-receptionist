@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-MAKE-18.
+- Work completed: Created separate Make scenario6495889, Cevanta — Isolated Lead Simulation — Draft. Saved inactive with On demand schedule. Graph contains only Start scenario2 as entry and Return output3, connected in that order. Removed unused blank placeholder. Parent6495246 and its write/SMS blockers were untouched.
+- Files changed: This handoff, task18 state, safe CEV-MAKE-18.png evidence. Provider draft configured through authenticated UI.
+- Database changes: None.
+- Contract changes: Atlas-approved required Text call_id input with no default. Outputs call_id mapped unchanged from2.call_id, simulation Boolean literal Yes/true, status Text literal simulated_not_persisted. No operational IDs or success claims.
+- Verification: Saved and reopened input required setting, Boolean output type/required setting and Return mappings. Overview confirms Inactive, zero credits, zero data transfer and no running execution. Safe screenshot captures title, inactive state and two-module graph. Architecture approved exact schema; Quality review requested against saved evidence.
+- Checks not run: No scenario runs, webhook listeners, real calls, messages or appointments. App type/lint/tests/build not run: no app code changed. These configuration inspections do not verify runtime input validation, Boolean serialization or deterministic echo.
+- Limitations: Fictional test-call-* convention is described, not enforced by a runtime filter. Execution stays blocked. Inactive stub is not callable-ready. Date gate is an approved design only; no parser installed, actual Retell datetime format and booking duration remain unresolved. Required input caused Make to request On demand scheduling; changed schedule without activation.
+- Risks: Simulation must never be treated as persisted lead or booking. No external, HTTP, data store, calendar, Gmail, SMS or nested operational modules were added. Parent must remain blocked until a separate reviewed test harness and side-effect isolation are accepted.
+- Rollback: Preserve shared/original workflows. This separate draft can be left inactive or removed through a separately authorized recovery flow.
+- Exact next action: Finish Quality construction review, then prepare a scoped fictional-input harness and strict date validation implementation. No parent blocker removal or activation is authorized by this task.

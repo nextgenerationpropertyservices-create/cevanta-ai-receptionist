@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LIVE-PROVIDER-77A
+- Work completed: Established the safe live-provider readiness path for Retell, Make and the owner's individual Twilio number. Verified Make is blocked at sign-in, Retell dashboard opens, local Retell writer prerequisites are incomplete and the local Retell endpoint fails safely without persistence or booking.
+- Files changed: `docs/project/tasks/CEV-LIVE-PROVIDER-77A.md`; `docs/project/handoffs/CEV-LIVE-PROVIDER-77A-morgan.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Fictional signed Retell-style local HTTP request to `/api/integrations/retell` returned HTTP 503 with `retryable_failure`, `persisted:false` and `bookingCreated:false` because `SUPABASE_SERVICE_ROLE_KEY` is not configured locally. Environment presence check confirmed the key is missing without printing secret values.
+- Known limitations: No real Retell call, Make run, Twilio inbound routing, SMS, email, external calendar write, production write or production deployment was performed. Make requires owner sign-in. Twilio SMS remains blocked by registration. Local app is not publicly reachable by Retell without a tunnel or hosted deployment.
+- Risks: Adding service-role credentials incorrectly would be high risk if exposed to the browser or committed. Any live provider routing can create customer-facing effects if pointed at active phone/SMS/calendar modules.
+- Rollback notes: No provider changes were made. Documentation-only edits can be reverted. If a future tunnel/provider route is created, rollback is to disable Retell webhook/phone routing and stop the tunnel or deployment.
+- Exact next action: Owner signs in to Make and adds the server-only Supabase service-role key to `.env.local`, then Morgan restarts the dev server and reruns the signed local Retell HTTP writer test before any Twilio routing.

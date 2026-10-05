@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-M3-01 (CEV-RELEASE-07 frontend review).
+- Work completed: Reviewed integrated office dispatch and assigned-only technician read UI. Added required date validation for scheduled jobs, retained missing technician assignments until explicit user selection, robust repeated-query/date handling, accurate viewer empty guidance, local unavailable-job state, overflow and keyboard-focus styling. Existing cards, summaries, filters, create/edit, lead conversion, loading, errors and role notices preserved.
+- Files changed: src/app/workspaces/[tenantId]/jobs/page.tsx; jobs/job-fields.tsx; jobs/not-found.tsx; src/app/globals.css.
+- Database changes: None.
+- API or contract changes: None. Existing actions retain authorization and reject stale technician assignments.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS exit 0; node node_modules/eslint/bin/eslint.js src/app/workspaces src/components/workspace-shell.tsx PASS exit 0. pnpm exec eslint unavailable in local runner; explicit node invocation resolved it. Initial bracket glob did not match; lint rerun on directory passed. node node_modules/vitest/vitest.mjs run tests/jobs.test.ts BLOCKED by sandbox esbuild parent-directory access. Installed Next page/forms/loading/not-found guides read; React best practices review performed (stable ids, event-driven state, parallel data, labeled controls, server authorization unchanged).
+- Known limitations: Authenticated browser save/permission verification not executed here. Production build and integrated tests delegated to coordinator's existing verification run; no claim of pass here. Hosted jobs migration/live role boundaries remain separate gates.
+- Risks: Stale assignment intentionally produces existing safe server error until a current technician or Unassigned is selected. No fixture/customer data used.
+- Rollback notes: Revert these four frontend changes only; retain backend/schema and other owners' edits. Delete jobs/not-found.tsx to restore shared fallback.
+- Exact next action: Quinn reviews affected UI integration; Morgan runs integrated tests/SQL/build and synthetic browser review, then records acceptance or open live gates.

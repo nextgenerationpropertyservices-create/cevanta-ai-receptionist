@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65C.
+- Work completed: Morgan accepted the legacy settings writer retirement after Blake implementation and Quinn PASS WITH LIMITATIONS review. The old updateTenantSettings export remains only as a safe compatibility error and no longer performs tenant parsing, membership lookup, validation, tenants table access, direct writes or cache revalidation.
+- Files changed: docs/project/tasks/CEV-ONBOARD-SETTINGS-65C.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-SETTINGS-65C-morgan.md.
+- Database changes: None.
+- API or contract changes: Accepted behavior change for updateTenantSettings: stale callers receive a safe error and no mutation. The accepted writer is saveOnboardingSettings. No migrations, hosted, provider or production changes.
+- Verification commands and results: Blake and Quinn each reported pnpm test -- tests/security.test.ts PASS and pnpm check PASS with typecheck, lint, 639 Vitest tests, embedded SQL suites and production build. Morgan reviewed the implementation and Quinn handoff.
+- Known limitations: No browser stale-action submission, RSC/network privacy, live Supabase Auth/JWT/PostgREST, hosted advisors, genuine concurrency, provider or production evidence. Compatibility export still exists for stale callers.
+- Risks: Undiscovered stale callers now receive an error instead of saving, which is the intended safe failure. Future changes must not restore a direct tenants writer outside the lock-aware onboarding path.
+- Rollback notes: Reverting would restore the direct legacy writer and should only happen if Morgan explicitly reopens that bypass risk. No database rollback required.
+- Exact next action: Assign persisted resume UI wiring as the next safe onboarding slice, then Quinn review.

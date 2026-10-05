@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-STATUS-54.
+- Work completed: Morgan accepted the guided onboarding status/readiness shell after Nova implementation and Quinn PASS WITH LIMITATIONS review. The accepted scope is presentation/local evidence only: owners/admins see saved and missing setup sections, available editors, and explicit pending/blocked readiness messaging. Limited roles remain read-only and private owner contact/receipt/provider fields are not surfaced.
+- Files changed: docs/project/tasks/CEV-ONBOARD-STATUS-54.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-STATUS-54-morgan.md.
+- Database changes: None.
+- API or contract changes: None. No provider, readiness-completion, live booking, invitation, account provisioning or production behavior accepted.
+- Verification commands and results: Quinn independently reported pnpm check PASS exit 0 with typecheck, lint, 600 Vitest tests, six embedded SQL suites and production build. Quinn also reported focused onboarding UI tests PASS with 58 tests. Morgan reviewed Nova and Quinn handoffs and accepted within recorded limits.
+- Known limitations: Authenticated browser persistence, runtime role/privacy network checks, 390px/desktop measurement, keyboard/screen-reader/contrast review, rendered Server Action HTTP oversize/log redaction, live Supabase Auth/JWT/PostgREST, real concurrency, hosted migration/advisors, CI/restore, providers and production were not accepted by this task.
+- Risks: Future readiness policy could accidentally treat descriptive storage counts as completion. Keep readiness, provider connection, live booking and release gates separate from Setup display.
+- Rollback notes: Revert Nova status markup/CSS/tests and this acceptance record if the presentation slice is rejected. No data or external state rollback required.
+- Exact next action: Accept/reconcile planning tasks 55-58, then assign safe environment prerequisite and concurrency/lock planning tasks before broadening runtime/browser or provider work.

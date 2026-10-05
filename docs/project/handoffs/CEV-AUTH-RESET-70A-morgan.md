@@ -1,0 +1,18 @@
+# Agent handoff
+- Task ID: CEV-AUTH-RESET-70A
+- Work completed: Added `http://127.0.0.1:3000/auth/recovery` to Supabase Auth Redirect URLs for the Cevanta Development project and verified the URL persisted after page reload.
+- Files changed:
+  - `docs/project/tasks/CEV-AUTH-RESET-70A.md`
+  - `docs/project/handoffs/CEV-AUTH-RESET-70A-morgan.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/BACKLOG.md`
+  - `context/NEXT_TASK.md`
+  - `docs/project/supabase-auth-redirect-url-2026-10-05.png`
+- Database changes: None.
+- API or contract changes: Hosted Supabase Auth allowed redirect URL list now includes the local recovery callback for development testing.
+- Verification commands and results: Browser/UI verification only. Supabase URL Configuration page was reloaded and still displayed `http://127.0.0.1:3000/auth/recovery` under Redirect URLs. Screenshot evidence saved.
+- Known limitations: Password reset email delivery, link opening from the owner's email client, password update submission and subsequent sign-in remain unverified.
+- Risks: This authorizes a local development redirect URL in the hosted Supabase project. It should remain limited to development testing and should be reviewed before any production Auth configuration is finalized.
+- Rollback notes: Remove `http://127.0.0.1:3000/auth/recovery` from Supabase Auth Redirect URLs if local recovery testing is no longer desired.
+- Exact next action: Owner requests a fresh password reset email from `http://127.0.0.1:3000/forgot-password`, opens the newest link, sets a new password manually, then signs in locally.

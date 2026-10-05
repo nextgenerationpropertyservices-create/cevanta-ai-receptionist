@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-SETUP-BROWSER-76A
+- Work completed: Verified the fresh self-service workspace Setup page can save service, weekly hours, date-specific hours, request preferences and escalation contact data using fictional launch-test details.
+- Files changed: `docs/project/tasks/CEV-SETUP-BROWSER-76A.md`; `docs/project/handoffs/CEV-SETUP-BROWSER-76A-morgan.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None in source. Browser actions wrote fictional setup records to the hosted development backend through the app.
+- API or contract changes: None.
+- Verification commands and results: Browser proof passed on 2026-10-05 in the signed-in local app for fresh workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`. Summary showed `1 services saved; 1 enabled`, `7 of 7 days saved`, `1 active date overrides saved`, request preferences saved, and `1 contacts saved; 1 enabled`. No code changed in this task, so no new command test was required; the latest full `pnpm check` already passed after the current code changes.
+- Known limitations: Local/browser development proof only; production, lower-role Setup privacy, provider activation, external sends and live booking remain unverified. Date override removal and escalation contact edit/removal were not tested in this pass.
+- Risks: The Setup page's review step can feel clunky after saving one section, but it prevented overwriting stale data and the contact save succeeded after keeping reviewed edits.
+- Rollback notes: Remove the fictional setup records through the Setup UI or reset the hosted development workspace data if needed. Documentation changes can be reverted from this handoff and tracker update.
+- Exact next action: Continue launch bug sweep by testing lower-role privacy or the safe Retell/Make dry-run path before any live provider activation.

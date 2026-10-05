@@ -1,0 +1,17 @@
+# Agent handoff
+- Task ID: CEV-PILOT-EVIDENCE-69E
+- Work completed: Created a first-client evidence tracker and go/no-go checklist covering sales demo readiness, local walkthrough evidence, role privacy, Make/Retell dry-run evidence, owner approval gates, live-pilot go/no-go and evidence quality rules.
+- Files changed:
+  - `docs/project/tasks/CEV-PILOT-EVIDENCE-69E.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/handoffs/CEV-PILOT-EVIDENCE-69E-morgan.md`
+  - `docs/project/BACKLOG.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `context/NEXT_TASK.md`
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Manual documentation inspection completed. No code/runtime checks were run because this was documentation-only.
+- Known limitations: Does not prove local app behavior, role privacy, Make/Retell behavior, live provider behavior, hosted database behavior, production readiness or owner approval.
+- Risks: The tracker only works if evidence is recorded honestly and secrets are excluded. It explicitly separates evidence from unverified claims.
+- Rollback notes: Remove the tracker/task/handoff and revert status/backlog/context updates. No external state changed.
+- Exact next action: Run the local walkthrough and/or Make/Retell dry run with fictional data, then record results in the tracker before requesting any live action approval.

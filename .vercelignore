@@ -1,0 +1,12 @@
+.next/
+node_modules/
+.pnpm-store/
+.env*
+!.env.example
+coverage/
+test-results/
+playwright-report/
+.supabase/
+desktop-resources/
+.worktrees/
+*.tsbuildinfo

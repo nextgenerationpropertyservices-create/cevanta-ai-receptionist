@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-EQUIPMENT-06
+- Work completed: Added equipment update action using verified tenant office membership, UUID/schema validation, scoped customer/location/equipment chain checks and update constrained to tenant/location/equipment IDs. Writes validated business fields only, detects absent/denied writes, returns safe messages and refreshes customer detail.
+- Files changed: src/app/actions/workspace.ts; docs/project/handoffs/CEV-EQUIPMENT-06-backend.md.
+- Database changes: None. Existing RLS, immutable identity grants and atomic metadata audit trigger apply.
+- API or contract changes: New updateEquipment(previous: ActionState, form: FormData): Promise<ActionState>; tenantId/customerId/locationId/equipmentId plus name/type/manufacturer/model/serial_number. No relocation or shared schema changes.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS exit 0; node node_modules/eslint/bin/eslint.js src/app/actions/workspace.ts PASS exit 0. Quality owns actual action boundary tests; coordinator owns integrated build/SQL verification.
+- Known limitations: Live owner save not executed by Backend. Repeated identical submissions preserve business state but produce normal separate update audit events. Concurrent edits use last successful write; no version conflict detection introduced.
+- Risks: Parent preflight and mutation are separate requests; immutable parent grants prevent ordinary app relocation and mutation predicates plus RLS remain enforced at write time.
+- Rollback notes: Remove updateEquipment export and matching Frontend edit form. No database rollback.
+- Exact next action: Quality test/review action, Frontend integrate prefilled form, coordinator run full checks and verify live edit.

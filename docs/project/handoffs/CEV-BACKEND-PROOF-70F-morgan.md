@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-BACKEND-PROOF-70F — Owner browser proof pass
+- Work completed: Verified the signed-in owner browser can use the local app against hosted development Supabase for the core first-client demo foundation. Confirmed persisted job/lead evidence from CEV-BACKEND-BROWSER-70E, created and reloaded a fictional calendar appointment linked to the converted missed-call job, confirmed direct wrong-workspace access fails safely, and recorded Setup/Settings limitations.
+- Files changed: `docs/project/tasks/CEV-BACKEND-PROOF-70F.md`; `docs/project/handoffs/CEV-BACKEND-PROOF-70F-morgan.md`; `docs/project/PROJECT_STATUS.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`.
+- Database changes: No schema changes. Browser testing created fictional development records only: lead/job/calendar appointment data in the hosted development project.
+- API or contract changes: None.
+- Verification commands and results: Browser evidence: owner workspace loaded; calendar showed `Fictional missed-call appointment test` after reload; wrong workspace route returned a generic safe error; Setup returned safe unavailable state. `pnpm check` PASS: typecheck, lint, 16 Vitest files with 711 passing tests, embedded PostgreSQL suites, onboarding command checks and production build.
+- Known limitations: Setup/onboarding snapshot is unavailable in the hosted development browser path, so Setup and Settings cannot currently prove editable business setup. No live Retell/Make/Twilio/SMS/email/external calendar behavior was tested. No production deployment or independent Quinn review was performed in this pass.
+- Risks: Selling this as fully automated or production-ready would overstate current evidence. It is suitable only for a managed-pilot demo unless Setup and provider dry-run/live gates are cleared.
+- Rollback notes: No code or schema rollback is needed. Fictional browser-created records can be deleted manually from the development workspace if desired.
+- Exact next action: Repair or refresh the hosted onboarding snapshot/RPC path, then rerun Setup and Settings proof before any self-serve or live-pilot claim.

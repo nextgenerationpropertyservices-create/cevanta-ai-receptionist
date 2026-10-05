@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LOCATION-05
+- Work completed: Added a native keyboard-accessible edit disclosure on each existing service location. The form is prefilled for label, street address, city, state/region and postal code and uses the existing ActionForm pending, validation, error and success announcements. Editing is rendered only for writable office roles. Existing location creation and equipment UI remain available.
+- Files changed: src/app/workspaces/[tenantId]/customers/[customerId]/page.tsx; docs/project/handoffs/CEV-LOCATION-05-frontend.md.
+- Database changes: None.
+- API or contract changes: Consumes Backend updateServiceLocation with hidden tenantId, customerId, locationId and existing location business fields; contract confirmed with Backend.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS; node node_modules/eslint/bin/eslint.js 'src/app/workspaces/[tenantId]/customers/[customerId]/page.tsx' PASS. Initial pnpm exec tsc attempt failed because executable shim was unavailable; direct installed compiler passed.
+- Known limitations: Live owner save and authenticated browser verification remain Coordinator checks. Full tests and production build remain integration checks.
+- Risks: Hidden identifiers are untrusted inputs; secure enforcement is performed by Backend action and reviewed independently by Quality. No source screenshots or customer data were recorded.
+- Rollback notes: Remove updateServiceLocation import and the writable edit disclosure block. No migration or data rollback required.
+- Exact next action: Coordinator and Quality verify scoped action authorization, run integration checks, and check the rendered edit controls privately in the authenticated browser.

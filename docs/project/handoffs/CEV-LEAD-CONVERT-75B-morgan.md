@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LEAD-CONVERT-75B
+- Work completed: Fixed the AI receptionist review loop by updating converted leads to `contacted` or `scheduled` after successful job creation, and corrected the one-lead notification wording.
+- Files changed: `src/app/actions/jobs.ts`; `src/app/workspaces/[tenantId]/leads/page.tsx`; `tests/jobs.test.ts`; `tests/leads-ui.test.ts`; task/status/evidence/handoff docs; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: Lead-to-job conversion now also marks the lead as handled. Unscheduled conversions become `contacted`; scheduled conversions become `scheduled`.
+- Verification commands and results: `pnpm test -- tests/jobs.test.ts tests/leads-ui.test.ts tests/retell-lead-writer.test.ts` PASS with 737 tests reported by the suite run. `pnpm check` PASS with typecheck, lint, 18 Vitest files / 737 tests, embedded database suites and production build.
+- Known limitations: In-app notification only; real Retell provider delivery remains unverified; no external notifications are enabled.
+- Risks: Job creation and lead status update are sequential in the server action. If a later failure occurs between those effects, a database RPC should replace this with an explicitly atomic operation.
+- Rollback notes: Revert `src/app/actions/jobs.ts`, `src/app/workspaces/[tenantId]/leads/page.tsx`, `tests/jobs.test.ts` and `tests/leads-ui.test.ts` changes.
+- Exact next action: Continue launch bug pass on the first-version SaaS path; keep live provider activation and production deployment blocked until explicit owner approval and final evidence.

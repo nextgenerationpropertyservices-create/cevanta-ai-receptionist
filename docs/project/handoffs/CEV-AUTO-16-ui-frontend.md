@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-AUTO-16-ui.
+- Work completed: Replaced stale dashboard future dispatch/scheduling claim with current Jobs and Calendar navigation and explicit AI integration pending copy. Preserved existing customer data, role and timezone rendering.
+- Files changed: src/app/workspaces/[tenantId]/page.tsx; docs/project/handoffs/CEV-AUTO-16-ui-frontend.md.
+- Database changes: None.
+- API or contract changes: None. Links consume existing tenant-scoped jobs/calendar routes.
+- Verification commands and results: pnpm typecheck exit0; pnpm lint exit0; pnpm test exit0 (312); pnpm build exit0 (Jobs and Calendar routes included). Installed Next.js forms/use-server guides read. Source review verified accessible descriptive Link controls and no new authorization/data query or AI success claims.
+- Known limitations: Authenticated dashboard navigation/browser narrow-screen checks NOT RUN by Nova; coordinator retains live session and will verify without customer screenshots. Embedded database checks NOT RUN by Nova; no schema/query changes made.
+- Risks: Existing live permission/tenant checks remain coordinator gates. Build may require preview restart; no production deployment occurred.
+- Rollback notes: Restore only former overview footer text if needed; no database rollback.
+- Exact next action: Morgan verifies signed-in Jobs/Calendar links and narrow layout, collects independent review where needed, then accepts or returns defects.

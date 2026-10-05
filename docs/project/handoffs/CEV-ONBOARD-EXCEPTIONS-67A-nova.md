@@ -1,0 +1,21 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-EXCEPTIONS-67A
+- Work completed: Added the Nova owner/admin Date-specific hours Setup editor for one local-date exception at a time. The editor can add/update a closed-day override or non-overlapping opening intervals, remove an override for the selected local date, retry the same frozen request after an uncertain result, preserve typed values on recoverable failures, and require review/refresh after saved, replayed, conflict, or unavailable outcomes. Added setup summary copy for active date overrides. Limited-role projections do not render the mutation controls.
+- Files changed:
+  - src/app/workspaces/[tenantId]/onboarding/page.tsx
+  - src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx
+  - tests/onboarding-ui.test.ts
+  - docs/project/handoffs/CEV-ONBOARD-EXCEPTIONS-67A-nova.md
+- Database changes: None.
+- API or contract changes: None. The implementation uses the existing accepted saveOnboardingConfiguration commands: upsert_hours_exception and remove_hours_exception.
+- Verification commands and results:
+  - pnpm test -- tests/onboarding-ui.test.ts: PASS, 15 files and 660 tests because the configured runner executed the full Vitest suite while targeting the onboarding UI file; Vitest emitted the existing MODULE_TYPELESS_PACKAGE_JSON warning.
+  - pnpm typecheck: PASS.
+  - pnpm lint: PASS.
+  - pnpm test: PASS, 15 files and 660 tests; Vitest emitted the existing MODULE_TYPELESS_PACKAGE_JSON warning.
+  - pnpm build: PASS, Next.js 16.3.8 production build completed.
+  - pnpm check: PASS, including typecheck, lint, Vitest suite, embedded database suites, onboarding command database suite, and production build.
+- Known limitations: Browser/device walkthrough, hosted Supabase JWT/PostgREST behavior, live provider behavior, calendar sync, and production deployment were not run in this local task. The embedded database checks state that live hosted JWT/PostgREST and multiuser verification remain required. The repository remains unborn, so Git reports the entire tree as untracked and cannot provide a normal changed-file diff.
+- Risks: The UI relies on the accepted server action and validation contract for authorization, persistence, idempotency, and tenant safety. The editor intentionally does not book appointments, sync calendars, connect providers, modify weekly hours, or claim live scheduling readiness.
+- Rollback notes: Remove the Date-specific hours section and HoursExceptionsForm wiring from the onboarding page, remove the HoursExceptionsForm/submitHoursException/exceptionFeedback helpers from the onboarding form file, and remove the added onboarding UI tests.
+- Exact next action: Quinn performs the required security/cross-module review, then Morgan reviews for acceptance.

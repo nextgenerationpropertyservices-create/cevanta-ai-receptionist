@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-TRANSPORT-49.
+- Work completed: Morgan accepted Phoenix's Server Action transport preparation with limitations after Quinn security/error-boundary review. The project now explicitly sets the existing Next.js Server Action body limit to 1 MiB and has static/config tests documenting the limit and framework sentinels.
+- Files changed: next.config.ts; tests/onboarding-transport.test.ts; docs/project/handoffs/CEV-ONBOARD-TRANSPORT-49-phoenix.md; docs/project/handoffs/CEV-ONBOARD-TRANSPORT-49-quinn.md; docs/project/handoffs/CEV-ONBOARD-TRANSPORT-49-morgan.md; docs/project/tasks/CEV-ONBOARD-TRANSPORT-49.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md.
+- Database changes: None.
+- API or contract changes: No onboarding action/result contract change. The global Server Action cap is explicit at `experimental.serverActions.bodySizeLimit: "1mb"`.
+- Verification commands and results: Phoenix recorded `pnpm check` PASS exit0 with 542 tests/12 suites, all embedded SQL suites and production build. Quinn focused review ran transport/action tests PASS with 60 tests. Quinn did not rerun the full suite.
+- Known limitations: This is preparation only. It does not prove actual compiled/rendered Server Action HTTP POST behavior, browser/session handling, multipart overhead, proxy/logging behavior, hosted behavior or the earlier raw 131072-byte onboarding boundary. The shared validators still enforce parsed object bounds; the raw transport cap is 1 MiB.
+- Risks: Mislabeling this static/config evidence as full HTTP readiness would overstate security. Future uploads/larger actions may require a reviewed global cap change. Next upgrades require rechecking the framework sentinel assumptions.
+- Rollback notes: Remove only the explicit serverActions cap/tests if directed, preserving other Next config settings and all accepted onboarding backend/database work. Today that would return to the implicit framework default.
+- Exact next action: Assign Nova a rendered onboarding consumer, then assign Quinn a fictional-session browser/HTTP oversized-action verification task after the action exists in the UI.

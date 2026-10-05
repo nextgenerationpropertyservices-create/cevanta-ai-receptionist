@@ -1,0 +1,19 @@
+# Agent handoff
+- Task ID: CEV-AUTH-RECOVERY-70C
+- Work completed: Updated the password recovery callback to handle both Supabase `token_hash` recovery links and safe PKCE `code` callback links. Added tests for token, code, ambiguity, unsafe values and exchange failure.
+- Files changed:
+  - `src/app/auth/recovery/route.ts`
+  - `tests/password-recovery.test.ts`
+  - `docs/project/tasks/CEV-AUTH-RECOVERY-70C.md`
+  - `docs/project/handoffs/CEV-AUTH-RECOVERY-70C-morgan.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/BACKLOG.md`
+  - `context/NEXT_TASK.md`
+- Database changes: None.
+- API or contract changes: Auth recovery callback accepts exactly one safe recovery `token_hash` or one safe PKCE `code`; ambiguous/unsafe callbacks fail closed.
+- Verification commands and results: `pnpm test -- tests/password-recovery.test.ts` PASS with 711 Vitest tests due repository invocation behavior. `pnpm check` PASS with typecheck, lint, 711 Vitest tests, embedded database suites, onboarding command embedded checks and production build.
+- Known limitations: Does not prove actual reset email delivery, owner password update, local sign-in, hosted JWT/PostgREST, provider behavior or production readiness.
+- Risks: Password recovery remains dependent on Supabase email delivery and the owner using the newest link before expiry.
+- Rollback notes: Revert `src/app/auth/recovery/route.ts` and `tests/password-recovery.test.ts` to token-hash-only behavior if needed.
+- Exact next action: Owner requests a fresh reset email from `/forgot-password`, opens the newest link, sets the password manually, then signs in locally.

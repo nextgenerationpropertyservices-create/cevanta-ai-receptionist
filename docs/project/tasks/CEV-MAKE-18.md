@@ -1,0 +1,12 @@
+# Isolated lead stub and date gate
+- Task ID: CEV-MAKE-18
+- Owner: Morgan browser implementation; Echo workflow research; Atlas contract approval; Quinn review.
+- Scope: Prepare separate private Make lead stub with no persistent/customer/provider writes, and reviewed appointment-date validation design. Preserve CEV-MAKE-17 hard blockers until isolated mode acceptance. No calls/messages/bookings/runs.
+- Dependencies: Inactive draft6495246, dedicated test calendar and inbox, prior reviews; supported current Make subscenario input/output UI must be inspected.
+- Allowed files: Morgan this task and docs/project/handoffs/CEV-MAKE-18-morgan.md and CEV-MAKE-18.png; Echo only CEV-MAKE-18-echo.md; Atlas only CEV-MAKE-18-atlas.md; Quinn only CEV-MAKE-18-quinn.md in docs/project/handoffs. Morgan may create separate private stub draft and configure only it; parent blocker remains until review. No source code or shared workflow edits.
+- Acceptance criteria: Stub graph contains only private scenario inputs, deterministic tools and return output; simulated result explicitly labelled; no external writer, calendar, email, SMS or nested operational scenario. Exact approved input/output contract, saved inactive state and source inspection evidence. Date validation proposal must reject missing/ambiguous timezone/malformed/past dates and unapproved duration rather than invent inputs. Runtime tests remain separately gated.
+- Prohibited: Secret/customer persistence, new public trigger/keys/access, shared configuration writes, live provider runs, activation, removal of parent safety blockers without review.
+- Required evidence: Current official Make docs and observed UI; independent contract/review; safe saved screenshot and honest limitations.
+- State: accepted construction and date design only; Quality exact-schema clarification resolved. Runtime acceptance open.
+- Evidence: Separate scenario6495889 saved inactive/On demand with Start2 → Return3, required fictional Text call_id, Boolean simulation true and status simulated_not_persisted. Reopened fields inspected; safe CEV-MAKE-18.png and coordinator/specialist handoffs recorded. No executions or parent edits.
+- Exact next action: Quality reviews saved construction evidence. Prepare separately scoped isolated fictional harness and date validation implementation; retain all parent blockers.

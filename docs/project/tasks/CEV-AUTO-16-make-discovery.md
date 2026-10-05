@@ -1,0 +1,11 @@
+# Existing Make workflow discovery
+- Task ID: CEV-AUTO-16-make-discovery
+- Owner: Morgan coordinator; Echo integration review.
+- Scope: Read-only signed-in browser inspection of existing scenario diagrams, identify current workflow before any integration.
+- Dependencies: Owner-provided Make session, existing workflow confirmation; primary-source integration proposal in Echo handoff.
+- Allowed files: Morgan this task and docs/project/handoffs/CEV-AUTO-16-morgan.md; Echo only existing CEV-AUTO-16-echo.md handoff. No application/provider writes.
+- Acceptance criteria: Identify exact owner-confirmed scenario and sanitized branch/event mapping; distinguish diagram configuration from successful live execution; do not run, activate, edit or inspect private queued customer payloads.
+- Evidence: Cevanta hvac scenario6255756 inspected; inactive. Diagram contains webhook, client configuration lookup, routers, urgent email, duplicate booking check, Google Calendar availability/create, unavailable-time alert, follow-up email and SMS branch filtered for enabled plus consent. HVAC Receptionist v1.1 — DEVELOPMENT v1.0 scenario5972203 also inactive, matching branches and one queued record; queue not opened. Diagram alone does not verify lead persistence, actual transfer, delivery or execution success.
+- State: discovery partial; exact working scenario identification pending owner clarification.
+- Prohibited: Secrets, private webhook URLs, customer data, scenario execution/activation, connection or queue changes.
+- Exact next action: Owner identifies working scenario among existing versions; inspect only its configuration read-only, then Architect/Quality review trusted mapping and single-writer responsibilities.

@@ -1,0 +1,13 @@
+# Existing agent chat coordination
+- Task ID: CEV-COORD-23.
+- Owner: Morgan, Product Manager and Orchestrator.
+- State: accepted for coordination/readiness only.
+- Scope: Reconnect the existing named Cevanta specialist chats, confirm each role's current task and blockers, assign a read-only readiness check for the next integration step, and collect handoffs before any source implementation. Use existing chats only; do not create new chats.
+- Dependencies: AGENTS.md, Cevanta_Codex_Build_Prompt.txt, Cevanta_Software_Agent_Team_Codex_Prompt.md, docs/agents/COLLABORATION.md, docs/project/PROJECT_STATUS.md, the matching .codex/agents role brief, and any available context folder. MEMORY.md and context/ are missing in this workspace and must be reported as unavailable evidence rather than inferred.
+- Allowed files: Morgan may edit this task file and coordinator notes for this task. Atlas may write docs/project/handoffs/CEV-COORD-23-atlas.md. Blake may write docs/project/handoffs/CEV-COORD-23-blake.md. Nova may write docs/project/handoffs/CEV-COORD-23-nova.md. Quinn may write docs/project/handoffs/CEV-COORD-23-quinn.md. Phoenix may write docs/project/handoffs/CEV-COORD-23-phoenix.md. Echo may write docs/project/handoffs/CEV-COORD-23-echo.md.
+- Prohibited/shared files: No source code, migrations, provider configuration, browser automation changes, Make/Retell/Google/Twilio live changes, screenshots with private data, credentials, or real customer data. Do not update PROJECT_STATUS.md until Morgan has reviewed the combined handoffs.
+- Acceptance criteria: Each participating existing chat identifies its role, reads its matching role brief and required project records, reports the latest task it believes it owns, lists blockers, and recommends the next concrete scoped task from its specialty. Morgan verifies the roster, avoids conflicting file ownership, and reports participating chats, ownership, and blockers to the owner.
+- Required evidence: Thread IDs and titles used, recent-work summary from each chat, handoff file from each responding specialist or a clear blocked/no-response note, and Morgan's coordination summary.
+- Reviewers: Morgan owns acceptance. Quinn review is required before any later security-sensitive or cross-module implementation. Atlas review is required before any later shared contract or migration implementation.
+- Branch/worktree or ownership fallback: Existing unborn/dirty repository coordination uses disjoint handoff files; no commit authorized.
+- Exact next action: Create a separate no-writer Retell/Make provenance, datetime, trusted-clock, and tenant-routing contract task before any parent Make connection or booking writer is enabled.

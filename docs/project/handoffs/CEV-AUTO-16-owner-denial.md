@@ -1,0 +1,11 @@
+# Owner foreign-workspace browser check
+- Task ID: CEV-AUTO-16-owner-denial
+- Work completed: Read-only owner browser checks of foreign fictional CRM, Jobs and Calendar routes; returned to own calendar.
+- Files changed: Task and this handoff; safe CEV-AUTO-16-owner-denial.png evidence.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: All three foreign routes displayed unavailable heading and retry/sign-in actions without records or editing controls; server requireMembership denied access. Own calendar loaded after restart with the previously rescheduled fictional appointment.
+- Known limitations: Owner browser scope only. Generic unavailable could also represent an outage; supporting membership guard evidence is recorded. No direct JWT/PostgREST or other-role acceptance inferred.
+- Risks: Remaining live multiuser/technician checks cannot be replaced by this browser observation.
+- Rollback notes: No external changes to undo.
+- Exact next action: Obtain appropriately scoped disposable role sessions for remaining authorization checks.

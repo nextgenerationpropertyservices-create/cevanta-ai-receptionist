@@ -1,0 +1,20 @@
+# Agent handoff
+
+- Task ID: CEV-AUTO-16-ops
+- Owner: Phoenix — DevOps and Release
+- State: implemented; Quinn review and Morgan integration pending.
+- Work completed: Corrected Q16-01 loading false-negative by requiring the requested foreign pathname plus visible root unavailable heading and retry button before customer control/data absence assertions. Boolean assertions keep authenticated page values out of failure messages. Retained disabled trace, screenshot, video, and page-text capture; inspected installed Playwright 1.63.0 opt-out implementation. Documented EACCES network prerequisite, active preview build coordination, safe migration history reconciliation, and remaining live isolation/release gates.
+- Files changed: playwright.config.ts; tests/e2e/foundation.spec.ts; docs/project/OPERATIONS.md; this handoff.
+- Database changes: None. No link, history repair, SQL execution, push, reset or hosted mutation. Recorded prior manually applied development 003/004 as project-record evidence, not fresh verification.
+- API or contract changes: None. Existing requireMembership throws on missing membership; root error boundary renders “We couldn’t open this page.” This generic boundary also covers outages, so UI evidence does not prove the rejection cause or direct isolation.
+- Verification commands and results:
+  - `git rev-parse --verify HEAD`: exit1, unborn repository; documented disjoint ownership fallback, no commit.
+  - Configured anonymous runner against existing localhost3000: set E2E_CONFIGURED=1, E2E_AUTHENTICATED=0, E2E_CHROMIUM_PATH to installed Chrome, E2E_BASE_URL to localhost; `pnpm test:e2e`: exit0, 1 passed/3 skipped, 10.6 seconds. Dashboard, customers, leads, jobs, calendar, settings redirected to sign-in; 390px overflow check passed. Unconfigured, owner/admin and technician cases skipped by explicit prerequisites.
+  - `pnpm exec eslint playwright.config.ts tests/e2e/foundation.spec.ts`: exit1, binary not resolved by this command in current Windows environment.
+  - Equivalent direct installed runner `node node_modules/eslint/bin/eslint.js playwright.config.ts tests/e2e/foundation.spec.ts`: exit0.
+  - Installed Playwright source inspection: PLAYWRIGHT_NO_COPY_PROMPT returns before generating page error context (node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/index.js).
+  - Supabase official CLI reference checked 2026-10-02 for linked list, repair applied and push dry-run syntax; instructions only, no remote command executed.
+- Known limitations: Foreign-tenant and technician browser cases NOT RUN; no disposable credentials privately injected and no owner credential/session extraction. Typecheck, global lint, application/embedded database suites and production build NOT RUN by this specialist; Morgan runs integrated checks after concurrent Backend/Nova handoffs. Build deferred to protect active dev session. Hosted CI, backup restore and live JWT/PostgREST multiuser isolation remain unverified.
+- Risks: Generic unavailable screen can also mean a service outage; complementary direct isolation checks remain mandatory. History repair would misrepresent state if executed without exact schema comparison. Authenticated artifact protections require reinspection after Playwright upgrades; never enable debug logging or attachments.
+- Rollback notes: Revert only this task's assertion/comment and documentation changes through scoped edits; do not revert concurrent agents. No database rollback needed. Keep capture protections enabled even if assertions are revised.
+- Exact next action: Morgan assigns Quinn independent read-only security review of assertions/artifact protection and documentation, runs integrated typecheck/lint/test/build after all handoffs, and records acceptance only after required evidence. Arrange disposable synthetic tenant/role sessions for authenticated browser and direct JWT/PostgREST tests. Reconciliation remains gated on authorized administration, recovery point and Atlas exact-schema review.

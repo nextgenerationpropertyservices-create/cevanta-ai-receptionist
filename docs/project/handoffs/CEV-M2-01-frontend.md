@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-M2-01 frontend
+- Work completed: Added Leads navigation, tenant lead inbox, enquiry creation and record edit pages. Office roles get forms; technician/viewer see read-only details. Required name/service request, optional email/phone/customer/date, priority and status selects. Creation has server-generated UUID submission token. Edit prefills business values and displays immutable customer linkage. Added loading, empty, safe error/retry and missing-migration setup states using existing responsive components/styles.
+- Files changed: src/components/workspace-shell.tsx; src/app/workspaces/[tenantId]/leads/page.tsx; leads/intake-fields.tsx; leads/[leadId]/page.tsx; leads/loading.tsx; leads/error.tsx; docs/project/handoffs/CEV-M2-01-frontend.md.
+- Database changes: None by frontend. Requires reviewed intake migration.
+- API or contract changes: Consumes Backend getLeads/getLead ready states, createLead/updateLead with tenantId and submissionId/leadId; shared Lead contract. Customer_id is offered only during creation.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS; targeted ESLint on leads directory and workspace-shell PASS. Initial TypeScript identified impossible customer default in create-only branch; corrected before pass.
+- Known limitations: Coordinator owns production build/global checks and authenticated browser verification. Hosted intake migration and live saves pending owner step.
+- Risks: UUID token is generated on server rendering; deliberate fresh page reload starts a new intake submission. Hidden identifiers never replace Backend authorization. No live customer content or credentials recorded.
+- Rollback notes: Remove Leads navigation and added leads route directory; database rows unaffected.
+- Exact next action: Quality review and Coordinator integration/browser checks, then owner applies migration and verifies fictional enquiry creation/edit.

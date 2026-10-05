@@ -1,0 +1,28 @@
+# Agent handoff
+
+- Task ID: CEV-AUTO-16-auth, Atlas architecture acceptance review.
+- Decision: APPROVED for the assigned implementation contract. Live recovery acceptance and production readiness remain open. No blocking architecture defect found in inspected code.
+- Work completed: Read the assigned auth task and concrete actions, recovery callback, trusted-origin helper, input schemas, forgot/reset/sign-in screens, shared session client and form, recovery tests and Nova handoff. Verified implementation against Atlas-approved recovery and authenticated self-change boundary.
+- Files changed: Only docs/project/handoffs/CEV-AUTO-16-auth-architect.md.
+- Database changes: None. No migration, user, membership or role changes.
+- API or contract changes: Reviewed the implemented requestPasswordRecovery and updateRecoveredPassword ActionState signatures, email/password/confirmPassword inputs, dedicated token_hash callback, fixed recovery/error destinations and local-session signout behavior. No additional API changes by Atlas.
+- Verification commands and results: Source inspection completed. Attempted `pnpm exec vitest run tests/password-recovery.test.ts --configLoader native`: exit 1, shell reports vitest is not recognized. This attempt is BLOCKED and is not a test pass. Backend reports 37 recovery tests; Atlas inspected assertions but did not independently execute them successfully. Global typecheck/lint/tests/database/build intentionally NOT RUN by Atlas per coordinator's ownership and no-global-build instruction. Nova's recorded checks are other-agent evidence, not a fresh Atlas integration run.
+- Known limitations: Real email/template/allowlist, provider token verification, cookie continuity, password change, local signout and subsequent login NOT exercised live. No real credentials or addresses entered; no unsolicited email requested. Backend handoff was not present when read; coordinator must collect it and final integration results.
+- Risks: Generic recovery request response intentionally hides provider failure/account existence and does not prove delivery. Normal authenticated sessions are explicitly allowed to change their own password. Other sessions may remain valid after local signout. Existing proxy transport-error behavior and generic sign-in success query notice are outside this assignment.
+- Rollback notes: Remove the dedicated recovery actions/route/helper/validation and new forgot/reset screens, plus assigned sign-in UI additions. No database rollback. Do not revert unrelated shared/auth work.
+- Exact next action: Morgan collects Quinn approval and Backend handoff, runs fresh integrated checks, performs safe UI checks and records provider email-template/allowlist + private fictional-identity recovery as separate unverified acceptance gates.
+
+## Contract findings
+
+1. Trusted origin: APP_ORIGIN is server configuration only. Helper rejects userinfo, non-root paths, query/hash and insecure production HTTP. Missing production origin fails closed. Development fallback is fixed http://127.0.0.1:3000; no caller Host/header/query controls the recovery destination.
+2. Request boundary: validates bounded email and sends only through Supabase's configured user-session client. Valid-email success, provider error, rate limit and thrown network failure return the same generic response. No account lookup, signup, membership provisioning or credential logging occurs.
+3. Recovery callback: accepts exactly one bounded token_hash, ignores caller type/next and verifies explicitly type=recovery. Only error-free response with both user and session reaches fixed /reset-password. Failures use fixed error destination. no-store/no-referrer headers reduce leakage. Existing generic login callback is unchanged.
+4. Authenticated self-change: server getUser must return a user without error before updateUser({password}). Posted user ID/email/role are ignored. Supabase selects the current authenticated account. Password whitespace is preserved, confirmation/length checked, provider policy remains final authority. Reset UI describes authenticated self-change clearly and does not treat a query flag as recovery proof.
+5. Signout semantics: update success precedes auth.signOut({scope:'local'}). Success redirect occurs only after confirmed local signout. Failed or thrown signout reports that the password changed but this browser could not sign out. It does not claim global revocation.
+6. No service-role client, schema write, membership write, unsolicited live email or provider configuration activation appears in the inspected implementation/tests. Tests mock provider methods and use fictional inputs.
+
+## Required integration evidence
+
+The 37 mock tests have meaningful cases for trusted origin, account-neutral response, auth denial, arbitrary identity fields, update-before-signout, partial failure, malformed/duplicate token parameters and provider rejection. Expired/reused/login-token cases mock Supabase rejection; they do not independently establish provider enforcement. Before claiming live recovery works, verify the matching recovery email template delivers token_hash to /auth/recovery, allowlist/trusted origin match, the verified session survives the callback redirect, successful change permits the new password, and local browser signout actually clears the session.
+
+Reset page getUser transport exception can reach the existing application error boundary; safe unavailable/retry handling remains available at application level. This is not an architecture rejection. Public recovery throttling relies on Supabase; live rate-limit behavior remains to verify without repeated real-address sends.

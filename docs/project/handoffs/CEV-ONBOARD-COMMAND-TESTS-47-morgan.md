@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-COMMAND-TESTS-47.
+- Work completed: Added a permanent disposable embedded runner for `supabase/tests/onboarding_commands.sql`, added `test:onboarding:commands:db`, and inserted it into the main `pnpm check` path after the onboarding storage suite.
+- Files changed: scripts/test-onboarding-commands-embedded.mjs; package.json; docs/project/tasks/CEV-ONBOARD-COMMAND-TESTS-47.md; docs/project/handoffs/CEV-ONBOARD-COMMAND-TESTS-47-morgan.md.
+- Database changes: No persistent/hosted changes. The runner creates a disposable PGlite database, loads a fictional Auth compatibility fixture, applies active migrations in order, executes `supabase/tests/onboarding_commands.sql`, then closes the database.
+- API or contract changes: No runtime API change. Package scripts now include `test:onboarding:commands:db`, and `pnpm check` runs it before production build.
+- Verification commands and results: `pnpm test:onboarding:commands:db` PASS exit0. `pnpm check` PASS exit0 on 2026-10-04: typecheck, lint, 482 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage SQL suites, permanent onboarding command SQL suite and production build.
+- Known limitations: The runner is local compatibility evidence only. It does not prove live Supabase JWT/PostgREST, hosted migration behavior or genuine multi-connection concurrency.
+- Risks: Future command SQL regressions now fail the main check path, which is intended. If the active migrations folder contains incomplete drafts, this runner will catch them and fail.
+- Rollback notes: Remove `test:onboarding:commands:db` from package scripts and delete `scripts/test-onboarding-commands-embedded.mjs` to return to the previous check path.
+- Exact next action: Continue to backend server-action integration for the accepted narrowed onboarding subset; keep live Auth/concurrency and hosted gates separate.

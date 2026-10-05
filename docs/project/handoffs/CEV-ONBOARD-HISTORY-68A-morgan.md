@@ -1,0 +1,23 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-HISTORY-68A
+- Work completed: Morgan reviewed Atlas's retained-history and bounded-projection architecture contract and accepted it with limitations. The accepted contract separates retained setup history from bounded current editor projections, preserves LOCK60 revision/replay semantics, and identifies follow-up backend, UI and security review tasks. This is planning/design acceptance only; it does not implement bounded projections or prove hosted behavior.
+- Files changed:
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68A.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-ONBOARD-HISTORY-68A-morgan.md
+- Database changes: None by Morgan. Atlas made no migration or hosted database change.
+- API or contract changes: Documentation-only architecture contract accepted. Runtime APIs are unchanged.
+- Verification commands and results:
+  - Morgan source review: PASS for task scope, allowed files, tenant-safety requirements, retained-history/current-projection split, config_revision/request_id replay preservation and follow-up task clarity.
+  - Atlas documentation validation: PASS for required sections, retained-history terms, handoff fields and ASCII.
+  - Runtime checks were not rerun by Morgan after documentation-only acceptance.
+- Known limitations:
+  - No source code, migration, SQL, UI, browser, live Supabase Auth/JWT/PostgREST, provider, external writer, concurrency, hosted advisor or production checks were run for this documentation-only task.
+  - The accepted contract does not prove bounded projections exist in the app.
+- Risks:
+  - Future implementation must not return unbounded retained rows to normal setup editors or leak private retained contact history to limited roles.
+  - Deleting retained rows to shrink payloads remains outside the accepted design and would need separate owner/data-retention review.
+- Rollback notes: Remove docs/architecture/ONBOARDING_HISTORY_CONTRACT.md and the HISTORY68A handoffs/status updates if this planning contract is replaced.
+- Exact next action: Morgan assigns a narrow backend implementation task for bounded projection reads with Atlas/Quinn review gates before UI work depends on it.

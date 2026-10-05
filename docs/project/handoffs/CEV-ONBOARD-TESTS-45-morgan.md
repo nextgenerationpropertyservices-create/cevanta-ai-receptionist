@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-TESTS-45.
+- Work completed: Added a permanent onboarding embedded SQL runner, a focused onboarding validation Vitest suite, and registered `test:onboarding:db` in the main `pnpm check` path. Morgan recovered the missing specialist handoff after Quinn hit a usage limit and verified the integrated result.
+- Files changed: package.json; scripts/test-onboarding-embedded.mjs; tests/onboarding-validation.test.ts; docs/project/tasks/CEV-ONBOARD-TESTS-45.md; docs/project/handoffs/CEV-ONBOARD-TESTS-45-morgan.md.
+- Database changes: No schema change. The embedded runner applies the active local migrations, seed data and `supabase/tests/onboarding_isolation.sql` in a disposable PGlite database.
+- API or contract changes: No runtime API change. The validation tests cover the accepted `src/lib/onboarding-contracts.ts` and `src/lib/onboarding-validation.ts` behavior from CEV-ONBOARD-SCHEMA-44.
+- Verification commands and results: `pnpm check` PASS exit 0 on 2026-10-04. It ran `pnpm typecheck`, `pnpm lint`, 10 Vitest files with 482 passing tests including 44 onboarding validation tests, embedded foundation/intake/jobs/appointments/onboarding SQL suites, and `next build` successfully.
+- Known limitations: Embedded SQL remains local compatibility evidence, not live Supabase Auth/JWT/PostgREST evidence. The runner covers storage/RLS/privacy foundation, not protected command RPCs. Quinn did not record the original handoff due to usage limit; Morgan recorded recovery evidence.
+- Risks: Future unfinished migrations in `supabase/migrations` will be picked up by the durable runner, which is intentional but requires incomplete drafts to stay outside active migrations until complete.
+- Rollback notes: Remove `test:onboarding:db` from package scripts and delete `scripts/test-onboarding-embedded.mjs` plus `tests/onboarding-validation.test.ts` to return to the previous check path.
+- Exact next action: Resume CEV-ONBOARD-RPC-46 from the archived partial draft and produce complete protected onboarding database commands plus command SQL tests for Blake and Quinn review.

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-BROWSER-51.
+- Work completed: Morgan accepted Quinn's rendered Setup browser test delivery with limitations. The new Playwright spec covers anonymous protected access and defines skipped credential/harness-dependent cases for owner/admin save/reload, limited-role privacy and oversized rendered Server Action behavior.
+- Files changed: tests/e2e/onboarding.spec.ts; docs/project/handoffs/CEV-ONBOARD-BROWSER-51-quinn.md; docs/project/handoffs/CEV-ONBOARD-BROWSER-51-morgan.md; docs/project/tasks/CEV-ONBOARD-BROWSER-51.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md.
+- Database changes: None. No authenticated data mutation executed.
+- API or contract changes: None.
+- Verification commands and results: Quinn final Playwright run PASS exit0 with 1 passed and 6 skipped using installed Chrome. Anonymous `/workspaces/:tenantId/onboarding` protection and 390px overflow check passed. Quinn also recorded `pnpm check` PASS exit0 after the spec was added.
+- Known limitations: Owner/admin save/reload, admin, dispatcher, technician, viewer browser roles and actual oversized rendered Server Action HTTP/no-mutation behavior were skipped because disposable credentials and a transport harness were unavailable. Live Supabase Auth/JWT/PostgREST, hosted migration/advisors, genuine concurrency, provider readiness and production remain unaccepted.
+- Risks: Conditional e2e tests can give a false sense of coverage if skips are ignored. Real browser save/retry/conflict/refresh/error behavior may still expose issues not visible in mocked tests.
+- Rollback notes: Remove only the onboarding e2e spec if needed. No app/data/config rollback.
+- Exact next action: Continue implementation with the next setup editor slice while keeping credentialed browser/live HTTP gates open and visible.

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-VOICE-GAP-58.
+- Work completed: Morgan accepted Echo's voice/provider readiness alignment as planning only. The accepted output maps which saved setup fields may later support Retell/Make/Twilio context and which live effects remain blocked.
+- Files changed: docs/project/tasks/CEV-ONBOARD-VOICE-GAP-58.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-VOICE-GAP-58-morgan.md.
+- Database changes: None.
+- API or contract changes: None. No provider configuration, live call, message, booking, callback, Make scenario or Twilio/Retell effect was changed or authorized.
+- Verification commands and results: Echo reported source/document review only. No live-provider, hosted, browser, SQL, build or app checks were run for this planning task.
+- Known limitations: Current provider research was not refreshed beyond recorded discovery; provider compatibility and live operational behavior remain unverified.
+- Risks: Using saved setup data as provider readiness could allow calls/messages/bookings before tenant mapping, trusted revision evidence, failure recovery and dedupe are proven.
+- Rollback notes: Documentation only; remove or revise the readiness document if provider policy changes.
+- Exact next action: Keep provider readiness false while ENV59/LOCK60 and later trusted routing/provider contracts are prepared.

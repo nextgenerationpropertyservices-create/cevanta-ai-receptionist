@@ -1,0 +1,16 @@
+# Guided onboarding contract clarification
+
+- Task ID: CEV-ONBOARD-CLARIFY-42.
+- Owner: Atlas owns contract clarification. Morgan coordinates and accepts. Blake and Quinn review before implementation-ready acceptance; Nova, Phoenix and Echo review if their assigned limitations change materially.
+- State: accepted with limitations on 2026-10-03 after final correction CEV-ONBOARD-FINALIZE-43.
+- Scope: Resolve the implementation blockers from CEV-ONBOARD-38 reviews without broadening scope. Clarify invitation identity and command surfaces; invitation concurrency and durable retry; cross-module lock sequence; exact configuration inputs/versions; incomplete-save and validation parity; receipt targets/results; readiness policies, evidence invalidation and safe status language. This is documentation-only contract clarification.
+- Dependencies: AGENTS.md, MEMORY.md, context/, docs/agents/COLLABORATION.md, docs/project/PROJECT_STATUS.md, docs/project/tasks/CEV-ONBOARD-38.md, docs/project/handoffs/CEV-ONBOARD-38-atlas.md, docs/project/handoffs/CEV-ONBOARD-38-blake.md, docs/project/handoffs/CEV-ONBOARD-38-nova.md, docs/project/handoffs/CEV-ONBOARD-38-quinn.md, docs/project/handoffs/CEV-ONBOARD-38-phoenix.md and docs/project/handoffs/CEV-ONBOARD-38-echo.md.
+- Allowed files: docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-atlas.md only for Atlas; docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-blake.md only for Blake; docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-nova.md only for Nova; docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-quinn.md only for Quinn; docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-phoenix.md only for Phoenix; docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-echo.md only for Echo. Morgan may update this task, docs/project/PROJECT_STATUS.md, docs/project/BACKLOG.md and context/NEXT_TASK.md. No other writes.
+- Prohibited/shared files: No migrations, source code, UI components, tests, package scripts, provider settings, hosted database changes, live provider calls, production deployment, real customer data, credentials, screenshots with private data, pricing/tax defaults, external messages/calls/calendar writers or service-role ordinary request design.
+- Acceptance criteria: Atlas publishes exact buildable clarification that resolves Blake's BLOCKED finding and incorporates Quinn/Nova/Phoenix/Echo limitations. It must define command payload schemas, versioning, request/replay/receipt semantics, lock order, validation rules, readiness evidence policy, safe status labels, and remaining decisions. It must keep invitation delivery, provider activation and production deployment outside scope.
+- Required evidence: Atlas handoff using docs/templates/AGENT_HANDOFF.md with files reviewed, clarified rules, unresolved blockers if any, risks, rollback notes and exact next action. Runtime checks are not required for documentation-only work, but skipped checks must be stated.
+- Reviewers: Blake and Quinn required. Nova/Phoenix/Echo required only if their prior review limitations are changed materially.
+- Branch/worktree or ownership fallback: Repository remains unborn/dirty; use disjoint file ownership and no commit.
+- Exact next action: Blake, Nova, Quinn, Phoenix and Echo review docs/project/handoffs/CEV-ONBOARD-CLARIFY-42-atlas.md and write their assigned handoffs.
+
+

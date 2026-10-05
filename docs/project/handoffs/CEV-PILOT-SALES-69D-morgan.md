@@ -1,0 +1,17 @@
+# Agent handoff
+- Task ID: CEV-PILOT-SALES-69D
+- Work completed: Created the first-client sales packet for selling Cevanta as a managed pilot. The packet defines the offer, ideal first-client profile, allowed claims, claims to avoid, sales call structure, setup checklist, live-pilot evidence gates, suggested pilot boundaries and stop rules.
+- Files changed:
+  - `docs/project/tasks/CEV-PILOT-SALES-69D.md`
+  - `docs/business/FIRST_CLIENT_SALES_PACKET.md`
+  - `docs/project/handoffs/CEV-PILOT-SALES-69D-morgan.md`
+  - `docs/project/BACKLOG.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `context/NEXT_TASK.md`
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Manual documentation inspection completed. No code/runtime checks were run because this was documentation-only and did not change application behavior.
+- Known limitations: Does not prove hosted, browser, provider, SMS/email/calendar, payment, legal, production or first-client delivery readiness.
+- Risks: The owner could oversell the pilot if they skip the prohibited-claims section. The packet explicitly frames the first version as managed and office-reviewed.
+- Rollback notes: Remove the new sales packet/task/handoff and revert status/backlog/context updates. No external state changed.
+- Exact next action: Prepare or run the first-client local walkthrough and Make/Retell dry run with fictional data, then decide whether to involve Echo and Quinn for provider-readiness review.

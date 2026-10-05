@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-UI-50.
+- Work completed: Morgan accepted Nova's first guided onboarding UI consumer with limitations after Quinn source/rendered-markup review. The workspace now has a Setup navigation link and `/workspaces/[tenantId]/onboarding` page with role-aware snapshot rendering and owner/admin business-profile save UI.
+- Files changed: src/app/workspaces/[tenantId]/onboarding/page.tsx; src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx; src/components/workspace-shell.tsx; src/app/globals.css; tests/onboarding-ui.test.ts; docs/project/handoffs/CEV-ONBOARD-UI-50-nova.md; docs/project/handoffs/CEV-ONBOARD-UI-50-quinn.md; docs/project/handoffs/CEV-ONBOARD-UI-50-morgan.md; docs/project/tasks/CEV-ONBOARD-UI-50.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md.
+- Database changes: None. UI uses accepted backend actions/RPCs only.
+- API or contract changes: No backend/shared contract change. Added a rendered UI consumer for existing accepted snapshot/action helpers.
+- Verification commands and results: Morgan ran `pnpm check` PASS exit0 on 2026-10-04: typecheck, lint, 13 Vitest files with 555 passing tests, embedded foundation/intake/jobs/appointments/onboarding storage/onboarding command SQL suites and production build. Nova recorded focused implementation checks. Quinn review PASS WITH LIMITATIONS.
+- Known limitations: This is source/markup and mocked-action evidence. It does not prove authenticated browser save/reload, live hosted persistence, actual Server Action HTTP oversize behavior, real multi-role/two-tenant browser isolation, keyboard/mobile visual behavior, live Supabase Auth/JWT/PostgREST, hosted migration/advisors, provider readiness or production.
+- Risks: Retry identity is memory-only and lost on reload. Router refresh, stale snapshots, conflict recovery and oversize pre-action errors require real browser/HTTP tests. UI success cannot be treated as readiness, live booking, provider connection or complete onboarding.
+- Rollback notes: Remove the onboarding route/test and assigned Setup navigation/CSS additions while preserving accepted backend/schema work. No data rollback.
+- Exact next action: Assign CEV-ONBOARD-BROWSER-51 for fictional-session browser/HTTP verification of the rendered Setup page and Server Action transport behavior.

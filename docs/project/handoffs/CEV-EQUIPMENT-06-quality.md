@@ -1,0 +1,13 @@
+# Agent handoff
+- Task ID: CEV-EQUIPMENT-06
+- Work completed: Approved independent security review of updateEquipment and role-gated, prefilled edit forms. Added 26 actual-action regression cases covering verified-user/membership failures, denied and allowed roles, malformed/missing IDs, validation, tenant/customer/location/equipment parent scopes, business-only updates, immutable identity/parent fields, absent/error results, safe messages and refresh only after success. No open findings.
+- Files changed: tests/security.test.ts; this handoff.
+- Database changes: None. Existing tenant RLS, column-specific grants and audit triggers remain required defenses.
+- API or contract changes: Reviewed new updateEquipment action using existing ActionState, OFFICE_ROLES and equipmentSchema. Hidden IDs are untrusted; server validates the full scoped parent chain before the update. No equipment relocation supported.
+- Verification commands and results: `node node_modules/vitest/vitest.mjs run tests/security.test.ts` — 103 tests passed, exit 0 (approved escalation for configuration resolution). `node node_modules/typescript/bin/tsc --noEmit` — exit 0 after correcting a test-table inference error. `node node_modules/eslint/bin/eslint.js tests/security.test.ts` — exit 0 before that type-only correction. Source review confirms five labeled prefilled fields, pending/error handling through the shared ActionForm and office-role visibility.
+- Known limitations: Mocked Supabase tests verify actual application action behavior and query scopes, not hosted JWT/PostgREST/RLS. Quality did not perform a live save or capture personal data. Coordinator owns final global lint, embedded SQL, production build and browser evidence.
+- Risks: Database policies must remain active to enforce changes in permissions at execution time. Business-field updates do not change parent linkage.
+- Rollback notes: Remove equipment edit forms and updateEquipment together and restore added tests. No migration or data rollback required.
+- Exact next action: Coordinator run final integrated checks against 103 tests, record safe browser evidence and ask owner to verify an equipment save before claiming live persistence acceptance.
+
+Regression reproduction: submit as technician/viewer or with a location outside the requested customer or equipment outside the requested location; expect an error and no update/refresh. Submit an authorized office role with visible scoped parents and injected identity fields; expect only equipment business fields in the update, predicates on tenant/location/equipment, and refresh after a returned row. No outstanding defect found; severity: none.

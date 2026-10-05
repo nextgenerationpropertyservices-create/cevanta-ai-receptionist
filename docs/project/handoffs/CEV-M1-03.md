@@ -1,0 +1,11 @@
+# Backend handoff
+- Task ID: CEV-M1-03
+- Work completed: Supabase SSR cookie client and proxy refresh; verified server authentication; explicit membership authorization for every protected query and command; office write and owner/admin settings permissions; customer, contact, location and equipment commands; fixed safe auth callback; public health status without credentials.
+- Files changed: src/lib/supabase/{config,server}.ts; src/lib/server/{authorization,queries,action-state}.ts; src/proxy.ts; src/app/actions/{auth,workspace}.ts; src/app/auth/callback/route.ts; src/app/api/health/route.ts; this handoff.
+- Database changes: None. Relies on architect migration, database RLS, composite tenant foreign keys and audit triggers.
+- API or contract changes: Query exports getWorkspaces(): Tenant[]; getWorkspace(): {tenant,role}; getCustomers(): Customer[]; getCustomer(): {customer,contacts,locations,equipment}|null. ActionState status idle/error/success and message. Form actions accept previous state and FormData. Commands validate hidden UUIDs and parent tenant/customer relationships. No service client.
+- Verification commands and results: Scoped ESLint command passed (exit 0). tsc --noEmit passed (exit 0) after frontend owner corrected FormState mismatch. Manual review confirms explicit tenant filters and verified auth.getUser. Full test/build and independent security review pending coordinator.
+- Known limitations: Supabase integration and real authenticated browser flow not executed without configured database. No signup, membership editing or password recovery UI in M1. Post-sign-in returns to workspace chooser. Auth callback redirects only to fixed workspace route, ignoring external next values.
+- Risks: Cookie refresh depends on Next.js proxy executing. Database migration must be applied before authenticated reads. Membership role enforcement intentionally gives technician/viewer read-only tenant CRM access.
+- Rollback notes: Revert the listed backend files with the coordinated release; database schema unchanged by this task.
+- Exact next action: Quality agent reviews authorization and exercises mocked action/query failure and success cases; coordinator runs full checks, then owner connects Supabase to verify real authentication and RLS.

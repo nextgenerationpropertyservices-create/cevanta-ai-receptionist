@@ -1,0 +1,13 @@
+# Agent handoff — Echo onboarding voice gap
+
+- Task ID: CEV-ONBOARD-VOICE-GAP-58.
+- Owner: Echo; Morgan coordinates and accepts.
+- Work completed: Read AGENTS.md, task58, current status, collaboration/template, onboarding contracts, FINALIZE43 relevant scope, SETUP53 acceptance, STATUS54 submitted UI handoff, Make22 and Retell admission30/discovery31 accepted planning evidence. Produced field-use matrix, blocked-effects boundary, provider readiness gaps, tenant routing/revision requirements, recovery requirements and phased recommendations in ONBOARDING_VOICE_READINESS.md. Only assigned documents edited; other owners' work preserved.
+- Files changed: docs/project/ONBOARDING_VOICE_READINESS.md; docs/project/handoffs/CEV-ONBOARD-VOICE-GAP-58-echo.md.
+- Database changes: None.
+- API or contract changes: None; proposed future projection/routing/effect contracts require Atlas review.
+- Verification commands and results: Get-Content and rg file discovery completed; manual comparison of actual ConfigurationPayloads/OwnerOnboardingSnapshot/PENDING_ONBOARDING_READINESS against recorded setup/provider boundaries. Self-check: all task topics covered, both provider flags false and live booking false; no source/provider effects, private IDs, credentials or real customer data included. Prior coordinator test/acceptance evidence attributed, not rerun.
+- Known limitations: Documentation-only planning. Typecheck, lint, tests, production build, SQL, browser, hosted and live-provider checks SKIPPED/NOT RUN. STATUS54 remains submitted/pending review in the task58 dependency; no acceptance inferred from its reported check pass. Credentialed browser/live HTTP/all-role and provider compatibility gates remain open. No current official provider research or operational session inspection performed; discovery31 research is dated historical evidence.
+- Risks: Treating stored fields/check summaries as provider readiness, widening contact access for prompts, acting on free-text instructions, trusting caller route metadata, duplicating unknown-result effects or claiming transfer/message/booking completion prematurely. The gap document records prevention/recovery gates.
+- Rollback notes: Remove these two assigned documents only. No runtime/external/database changes or commit; preserve existing provider/writer blockers.
+- Exact next action: Morgan accepts this gap list, obtains STATUS54 and runtime prerequisite reviews, then assigns an Atlas/Echo/Blake minimal tenant-scoped voice configuration/routing contract task with Quinn review. Phoenix owns unresolved host/check-policy evidence; Nova owns later safe activity/handoff presentation. No live calls, messages, bookings, callbacks or provider configuration authorized by this handoff.

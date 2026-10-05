@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-LOCK-60.
+- Work completed: Morgan accepted Atlas's onboarding lock/concurrency contract as the planning contract for future settings, resume, exceptions, invitations and provider-readiness work. It establishes tenant-wide configuration revision rules, per-user resume version rules, same-request replay, request reuse conflicts, no-op behavior, stale-tab conflict handling, retained history/tombstones, receipt/audit expectations and required future evidence.
+- Files changed: docs/project/tasks/CEV-ONBOARD-LOCK-60.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-LOCK-60-morgan.md.
+- Database changes: None.
+- API or contract changes: Documentation-only architecture contract accepted for later tasks. No runtime source, migrations, SQL tests, hosted data, provider state or production behavior changed.
+- Verification commands and results: Atlas reported required-context reads, source/document inspection and a documentation validation pass for required sections/terms/template/ASCII. Morgan reviewed docs/architecture/ONBOARDING_LOCK_CONTRACT.md and the Atlas handoff. No runtime checks were required or accepted for this task.
+- Known limitations: No live concurrency, Auth/JWT/PostgREST, hosted advisors, browser, provider or production evidence. Implementation tasks must prove this contract separately.
+- Risks: Future settings/provider/invitation work can still bypass the contract unless ledger tasks use exact file ownership and Quinn review. Retained history can outgrow current editors until history design is accepted.
+- Rollback notes: Documentation only; remove the contract/handoff if rejected. No runtime state changed.
+- Exact next action: Assign backend-only settings alignment preparation using this contract, then independent Quinn review and later UI integration.

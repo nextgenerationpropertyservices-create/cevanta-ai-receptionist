@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETUP-53.
+- Work completed: Morgan accepted Nova's booking preferences and escalation contacts Setup editors with limitations after Quinn independent source/security review. Owners/admins now have UI controls for request-only booking preferences and escalation contacts using accepted onboarding configuration actions; limited roles remain read-only.
+- Files changed: src/app/workspaces/[tenantId]/onboarding/page.tsx; src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx; src/app/globals.css; tests/onboarding-ui.test.ts; docs/project/handoffs/CEV-ONBOARD-SETUP-53-nova.md; docs/project/handoffs/CEV-ONBOARD-SETUP-53-quinn.md; docs/project/handoffs/CEV-ONBOARD-SETUP-53-morgan.md; docs/project/tasks/CEV-ONBOARD-SETUP-53.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md.
+- Database changes: None. UI calls existing accepted RPC/backend actions.
+- API or contract changes: None.
+- Verification commands and results: Morgan ran `pnpm check` PASS exit0. Quinn independently ran focused Vitest PASS with 152 tests and `pnpm check` PASS exit0. Evidence includes typecheck, lint, 594 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage/onboarding command SQL suites and production build.
+- Known limitations: Authenticated browser save/reload for request preferences and escalation contacts, mounted retry/duplicate/conflict/rebase/refresh-failure behavior, mobile/keyboard runtime checks, actual Server Action oversize/Origin/logging checks, live Supabase Auth/JWT/PostgREST, genuine concurrency, hosted migration/advisors, providers and production remain unverified.
+- Risks: Blank/incomplete escalation contacts remain permitted storage and must not be interpreted as operational readiness. Saving booking preferences does not check availability, reserve appointments or send reminders. Attempt identity is memory-only.
+- Rollback notes: Remove booking/contact editor integrations, scoped CSS and tests from Nova-owned files if needed. No data rollback.
+- Exact next action: Record that all narrowed setup storage editors are now present; assign a status/readiness shell task or wait for disposable credentials to run browser/live gates.

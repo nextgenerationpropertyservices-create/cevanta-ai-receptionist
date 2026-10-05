@@ -1,0 +1,29 @@
+# CEV-MAKE-MCP-77D — Make MCP intake receiver
+
+- Owner: Morgan — Product Manager and Orchestrator
+- Scope: Install and use the official Make plugin/MCP connection to create the first safe Make automation for Cevanta launch proof.
+- Dependencies: Owner completed native Make plugin installation/connection. Existing Make account and Cevanta scenarios are available through Make MCP.
+- Allowed files:
+  - `docs/project/tasks/CEV-MAKE-MCP-77D.md`
+  - `docs/project/handoffs/CEV-MAKE-MCP-77D-morgan.md`
+  - `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`
+  - `docs/project/PROJECT_STATUS.md`
+  - `MEMORY.md`
+- Acceptance criteria:
+  - Confirm Make MCP can see the connected Make environment.
+  - Inspect existing Cevanta scenarios before creating a new one.
+  - Create a separate inactive first automation that does not send email, SMS, calendar writes, calls, or Cevanta production writes.
+  - Run one narrow fictional active dry-run that creates only a Make-internal review record and then returns the scenario to inactive.
+  - Record remaining test steps without storing webhook URLs or credentials.
+- Evidence:
+  - Make MCP `environment_get` returned `us2.make.com`, organization `My Organization`, and team `My Team`.
+  - Make MCP `scenario_list` found existing Cevanta scenarios including active `Cevanta Receptionist — New Draft v2`, inactive cloned `Cevanta Receptionist — Safe Dry Run`, and two on-demand simulations.
+  - Make MCP created inactive scenario `Cevanta Receptionist — MCP Intake Receiver` (`6515719`).
+  - The scenario now contains `gateway:CustomWebHook`, `datastore:AddRecord`, and `gateway:WebhookRespond`.
+  - Make MCP `scenario_trigger_learn` captured one fictional payload shape.
+  - Make data store `Cevanta MCP Intake Review Log` was created for safe office-review proof.
+  - One fictional active dry-run succeeded with three operations: webhook intake, data-store add, and webhook response.
+  - The scenario was returned to inactive after the narrow dry-run.
+- Reviewers:
+  - Quality review required before treating this as provider-proof evidence.
+  - Architect review required before mapping learned payloads into Cevanta write contracts.

@@ -1,0 +1,14 @@
+# CEV-M1-04 Frontend and UX handoff
+
+- Task ID: CEV-M1-04
+- Work completed: Responsive Cevanta setup landing, sign-in, workspace picker, authenticated workspace shell, overview, customer list and create form, detail with contacts display, service-location and equipment forms, role-aware settings. Includes loading, missing record, empty data, permission, validation, pending, and recoverable error states. Keyboard skip link, labeled native inputs, live form messages, visible focus, reduced-motion loading indicator, mobile layouts. No demo authentication bypass or external font request.
+- Files changed: src/app/layout.tsx; globals.css; page.tsx; loading.tsx; error.tsx; not-found.tsx; setup/page.tsx; sign-in/page.tsx; workspaces/page.tsx; workspaces/[tenantId]/layout.tsx; workspaces/[tenantId]/page.tsx; workspaces/[tenantId]/customers/page.tsx; workspaces/[tenantId]/customers/[customerId]/page.tsx; workspaces/[tenantId]/settings/page.tsx; src/components/ui.tsx; workspace-shell.tsx; action-form.tsx; this handoff.
+- Database changes: None.
+- API or contract changes: None. Backend confirmed query returns, action paths, and ActionState. UI posts tenantId/customerId/locationId expected by backend; authorization is enforced by backend and RLS. Technician/viewer views omit write forms; owner/admin alone receive settings form.
+- Verification commands and results: `node node_modules/eslint/bin/eslint.js src/app src/components` passed. `node node_modules/typescript/bin/tsc --noEmit` found only tests/security.test.ts ActionState fixtures missing message; Quality notified. Initial `pnpm typecheck` / `pnpm lint` wrapper attempted install and failed because no TTY; direct node checks used instead. Production build and browser verification delegated to coordinator/Quality after all owned UI files were ready. No claim of live authenticated workflow verification.
+- Known limitations: Real sign-in, tenant access, persisted mutations, and role states need configured Supabase and database membership. Contact display is implemented; no contact creation form in this work package. Leads, calls, dispatch, calendar, and jobs are future milestones, labeled as future rather than mock operational data.
+- Risks: CSS/layout requires browser review; persisted workflow cannot be accepted without Supabase setup. Backend authorization remains mandatory even though role forms are hidden.
+- Rollback notes: Revert this task's UI pages/components/CSS together. No migration or data rollback needed.
+- Exact next action: Coordinator runs full typecheck/lint/tests/build and Quality reviews setup page in browser plus authenticated workflow when Supabase is available; record actual results before accepting.
+
+Read original build prompt, AGENTS.md, collaboration rules, assigned task, and project status. Next.js and React best-practices skills applied. Unborn repository used disjoint file ownership; no commit created.

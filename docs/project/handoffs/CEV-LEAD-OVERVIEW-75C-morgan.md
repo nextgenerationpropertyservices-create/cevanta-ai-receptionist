@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LEAD-OVERVIEW-75C
+- Work completed: Added a workspace overview notice for new AI receptionist leads and moved AI lead detection into a shared helper used by both overview and Leads pages.
+- Files changed: `src/lib/ai-lead-notifications.ts`; `src/app/workspaces/[tenantId]/page.tsx`; `src/app/workspaces/[tenantId]/leads/page.tsx`; `tests/dashboard-ui.test.ts`; docs/status/evidence/handoff files; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None. UI now reuses a shared local AI lead detection helper based on the existing Retell office-review marker.
+- Verification commands and results: `pnpm test -- tests/dashboard-ui.test.ts tests/leads-ui.test.ts tests/jobs.test.ts` PASS with 739 tests reported by the suite run. `pnpm check` PASS with typecheck, lint, 19 Vitest files / 739 tests, embedded database suites and production build.
+- Known limitations: In-app overview alert only; no external alert channel is enabled. Positive browser state was not recreated after converting the fictional lead, but automated render coverage proves the notice path.
+- Risks: The marker-based detection remains a temporary launch shortcut until an explicit persisted lead source field is added.
+- Rollback notes: Revert overview page import/render changes, shared helper, leads page helper use and dashboard UI test.
+- Exact next action: Continue first-version launch bug sweep; keep real Retell/Twilio/Make activation and production deployment behind explicit approval.

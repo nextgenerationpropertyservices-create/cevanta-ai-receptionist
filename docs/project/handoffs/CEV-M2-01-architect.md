@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-M2-01 architectural review
+- Work completed: Independent source review of intake migration, contracts, validation, queries and action. Approved tenant/customer composite FK; unique tenant/submission retry token; immutable identity, customer link and timestamp update grants; member reads/office writes under RLS; metadata-only atomic audit; scoped reads and updates; safe missing-migration codes. Coordinator clarified customer linkage is create-only and UI conforms. Backend adopted inbox revalidation for early replay success.
+- Files changed: docs/project/handoffs/CEV-M2-01-architect.md only; review did not modify Backend files.
+- Database changes: Reviewed new public.leads migration 202610020002_service_intake.sql; no independent deployment.
+- API or contract changes: Approved Lead, validated intake fields, getLeads/getLead ready states, createLead/updateLead ActionState. Customer linkage immutable after creation.
+- Verification commands and results: Source review PASS. node node_modules/typescript/bin/tsc --noEmit PASS after UI integration. Quality actual SQL and action tests remain independent evidence.
+- Known limitations: No live hosted migration, JWT role isolation, or live intake save verified by this reviewer.
+- Risks: Retry tokens are untrusted UUIDs and tenant-scoped; metadata audit must retain existing helper behavior. Future customer relinking requires deliberate contract/grant changes and review.
+- Rollback notes: UI can be removed without data loss. Do not drop leads with stored data; revert app references first and plan database rollback with owner.
+- Exact next action: Quality executes action/RLS tests and Coordinator runs global verification before owner migration instruction.

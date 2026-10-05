@@ -1,0 +1,11 @@
+# Offline fictional harness and strict appointment gate
+- Task ID: CEV-MAKE-19.
+- Owner: Morgan integration; Atlas contract; Echo implementation; Quinn independent review.
+- Scope: Standalone offline Make-contract prototype and meaningful negative tests. No application import, provider execution, activation, credentials or parent changes.
+- Dependencies: Task18 approved construction; task18 date requirements. Actual Retell datetime format and business duration remain unresolved; prototype is not a provider adapter.
+- Allowed files: Morgan this task and handoffs/CEV-MAKE-19-morgan.md; Atlas handoffs/CEV-MAKE-19-atlas.md; Echo scripts/cevanta-simulation.mjs, scripts/cevanta-simulation.test.mjs and handoffs/CEV-MAKE-19-echo.md; Quinn handoffs/CEV-MAKE-19-quinn.md. Handoff paths under docs/project. No shared write ownership.
+- Acceptance: Exact approved simulated lead output; fictional-ID pattern rejection. Date validator accepts only strict explicit-offset RFC3339 with real calendar components and future start, verified Boolean intent, explicitly supplied approved positive integer duration and trusted evaluation instant. Reject missing, impossible, ambiguous, malformed, past and unapproved inputs. No writes/network/process execution by prototype. Meaningful repeated/invalid/boundary tests pass; independent review. Clearly distinguish offline prototype from Make/runtime acceptance.
+- Evidence: Contract approval, tests and static checks, review, reported skipped app/build/provider checks.
+- State: accepted offline prototype only; provider/date integration remains open.
+- Evidence: Atlas approved contract before implementation; Echo two pure scripts; six grouped tests PASS; Quinn independent review and 36 added boundary assertions PASS. Coordinator lint/typecheck/350 existing app tests/production build PASS. No provider calls, activation, parent edits or app integration.
+- Next: Owner supplies appointment duration; separately scope fictional Make runtime verification and actual Retell extraction-format validation. Preserve parent barriers.

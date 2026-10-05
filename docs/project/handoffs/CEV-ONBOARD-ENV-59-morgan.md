@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-ENV-59.
+- Work completed: Morgan accepted Phoenix's no-secret onboarding environment readiness checklist as documentation only. It gives future browser, JWT/PostgREST and HTTP tasks exact evidence classes, fictional account/tenant prerequisites, private env names, hosted migration/advisor requirements, local preview/browser prerequisites, pass/skip interpretation and evidence redaction rules.
+- Files changed: docs/project/tasks/CEV-ONBOARD-ENV-59.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-ENV-59-morgan.md.
+- Database changes: None.
+- API or contract changes: None. No credentials, hosted data, provider state, screenshots, traces, videos, source code, tests, production or external effects were accepted.
+- Verification commands and results: Phoenix reported documentation-only source/context reads and re-read the new files. Morgan reviewed docs/project/ONBOARDING_ENVIRONMENT_READINESS.md and the Phoenix handoff. No runtime checks were required or accepted for this task.
+- Known limitations: Disposable accounts, hosted schema/advisor proof, authenticated browser runs, live JWT/PostgREST, rendered HTTP harness, providers, CI/restore and production remain open.
+- Risks: Future execution can still leak secrets or overstate readiness if the checklist is not followed. Missing env values can still create exit0-with-skips results that are not acceptance.
+- Rollback notes: Documentation only; remove the checklist/handoff if rejected. No runtime state changed.
+- Exact next action: Use this checklist when assigning Quinn/Phoenix future runtime evidence tasks. Continue now with backend settings alignment under the accepted lock contract.

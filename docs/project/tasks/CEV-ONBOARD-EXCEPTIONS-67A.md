@@ -1,0 +1,14 @@
+# Date-specific hours exception UI
+
+- Task ID: CEV-ONBOARD-EXCEPTIONS-67A.
+- Owner: Nova owns frontend/UX implementation. Morgan coordinates. Quinn reviews before Morgan acceptance. Blake supports only if the existing saveOnboardingConfiguration exception actions prove insufficient.
+- State: accepted with limitations.
+- Scope: Add a narrow owner/admin Setup editor for date-specific hours exceptions using existing accepted upsert_hours_exception and remove_hours_exception configuration commands. This editor records local-date overrides only; it must not book appointments, sync calendars, change weekly hours, connect providers or imply live scheduling readiness.
+- Dependencies: CEV-ONBOARD-BACKEND-48, CEV-ONBOARD-SETUP-52, CEV-ONBOARD-STATUS-54 and CEV-ONBOARD-LOCK-60 accepted with limitations.
+- Allowed files: src/app/workspaces/[tenantId]/onboarding/page.tsx; src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx; tests/onboarding-ui.test.ts; docs/project/handoffs/CEV-ONBOARD-EXCEPTIONS-67A-nova.md. If implementation requires backend actions, RPC, shared contracts, migrations, package scripts, Settings files, CSS or provider changes, stop and ask Morgan for ownership transfer.
+- Prohibited/shared files: No backend action changes, no migrations, no SQL tests, no Settings files, no package script changes, no provider settings, no hosted database changes, no credentials, no real customer data, no external writers, no calendar sync and no production deployment.
+- Acceptance criteria: Owner/admin can add/update or remove one date-specific exception using the current config_revision and frozen request_id for uncertain retry. The editor must handle closed day versus intervals, strict local date, truthful conflict/retry/unavailable copy, and preserve typed values on recoverable failures. Removing an absent date must be described as safe/no appointment effect. Limited roles must not see owner exception controls. Product markup must not expose request IDs, revisions, receipts, tokens or private contact details, and must not claim bookings/calendar/provider readiness.
+- Required evidence: Nova handoff using docs/templates/AGENT_HANDOFF.md with changed files, commands/results, skipped checks, limitations, risks, rollback notes and exact next action. Focused tests must cover upsert/remove input shape, retry same request, invalid date/interval validation, conflict/retry copy, limited-role privacy, no internal field leakage and no booking/provider/production claims.
+- Reviewers: Quinn security/cross-module review required. Morgan acceptance required after review.
+- Branch/worktree or ownership fallback: Repository remains unborn/dirty; use disjoint file ownership and no commit.
+- Exact next action: Accepted by Morgan with Quinn PASS WITH LIMITATIONS review. Follow-up authenticated browser, hosted Supabase/JWT/PostgREST, real concurrency and provider/production gates remain separate tasks.

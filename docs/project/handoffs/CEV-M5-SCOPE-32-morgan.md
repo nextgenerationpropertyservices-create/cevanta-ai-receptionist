@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-M5-SCOPE-32.
+- Work completed: Coordinated Atlas, Blake and Nova scope discovery for estimates and follow-up. Synthesized findings into docs/product/ESTIMATES_FOLLOWUP_SCOPE.md and updated project status/task ledger. No implementation, schema, provider or UI changes were made.
+- Files changed: docs/product/ESTIMATES_FOLLOWUP_SCOPE.md; docs/project/tasks/CEV-M5-SCOPE-32.md; docs/project/PROJECT_STATUS.md; docs/project/handoffs/CEV-M5-SCOPE-32-morgan.md.
+- Database changes: None.
+- API or contract changes: None. Candidate states, relationships and commands are discovery recommendations only, not approved contracts.
+- Verification commands and results: Documentation synthesis only. Atlas, Blake and Nova handoffs completed. No typecheck/lint/tests/build run for this doc-only synthesis; no runtime behavior changed.
+- Known limitations: Implementation is blocked by owner workflow and commercial decisions: first workflow, customer/job/lead anchor, currency, tax, permissions, follow-up meaning, delivery and acceptance evidence.
+- Risks: Implementing without these decisions would invent commercial terms, expose financial data to wrong roles, or misrepresent manual office notes as customer acceptance/delivery.
+- Rollback notes: Remove the scope document and this handoff if rejected; no runtime or external state changed.
+- Exact next action: Ask the owner one short workflow question. If internal drafts/manual follow-up is approved, scope Atlas contract task first. If external delivery/acceptance is required first, collect the additional commercial/channel decisions before implementation.

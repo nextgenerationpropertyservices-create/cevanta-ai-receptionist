@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-RETELL-DISCOVERY-31.
+- Work completed: Coordinated Phoenix host-capability discovery and Echo provider retry/webhook policy discovery. Read both handoffs and combined findings in docs/ops/RETELL_DISCOVERY_31.md. Accepted only read-only discovery.
+- Files changed: docs/ops/RETELL_DISCOVERY_31.md; docs/project/tasks/CEV-RETELL-DISCOVERY-31.md; docs/project/PROJECT_STATUS.md; docs/project/handoffs/CEV-RETELL-DISCOVERY-31-morgan.md.
+- Database changes: None.
+- API or contract changes: None. No host, topology, rate limit, Retry-After, shared limiter, tenant routing, durable receipt, callback, provider connection or writer accepted.
+- Verification commands and results: Phoenix reports offline readiness inventory PASS with hostedReady:false/providerConnectionAuthorized:false and no known local/tracked hosting metadata; no live host inspection. Echo reports official-source Retell policy discovery on 2026-10-03:10s timeout and up to3 retries documented; backoff, total retry window, Retry-After handling, status-specific behavior, retry signature regeneration and exhaustion recovery unspecified in inspected official sources.
+- Known limitations: No deployment, host account/project inspection, provider dashboard mutation, live callback, provider request, real secret, hosted CI, logs, backup/restore, topology selection, numeric limits or route changes. Public Retell docs may change; official pages inspected did not show publication/update dates.
+- Risks: Selecting limits or Retry-After without host/provider clarification would be fabricated. Returning200 from a discard-only endpoint can still lose operational events.
+- Rollback notes: Documentation only; no external state changed. Remove combined doc/task status/handoff under Morgan direction if rejected.
+- Exact next action: Obtain owner-authorized nonproduction host candidate for read-only capability inspection, or seek provider-policy clarification on retry timing/Retry-After/status handling; no provider/writer/host mutation until separately scoped and approved.

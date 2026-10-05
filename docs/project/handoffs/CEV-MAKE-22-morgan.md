@@ -1,0 +1,14 @@
+# Agent handoff
+- Task ID: CEV-MAKE-22.
+- Work completed: Twelve total fictional executions in isolated scenario6496288: six Code-only then six complete Start1 → Code2 → Return3 executions. All passed. Saved/reopened exact reviewed Return mappings; no defaults. Draft remains on demand/inactive; no writers or parent edits.
+- Files changed: Task22, this handoff, CEV-MAKE-22.png.
+- Database changes: None.
+- API or contract changes: Private Return required Boolean valid and optional Text reason/starts_at_utc/ends_at_utc, direct 2.result mappings.
+- Verification results: Complete Return JSON preserved actual Boolean types. Success {valid:true,starts_at_utc:"2030-01-02T08:00:00.000Z",ends_at_utc:"2030-01-02T09:00:00.000Z"}. Impossible date → {valid:false,reason:"invalid"}; missing timezone → timezone_unverified; duration30 → duration_unapproved; false intent → intent_not_confirmed; empty date (Code input null) → missing. All five failure outputs omitted both timestamp properties entirely. Success omitted reason entirely. Code logs empty; Code execution displayed2 credits each; Return0 credits.
+- Evidence: CEV-MAKE-22.png shows exact final missing-date Return JSON and safe fictional inputs. Output inspected via native JSON view for each case; screenshot captures one case, not all six.
+- Known limitations: Trusted clock remains fixed2030 fixture. Actual Retell date formatting, provenance/tenant binding, live clock, availability, concurrency and durable dedupe remain unverified. No real bookings/calls/messages or production acceptance.
+- Risks: Parent integration requires separately reviewed task; keep operational blockers.
+- Rollback notes: Leave isolated inactive draft; no operational workflow changed.
+- Exact next action: Atlas/Quinn independently review evidence and close this narrow isolated runtime scope before planning parent integration.
+- Final UI observation: Back to saved scenario overview showed Inactive switch Value0 after all12 executions. Application type/lint/test/build checks not rerun: no source changes; prior task19 passes remain historical evidence.
+- Coordinator acceptance: Atlas and Quinn independently approved recorded evidence and viewed missing-case screenshot. ACCEPTED only isolated fixed2030/60 no-writer simulation. Next integration prerequisites remain open.

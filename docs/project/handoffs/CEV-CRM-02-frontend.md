@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-CRM-02.
+- Work completed: Connected office-only customer edit, contact create and per-contact edit forms on customer detail. Customer name/email/phone/notes and contact name/email/phone/job_title are prefilled for edits. Typed local field helpers preserve schema limits and native required/email validation. Existing ActionForm gives pending disable and authoritative success/validation/permission/error states. Existing read-only notice, contact empty state, service-location and equipment forms/actions preserved. Existing root loading/error boundaries continue to apply.
+- Files changed: src/app/workspaces/[tenantId]/customers/[customerId]/page.tsx; docs/project/handoffs/CEV-CRM-02-frontend.md.
+- Database changes: None.
+- API or contract changes: None by Frontend. Uses existing createContact plus approved Backend updateCustomer(previous,form) and updateContact(previous,form). Hidden tenantId/customerId/contactId remain untrusted and checked by Backend. No parent-edit control.
+- Verification commands and results: node node_modules/eslint/bin/eslint.js src/app/workspaces PASS exit 0; node node_modules/typescript/bin/tsc --noEmit PASS exit 0 against completed Backend exports. Installed Next forms guide read; React interface review confirms labeled inputs, server-rendered typed forms, native validation, role gating and existing ActionForm accessibility.
+- Known limitations: Browser live create/edit/save persistence not executed by Frontend. Meaningful security/action tests, actual SQL and production build remain coordinator/Quinn gates; not claimed passed here. Customer name meaning remains existing product customer field; no new business requirements introduced.
+- Risks: Contact creation is not idempotent in the existing backend contract; repeated intentional submissions can create repeated contacts. No delete/move operations added. No sensitive data logged or copied.
+- Rollback notes: Revert only customer/contact form additions/imports/helpers in assigned page; retain service-location/equipment functionality and Backend changes owned elsewhere.
+- Exact next action: Quinn reviews cross-module UI/action integration and executes scoped tests; Morgan integrates checks/build and verifies fictional customer/contact persistence with authorized browser access before acceptance.

@@ -1,0 +1,12 @@
+# Provider date validation feasibility
+- Task ID: CEV-MAKE-21.
+- Owner: Morgan Make UI discovery/integration; Echo official platform research; Atlas contract; Quinn safety review.
+- Scope: Determine supported Make-only strict appointment validator and prepare isolated draft only if exact reviewed contract is representable. No main workflow edits, calls, calendar/email/SMS writes, credentials, activation or new public trigger.
+- Dependencies: Tasks18–20; owner-approved60-minute duration; offline strict validator task19. Actual Retell format remains unverified.
+- Allowed files: Morgan this task, docs/project/handoffs/CEV-MAKE-21-morgan.md and CEV-MAKE-21.png; Echo handoffs/CEV-MAKE-21-echo.md; Atlas handoffs/CEV-MAKE-21-atlas.md; Quinn handoffs/CEV-MAKE-21-quinn.md (handoffs under docs/project). Morgan read-only UI discovery first; new private no-writer draft only after Architecture/Quality feasibility approval. No source changes.
+- Acceptance: Current official Make capability evidence and observed UI; exact strict validator representation or precise blocker. Reject implicit timezone/default dates/parser rollover/string intent. Trusted evaluation time and approved duration must remain distinct from call payload. No operational acceptance or provider output claims. Record next executable integration step.
+- Evidence: Research links, observed UI and independent reviews. No invented module capability.
+- State: isolated static validator installed; saved-construction review pending. Usage block resolved on retry.
+- Evidence: Official Make Code research, Atlas approved conceptual contract and observed authenticated Run code catalog. Safe screenshot and Morgan handoff. No module/draft/provider changes or runs.
+- Installed evidence: Separate inactive scenario6496288 Start1 → Make Code2, exact reviewed static code saved/reopened parity TRUE; three payload mappings. Return adapter pending observed result wrapper; no runs or parent edits.
+- Next: Review installed static construction, then separately scoped fictional runtime discovery and exact Return mapping. Keep inactive/no writers; no upgrade or parent changes.

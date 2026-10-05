@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ROLE-PRIVACY-76B
+- Work completed: Refreshed automated role-privacy evidence for Setup and recorded the first-client tracker status for owner/admin, dispatcher, technician and viewer rows.
+- Files changed: `docs/project/tasks/CEV-ROLE-PRIVACY-76B.md`; `docs/project/handoffs/CEV-ROLE-PRIVACY-76B-morgan.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/onboarding-ui.test.ts tests/onboarding-actions.test.ts tests/onboarding-settings.test.ts tests/settings-ui.test.ts` PASS on 2026-10-05. Vitest ran the configured suite and reported 19 test files / 739 tests passing.
+- Known limitations: No separate dispatcher, technician or viewer browser accounts were exercised. Hosted direct JWT/PostgREST bypass checks and production evidence remain open.
+- Risks: Automated render/action tests are strong source evidence but do not replace a full multi-account browser matrix before live pilot.
+- Rollback notes: Documentation-only task; revert task, handoff, tracker/status/memory edits if superseded by stronger browser evidence.
+- Exact next action: Either provision disposable limited-role users for browser privacy checks or run the safe Make/Retell dry-run before any live provider activation.

@@ -1,0 +1,33 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-HISTORY-68B
+- Work completed: Implemented the bounded backend onboarding setup projection slice. The normal `onboarding_snapshot` RPC now returns current active setup rows for owner/admin and dispatcher projections instead of unbounded retained history. Owner/admin services are filtered to enabled rows and capped at 100, escalation contacts are filtered to enabled rows and capped at 20, and date-specific exceptions are filtered to active rows and capped at 366. Dispatcher services are now active-only and capped at 100; dispatcher exceptions remained active-only. Retained disabled/inactive rows remain stored and the existing configuration command lock/replay behavior is unchanged.
+- Files changed:
+  - `supabase/migrations/202610020006_onboarding_commands.sql`
+  - `supabase/tests/onboarding_commands.sql`
+  - `src/lib/server/onboarding-rpc.ts`
+  - `tests/onboarding-actions.test.ts`
+  - `docs/project/handoffs/CEV-ONBOARD-HISTORY-68B-blake.md`
+- Database changes: Updated the existing onboarding snapshot RPC definition in migration 006. No new migration file was created, no hosted database was changed, and retained storage tables/command writers were not altered. `supabase/setup-development.sql` was inspected by search and does not mirror the onboarding snapshot RPC, so it was not changed.
+- API or contract changes: The normal owner/admin and dispatcher snapshot read contract is now a bounded current projection. It excludes disabled services, disabled escalation contacts and inactive exception tombstones from ordinary setup reads. The server decoder rejects malformed RPC responses that include disabled/inactive current rows or over-cap owner/dispatcher arrays. Public TypeScript snapshot interfaces remain boolean-compatible for existing UI/test fixtures; runtime decoding enforces the active-only current projection.
+- Verification commands and results:
+  - `pnpm test -- tests/onboarding-actions.test.ts` PASS. The repo script ran all Vitest files: 15 files and 665 tests passed, including 61 onboarding action tests.
+  - `pnpm test:onboarding:commands:db` PASS. Embedded onboarding command SQL authorization/replay/projection/receipt assertions passed.
+  - `pnpm typecheck` PASS after keeping shared TypeScript interfaces compatible with existing UI fixtures.
+  - `pnpm check` PASS. Typecheck, ESLint, 665 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage SQL, embedded onboarding command SQL and Next 16.3.8 production build all passed.
+- Meaningful coverage:
+  - Embedded SQL now proves retained disabled service, disabled escalation contact and inactive exception rows remain stored while owner snapshots exclude them from current projections.
+  - Embedded SQL proves active current service, escalation contact and exception rows still return.
+  - Embedded SQL proves dispatcher projection remains private and active-only for services.
+  - Action decoder tests reject disabled service rows, inactive exception rows, disabled escalation rows, too many owner services, too many owner escalation contacts and disabled dispatcher service rows in RPC responses.
+  - Existing command tests continue covering request replay, request reuse, stale revision, role denial, cross-tenant read denial, direct table/helper denial, receipt rollback and version exhaustion.
+- Known limitations:
+  - No UI files were changed. Existing UI receives the bounded projection from the same snapshot shape, but browser behavior was not separately exercised in this task.
+  - No owner history/recovery projection, pagination, re-enable UI or history count/has-more field was implemented. Retained rows remain stored but are not newly exposed through a history API.
+  - No live Supabase Auth/JWT/PostgREST, hosted migration/advisor, genuine multi-connection concurrency, rendered Server Action HTTP, provider, calendar, external writer, production or deployment behavior was verified.
+  - The Supabase changelog markdown endpoint still could not be fetched with the available web tool, so implementation relied on accepted Atlas/Morgan contracts and installed project code.
+- Risks:
+  - If a tenant somehow has more than 100 enabled services or more than 20 enabled escalation contacts from future/manual data changes, the normal snapshot will return the deterministic first page by position/id. That matches the existing editor caps but does not replace a future paged history/recovery design.
+  - Public TypeScript interfaces still use boolean `enabled`/`active` for compatibility; the stricter current-projection invariant is enforced by SQL and server decoding rather than the exported interface.
+  - Hosted databases that already applied migration 006 would need an owner-authorized forward SQL/RPC refresh task before this runtime change exists outside local migration replay.
+- Rollback notes: Revert the listed files. Rolling back only the SQL projection restores unbounded owner history reads; it does not delete retained rows. No data rollback is needed for this local source change.
+- Exact next action: Morgan routes this handoff to Atlas for architecture/RPC contract review and Quinn for security/cross-module review before Morgan acceptance. Future separate tasks should cover owner history/recovery projection, UI re-enable behavior, live Auth/JWT/PostgREST evidence, genuine concurrency and hosted migration/advisor verification.

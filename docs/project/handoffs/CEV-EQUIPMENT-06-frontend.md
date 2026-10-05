@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-EQUIPMENT-06
+- Work completed: Added a native keyboard-accessible Edit equipment disclosure on each existing asset for writable office roles. Prefilled name, type, manufacturer, model and serial number; nullable values use empty strings. Existing ActionForm supplies pending, validation/error and success announcements. Location edit, location creation and equipment creation controls preserved.
+- Files changed: src/app/workspaces/[tenantId]/customers/[customerId]/page.tsx; docs/project/handoffs/CEV-EQUIPMENT-06-frontend.md.
+- Database changes: None.
+- API or contract changes: Consumes Backend updateEquipment ActionForm action with hidden tenantId, customerId, locationId and equipmentId; existing five equipment business fields. No relocation controls.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS; node node_modules/eslint/bin/eslint.js 'src/app/workspaces/[tenantId]/customers/[customerId]/page.tsx' PASS.
+- Known limitations: Authenticated browser presence/default checks and live owner save remain Coordinator verification. Global tests, embedded SQL and production build remain integration checks.
+- Risks: Hidden identifiers are untrusted; Backend must enforce tenant membership and complete customer/location/equipment parent chain. No customer values or credentials captured in records.
+- Rollback notes: Remove updateEquipment import and equipment edit disclosure. No database rollback required.
+- Exact next action: Quality reviews and tests action boundaries; Coordinator runs integration checks and privately verifies rendered prefilled controls, then asks owner to verify a save.

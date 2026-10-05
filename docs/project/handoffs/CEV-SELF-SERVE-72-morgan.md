@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-SELF-SERVE-72 — Full self-service SaaS launch planning
+- Work completed: Collected Backend, Voice/Integrations and DevOps launch-gap reviews after the hosted Setup repair. Inspected current auth/workspace code and confirmed public signup/self-service tenant provisioning is absent. Created the full launch sequence and identified Phase 1 as the next implementation task.
+- Files changed: `docs/project/SELF_SERVICE_SAAS_LAUNCH_PLAN.md`; `docs/project/tasks/CEV-SELF-SERVE-72.md`; `docs/project/handoffs/CEV-SELF-SERVE-72-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Source inspection with `Get-Content` and `rg`; specialist reviews completed. `pnpm check` PASS after documentation updates: typecheck, lint, 16 Vitest files with 711 passing tests, embedded PostgreSQL suites, onboarding command checks and production build.
+- Known limitations: Planning only. Full self-service launch remains unimplemented.
+- Risks: Launching publicly before Phase 1–5 evidence would overstate the product and risk broken onboarding, unbilled usage, unsafe provider effects or unsupported production operations.
+- Rollback notes: Documentation only; revert these files if the launch sequence is replaced.
+- Exact next action: Assign and implement Phase 1 — verified owner signup and atomic workspace provisioning.

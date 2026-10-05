@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LOCATION-05
+- Work completed: Added protected service-location edit action. Verifies authenticated tenant membership and office role, validates all IDs and existing field schema, checks scoped customer and location, updates business fields only, detects missing/denied rows and refreshes customer detail. Framework redirects are preserved; errors return safe fixed messages.
+- Files changed: src/app/actions/workspace.ts; docs/project/handoffs/CEV-LOCATION-05-backend.md.
+- Database changes: None. Existing RLS, immutable identity grants, and database audit trigger apply; update and metadata audit are atomic in the existing database transaction.
+- API or contract changes: Added updateServiceLocation(previous: ActionState, form: FormData): Promise<ActionState>. Form uses tenantId/customerId/locationId and label/address_line1/city/state/postal_code. No shared schema changes.
+- Verification commands and results: node node_modules/typescript/bin/tsc --noEmit PASS exit 0; node node_modules/eslint/bin/eslint.js src/app/actions/workspace.ts PASS exit 0. Source confirms current migration service_locations audit trigger. Coordinator/Quality own integrated tests and production build.
+- Known limitations: Live owner edit not executed by Backend; integrated Quality tests/build remain pending at handoff. Assignment update is repeat-safe in resulting business state, but each submitted update emits its normal metadata audit event; no retry key or version conflict detection is introduced.
+- Risks: Concurrent edits use last successful write, consistent with existing settings action. Parent checks are followed by update constrained to identical tenant/customer/location IDs; RLS enforces authorization at write time.
+- Rollback notes: Remove updateServiceLocation export and associated Frontend form; no database rollback needed.
+- Exact next action: Quality run actual action security tests and source review; coordinator integrate Frontend and run required full checks, then verify the owner can save an edit.

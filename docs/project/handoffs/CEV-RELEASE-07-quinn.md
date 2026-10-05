@@ -1,0 +1,12 @@
+# Quinn quality handoff
+- Task ID: CEV-M3-01 / CEV-RELEASE-07
+- Work completed: APPROVED jobs source/security design and embedded permission behavior for coordinator integration; final release acceptance remains open. Extended real action/query tests and actual PostgreSQL assertions. Verified user membership, office-only writes/directory, assigned-only technician reads, reassignment/demotion/removal, tenant and parent boundaries, immutable identity grants, unique token/lead conversion, validation, metadata audits and insert/update rollback when audit fails.
+- Files changed: tests/jobs.test.ts; supabase/tests/jobs_isolation.sql; this handoff. Existing scripts/test-jobs-embedded.mjs inspected and executed, unchanged.
+- Database changes: None to deployed schema. Added disposable transaction assertions only; entire SQL fixture rolls back.
+- API or contract changes: None.
+- Verification commands and results: node node_modules/vitest/vitest.mjs run tests/jobs.test.ts --configLoader native PASS 67 tests; node scripts/test-jobs-embedded.mjs PASS; node node_modules/eslint/bin/eslint.js tests/jobs.test.ts scripts/test-jobs-embedded.mjs PASS. Read-only sensitive-data/log/service-role inspection found no credentials, real customer data or ordinary service-role use in reviewed jobs paths. Roster names are office-only and carry required display information.
+- Known limitations: Action/query tests use mocked transport while executing actual application functions; SQL runs real PostgreSQL-compatible PGlite with synthetic Auth compatibility, not live Supabase JWT/PostgREST. Concurrent application retries tested through simulated unique violations; actual SQL uniqueness tested sequentially, not concurrent sessions. Authenticated browser, hosted schema/role tests and operations gates not executed by Quinn. Coordinator owns global typecheck/lint/build/E2E acceptance. pnpm fallback failed to resolve vitest and default config loader hit sandbox access restrictions; native config loader passed.
+- Risks: No blocking source defect found in reviewed jobs scope. Release remains unaccepted until mandatory live multiuser isolation and authenticated workflow evidence is recorded.
+- Rollback notes: Remove added tests to revert verification changes; no application or migration rollback needed for this handoff.
+- Exact next action: Morgan run integrated checks and safe browser workflow, obtain Atlas approval and record hosted migration/live role limitations; Quinn begins assigned CEV-M3-02 tests after Atlas publishes contract.
+

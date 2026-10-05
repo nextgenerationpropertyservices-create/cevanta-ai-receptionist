@@ -1,0 +1,60 @@
+# Agent handoff — Echo, 2026-10-03
+
+- Task ID: CEV-RETELL-TRUST-24.
+- Owner: Echo, AI Voice and Integrations; Morgan coordinates and accepts.
+- Scope/dependencies: No-writer provider-format discovery through documentation and existing safe records; task22's isolated evidence and approved60-minute policy. Only this handoff is assigned for writing. Other agents' files and workflows preserved.
+- Work completed: Read AGENTS.md, both original prompts, collaboration, PROJECT_STATUS.md, task24, task22, prior Echo coordination handoff, role brief, MEMORY.md and all four assigned context files. Memory/context are now present, superseding their absence during task23. Consulted current official Retell and Make documentation. Identified documented formats separately from unobserved account configuration; proposed reviewer gates below.
+- Files changed: docs/project/handoffs/CEV-RETELL-TRUST-24-echo.md only.
+- Database changes: None.
+- API or contract changes: None; proposals require Atlas approval.
+- Verification commands and results: Required files read with Get-Content; public official documentation opened successfully through web tools. Manual self-check against task criteria: format, provenance, identity, clock, route and confirmation each have evidence level and explicit unknowns below. No private IDs, URLs, secrets, raw payloads or customer information copied into this handoff.
+- Known limitations: Documentation research, not actual account discovery or verified payload observation. No browser/provider session inspected, no calls or scenario executions, no screenshots, and no signature verification run. Typecheck/lint/application tests/build/SQL/browser suites NOT RUN for this documentation-only assignment. Earlier task22 runtime approval does not prove this task's actual-provider criteria. Task24 is not ready for full acceptance until safe configured-field evidence is obtained and Atlas/Quinn approve it.
+- Risks: Mixing lifecycle callbacks with synchronous tools gives wrong identity/retry/confirmation semantics. Parsed/re-serialized bodies cannot stand in for signed bytes. Analysis validity or provider receipt cannot confirm booking. Fixed simulation time, implicit organization timezone, missing route binding, retries and unknown write outcomes can produce false confirmation or duplicate effects.
+- Rollback notes: Remove this handoff only; no external or operational changes to reverse. No commit, source edit or live activation performed.
+- Exact next action: Morgan arranges read-only inspection of the selected agent's custom function or post-call extraction schema and corresponding Make trigger/mappings. Record only field names, types, payload mode, configured retry settings and presence of identity/version/signature inputs; exclude all private values and payload histories. Echo then completes the actual mapping matrix for Atlas and Quinn review. Do not Run once, listen, test a call, replay, activate, repoint or unblock writers.
+
+## Documented provider evidence — not the owner's observed configuration
+
+Retell lifecycle webhooks use an `event` plus `call` envelope. `call_analyzed` includes analysis; `call_ended` excludes it. The documented delivery timeout is10 seconds with up to3 retries on missing2xx, and delivery is nonblocking. Suggested lifecycle duplicate identity is event plus call ID; transfer attempts require additional identity, and transcript updates cannot use that same one-event-per-call rule. Account/agent-level registration affects which receiver is used. No generic event ID or event-schema-version field was established by this overview. These are documented semantics, not verified owner settings. [Retell webhook overview](https://docs.retellai.com/features/webhook-overview)
+
+Current signing documentation requires original body text and `X-Retell-Signature`, using the webhook-enabled API key. Its manual procedure describes HMAC-SHA256 over body plus signature timestamp, with a5-minute timestamp check and constant-time comparison. The signature timestamp is delivery time, not call time or evaluation time. Verify deployed SDK behavior/version and raw-body access before choosing an adapter. Key presence or an ingress API key alone does not prove this verification runs. [Retell webhook security](https://docs.retellai.com/features/secure-webhook)
+
+Custom functions normally send `name`, `call` and `args`; args-only mode removes the wrapper. The documented sample has `call.agent_version`; that is agent configuration version, not a generic schema version. Configurable `max_retry` defaults to0 and permits up to5; failures/timeouts can retry. No stable invocation ID in the top-level request contract was established here. Do not borrow lifecycle dedupe identity for repeated booking function calls. [Retell custom functions](https://docs.retellai.com/build/single-multi-prompt/custom-function)
+
+Post-call extraction runs after call completion and populates `call_analysis`. Custom categories can be Boolean, Text, Number or Selector; absent conversations can leave custom fields absent. These docs do not establish the owner's appointment field names or a standard appointment datetime format. An inferred successful-call category is not persisted booking evidence. [Retell extraction](https://docs.retellai.com/features/post-call-analysis-overview)
+
+Make documents `now` and `formatDate(date; format; timezone)`, returning Text; omitted timezone uses organization timezone. This supports a candidate platform-clock mapping with explicit UTC, not an installed or tested clock. Exact format tokens, evaluation timing and output fidelity require isolated review; do not use permissive parsing to repair untrusted caller dates before strict validation. [Make time functions](https://help.make.com/date-and-time-functions)
+
+## Safe mapping matrix and blockers
+
+| Required area | Safely established | Still unknown / acceptance blocker |
+| --- | --- | --- |
+| Event kind | Documented lifecycle and custom-function formats differ | Which actual request reaches the selected Make trigger, its enabled event filter and wrapper/args-only mode |
+| Version | Documented function sample exposes agent version; no universal event schema version established | Owner agent revision, extraction/tool schema revision and saved Make adapter revision; do not invent a provider version |
+| Retry identity | Documented lifecycle identity differs from function operations | Actual request identity/settings, stable operation ID reused across retries and persisted receipts; Make execution IDs alone are insufficient |
+| Date/intent | Task22's fictional requestedAt/appointmentRequested/durationMinutes fields preserved strict types | Actual field paths/types, missing/null behavior, timezone/offset provenance, whether dates are relative/free text and how explicit caller confirmation is represented |
+| Trusted clock | Task22 used a fixed fictional clock; Make provides a candidate current-time value | Exact trusted evaluatedAt mapping, serialization, skew/freshness policy, trusted receipt clock and near-write revalidation |
+| Tenant route | Existing integration design demands enabled unique server-owned routing | Actual account/key/connection/agent binding to tenant, ownership of destinations, route disable/revalidation semantics and reviewed worker authority |
+| Booking confirmation | Task22 validates a date only and has no writers | Committed booking/reference, conflict/availability policy, durable operation state, unknown-result reconciliation and caller/operator confirmation contract |
+
+Keep receivedAt (trusted ingress observation), signature delivery timestamp, provider call/event time and evaluatedAt separate. Call start/end timestamps do not prove analysis or request delivery time. Proposed evaluatedAt comes from an approved runtime/server clock, never payload metadata; missing/invalid trusted time rejects. Approved duration remains60-minute trusted configuration. Exact clock expression is intentionally not approved by this research.
+
+Proposed strict date boundary: reject missing, impossible, relative, timezone-less, unknown-offset and ambiguous dates; require explicit Boolean true intent and exact approved duration; never coerce strings or fabricate default timestamps. Where the actual provider supplies local time, require a separately reviewed timezone/DST resolution and caller confirmation step rather than guessing. Existing validator behavior is evidence only for its synthetic input contract.
+
+Tenant selection must follow verified provider/key/connection provenance plus unique enabled server-owned mapping. Caller metadata, phone numbers, extracted tenant IDs and agent IDs in an unauthenticated payload do not establish authorization. Missing, forged, disabled, ambiguous or mismatched identity/routes reject. Verify mappings again before effects; private configuration operations require verified tenant membership and RLS. No such runtime adapter or route store is proven here.
+
+## Required review and outcomes
+
+Atlas: approve distinct lifecycle/tool envelopes, version policy, operation/event keys, tenant binding, time semantics, strict date input and discriminated outcomes. Existing mandatory providerEventId ports must accommodate documented derived lifecycle identities without falsely claiming a provider-issued identifier. Agent version cannot replace event identity.
+
+Quinn: approve negative matrix for missing/forged signature, changed signed bytes, stale/future signature timestamp, wrong key/account/agent, disabled/ambiguous/wrong-tenant mapping, replay/concurrent duplicate, reordered callback, missing/impossible/relative/timezone-less date, string/false intent, wrong duration, invalid clock and unknown write result. Test using fictional inputs; no full call object, transcript, recording or secrets in logs/history evidence. Determine whether Make preserves raw signature inputs; if not, require a separately reviewed verifier boundary rather than declaring the workflow authenticated.
+
+Blake reviews durable receipt/outbox/atomic booking and restricted worker authority; Phoenix reviews clock, private credentials, raw-body boundary and log redaction; Nova reviews pending/failed/unknown/confirmed presentation. Morgan integrates reviews. Proposed policy: date-valid means only normalization passed; availability is not reservation; announce appointment success only after authoritative committed result. On timeout reconcile the same operation before retry, keep unknown status and route to authorized office review. Transfer bridging is not human resolution; notification acceptance is not delivery.
+
+No actual-provider format, live trust/clock/route, booking or caller-success acceptance is claimed. Existing parent barriers remain required. This handoff completes the available documentation step and identifies the exact privately observed evidence needed next.
+
+## Continued read-only access check
+
+After the owner's instruction to continue, Echo read the current computer-use skill and initialized the supported browser inventory with `cua.getState()`. The inventory returned only the connected Codex in-app browser and MCP-app surface; both had zero tabs, and no native apps were available. Therefore no authenticated Retell/Make tab or selected provider configuration is available in this chat for inspection. No tab opened, login attempted, settings changed or history downloaded. This is a specific access blocker, not evidence that the owner's provider accounts or other chats lack sessions.
+
+Morgan's next access action: make an authenticated Retell agent configuration and corresponding Make scenario available in this chat's connected browser, or privately inspect them in Morgan's authorized session and provide a schema-only handoff. Record field names/types and mode/settings presence, excluding private identifiers, addresses, secrets and real call history. Atlas/Quinn can review the documented trust boundaries while that access is prepared; actual configured mappings remain unaccepted.

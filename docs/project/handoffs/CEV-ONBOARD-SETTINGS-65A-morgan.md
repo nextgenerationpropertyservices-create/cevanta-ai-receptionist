@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65A.
+- Work completed: Morgan accepted the backend-only onboarding settings alignment slice after Blake implementation and Quinn PASS WITH LIMITATIONS review. The accepted path adds saveOnboardingSettings for tenant name, trade and timezone through the existing guarded save_business_profile onboarding command, preserving ordinary authenticated session behavior, owner/admin gates, pinned validation, config_revision preconditions, replay/request-reuse semantics and safe failure handling.
+- Files changed: docs/project/tasks/CEV-ONBOARD-SETTINGS-65A.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-SETTINGS-65A-morgan.md.
+- Database changes: None.
+- API or contract changes: Accepted new server action export src/app/actions/onboarding-settings.ts. No shared contract, migration, SQL, UI, provider, hosted or production behavior accepted.
+- Verification commands and results: Blake and Quinn each reported pnpm test -- tests/onboarding-settings.test.ts PASS, and pnpm check PASS with typecheck, lint, 627 Vitest tests, six embedded SQL suites and Next production build. Morgan reviewed the new action, tests, Blake handoff, Quinn handoff and dependent guarded RPC/validation behavior.
+- Known limitations: UI is not wired yet; legacy updateTenantSettings is not retired; live Supabase Auth/JWT/PostgREST, genuine concurrency, rendered Server Action HTTP, browser save/reload, hosted advisors, providers and production remain open.
+- Risks: Future UI must pass contact preservation fields from the reviewed snapshot and must not fetch fresh contact values during submit. Legacy settings path still exists until a later assigned task redirects or retires it.
+- Rollback notes: Remove src/app/actions/onboarding-settings.ts, tests/onboarding-settings.test.ts and SETTINGS65A handoffs if this backend slice is rejected. No database rollback required.
+- Exact next action: Assign Nova a UI-only settings wiring task that uses the accepted action and reviewed snapshot values, then Quinn review.

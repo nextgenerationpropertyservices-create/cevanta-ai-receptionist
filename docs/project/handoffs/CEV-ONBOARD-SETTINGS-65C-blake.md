@@ -1,0 +1,25 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-SETTINGS-65C
+- Work completed: Retired the legacy `updateTenantSettings` direct writer by keeping the export as a safe compatibility action that ignores submitted form data and returns a direct error pointing users to the reviewed Setup/Settings save path. The action no longer calls `requireMembership`, validation, Supabase table access, direct `tenants` updates, or `revalidatePath`. Existing workspace actions for customers, contacts, service locations and equipment were preserved.
+- Files changed:
+  - `src/app/actions/workspace.ts`
+  - `tests/security.test.ts`
+  - `docs/project/handoffs/CEV-ONBOARD-SETTINGS-65C-blake.md`
+- Database changes: None. No migrations, SQL tests, hosted writes, provider changes or production changes were made.
+- API or contract changes: The legacy `updateTenantSettings(previous, form)` export remains callable for stale imports/action references, but it no longer performs settings mutation. The accepted lock-aware settings writer remains `saveOnboardingSettings` from CEV-ONBOARD-SETTINGS-65A. No shared contracts were changed.
+- Verification commands and results:
+  - `pnpm test -- tests/security.test.ts` PASS. The repo script ran all native Vitest files: 15 files and 639 tests passed, including 150 security tests.
+  - `pnpm check` PASS. Typecheck, ESLint, 639 Vitest tests, embedded foundation/intake/jobs/appointments/onboarding storage SQL, embedded onboarding command SQL and Next 16.3.8 production build all passed.
+- Meaningful coverage:
+  - Owner, admin, dispatcher, technician and viewer direct calls to `updateTenantSettings` return the safe Setup/Settings message without database calls, writes or cache invalidation.
+  - Legacy settings callers cannot reach the `tenants` table through `workspace.ts`.
+  - Existing non-settings workspace mutation coverage remains intact for customer/contact/location/equipment create and update behavior, parent-chain checks, role denials, invalid input handling, generic failure copy, trusted tenant identity and successful revalidation after non-settings saves.
+- Known limitations:
+  - This task did not modify UI files. SETTINGS65B already moved the Settings UI to the lock-aware action; this task only blocks the remaining backend export.
+  - Local mock and embedded SQL evidence do not prove live Supabase Auth/JWT/PostgREST behavior, hosted database state, genuine multi-connection concurrency, browser save/reload behavior, rendered Server Action HTTP behavior, or network/RSC privacy.
+  - The Supabase changelog markdown endpoint still could not be fetched with the available web tool, so this task relied on installed project code and accepted Atlas/Morgan contracts.
+- Risks:
+  - Any undiscovered stale caller of `updateTenantSettings` will now receive an error instead of saving. That is intentional for safety, and the message directs the user to the reviewed Settings path.
+  - Because this is a compatibility block rather than removal, future cleanup can delete the export only after Morgan confirms no stale imports or action references remain.
+- Rollback notes: Revert `src/app/actions/workspace.ts`, `tests/security.test.ts`, and this handoff. Rolling back would restore the direct legacy tenant settings writer and should not be done unless Morgan explicitly decides to reopen that bypass risk.
+- Exact next action: Quinn reviews CEV-ONBOARD-SETTINGS-65C for security/cross-module behavior. Morgan then decides whether to accept the legacy writer retirement within the listed limitations and assign the next live/browser/concurrency evidence gates.

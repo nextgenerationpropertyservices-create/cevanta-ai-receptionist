@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-AGENTS-11
+- Work completed: Combined shared instructions and seven role guides in root AGENTS.md; created identical portable CEVANTA_AGENTS.md. Coordinator accepted documentation criteria.
+- Files changed: AGENTS.md, CEVANTA_AGENTS.md, docs/project/tasks/CEV-AGENTS-11.md, this handoff.
+- Database changes: None.
+- API or contract changes: No application contract changes.
+- Verification commands and results: File hash equality, seven role IDs, preserved Next.js block, and document assembly inspected; all passed.
+- Known limitations: Type checking, lint, tests, and production build not rerun for documentation-only consolidation; all passed in CEV-AGENTS-10. Browser, live integrations, and deployment checks not run. Markdown does not register executable agents.
+- Risks: Merge instructions with a destination project's existing AGENTS.md.
+- Rollback notes: Restore prior root contract and remove portable copy; individual guides unchanged.
+- Exact next action: Drop CEVANTA_AGENTS.md into destination project root and rename it AGENTS.md.

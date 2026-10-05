@@ -1,0 +1,65 @@
+name: Foundation checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm agents:validate
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm test:db:embedded
+      - run: pnpm test:intake:db
+      - run: pnpm test:jobs:db
+      - run: pnpm test:appointments:db
+      - run: pnpm build
+
+  tenant-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+      - name: Install PostgreSQL test client
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+      - name: Start disposable local database and apply migrations and seed
+        run: supabase start
+      - name: Assert database tenant isolation
+        run: pnpm test:db
+        env:
+          # Supabase's disposable local default; never a hosted database credential.
+          DATABASE_TEST_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - name: Stop disposable local stack
+        if: always()
+        run: supabase stop --no-backup
+
+

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-PACKAGE-79A
+- Work completed: Added installable app support for the Cevanta dashboard with a web app manifest, app icons, safe service-worker registration and a plain-language Windows/Android packaging guide. Added README pointer and tests for install metadata and private-route cache protection.
+- Files changed: `src/app/layout.tsx`; `src/components/pwa-register.tsx`; `public/manifest.webmanifest`; `public/sw.js`; `public/icons/icon.svg`; `public/icons/icon-192.png`; `public/icons/icon-512.png`; `tests/pwa-install.test.ts`; `docs/project/WINDOWS_ANDROID_PACKAGING.md`; `docs/project/tasks/CEV-PACKAGE-79A.md`; `docs/project/handoffs/CEV-PACKAGE-79A-morgan.md`; `README.md`; `docs/project/PROJECT_STATUS.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `.\node_modules\.bin\vitest.CMD run tests\pwa-install.test.ts --configLoader native` PASS with 4 tests. `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. `pnpm check` PASS before the final service-worker local safe-context adjustment with 22 files / 747 tests, embedded database suites, Retell lead-ingestion embedded suite and production build.
+- Known limitations: No signed Windows `.exe`, MSIX, Android APK/AAB, store listing or production deployment was created. Final packages need an approved HTTPS production URL and owner decisions for package type, publisher identity, signing and store fees.
+- Risks: Browser-installed apps depend on the hosted app being available. Signed native wrappers add update/signing responsibilities and should wait until the first hosted pilot is stable.
+- Rollback notes: Remove manifest/icons/service worker, `PwaRegister`, the packaging guide, README section and `tests/pwa-install.test.ts`.
+- Exact next action: After production hosting is approved, test install from Edge/Chrome on Windows and Chrome on Android, then decide whether a signed Windows installer or Android Play Store package is worth the extra setup.

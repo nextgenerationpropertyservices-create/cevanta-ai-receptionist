@@ -1,0 +1,13 @@
+# Agent handoff
+- Task ID: CEV-LOCATION-05
+- Work completed: Approved source security review of the scoped update action and role-gated customer-detail edit form. Added actual-action tests for verified-user failure, membership failure, all denied and permitted roles, malformed/missing IDs, business validation, invisible customer/location parents, immutable identity fields, scoped update, disappearing records, provider failures, safe messages and success-only detail refresh. No open findings; no authorization bypass or data disclosure identified in this change.
+- Files changed: tests/security.test.ts; this handoff.
+- Database changes: None. Existing RLS and immutable-column grants remain required defenses.
+- API or contract changes: Reviewed new updateServiceLocation server action. Uses existing validation and role contracts. Hidden IDs are untrusted and checked server-side. UI prefills five business fields and displays the form only for office roles.
+- Verification commands and results: `node node_modules/vitest/vitest.mjs run tests/security.test.ts` — 77 tests passed, exit 0 (approved escalation for esbuild configuration resolution). `node node_modules/typescript/bin/tsc --noEmit` — exit 0. `node node_modules/eslint/bin/eslint.js tests/security.test.ts` — exit 0.
+- Known limitations: These actual-action tests mock Supabase responses; they validate request scope and failure behavior, not real JWT/PostgREST/RLS integration. Coordinator owns production build and private browser checks. No live owner save was performed by Quality. No webhook, idempotency or schema change is involved in this task.
+- Risks: Role/RLS changes concurrent with a request are enforced by existing database policies, not established by mocked tests. Updates intentionally affect business fields only; reassignment is outside scope.
+- Rollback notes: Remove the edit form and update action together and restore the added update tests. No migration or data rollback required.
+- Exact next action: Coordinator run final integrated checks against 77 tests, record safe browser form evidence, and have owner verify a private location save before claiming live persistence acceptance.
+
+Reproduction of covered denials: submit the update action with a technician/viewer membership, a customer absent from the requested tenant, or a location absent from the requested customer; expect an error with no update or refresh. Submit valid office membership and visible scoped parents; expect only five business fields written with tenant/customer/location filters. These are regression cases, not outstanding defects; severity: none found.

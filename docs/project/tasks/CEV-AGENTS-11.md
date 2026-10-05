@@ -1,0 +1,12 @@
+# Main agent instruction file
+- Task ID: CEV-AGENTS-11
+- Owner: Morgan — Product Manager and Orchestrator
+- State: accepted
+- Scope: Consolidate seven guides into root AGENTS.md and a portable copy.
+- Dependencies: CEV-AGENTS-10 and existing project contract.
+- Allowed files: AGENTS.md, CEVANTA_AGENTS.md, docs/project/tasks/CEV-AGENTS-11.md, docs/project/handoffs/CEV-AGENTS-11.md.
+- Acceptance criteria: All seven roles included; shared rules and existing Next.js block preserved; portable usage explained.
+- Required evidence: Document inspection, role count, equality check.
+- Reviewers: Morgan; documentation only.
+- Branch/worktree or ownership fallback: Disjoint ownership; no commit.
+- Exact next action: Use portable copy as AGENTS.md in destination folder.

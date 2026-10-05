@@ -1,0 +1,8 @@
+import Link from 'next/link';
+import { Brand } from './ui';
+import { signOut } from '@/app/actions/auth';
+import type { Tenant, Role } from '@/lib/contracts';
+export function WorkspaceShell({tenant,role,children}: {tenant: Tenant;role: Role;children: React.ReactNode}) { const base = `/workspaces/${tenant.id}`; return <div className="app-shell"><aside className="sidebar"><Brand/><div className="workspace-label"><span className="avatar">{tenant.name.slice(0,1)}</span><div><strong>{tenant.name}</strong><span>{tenant.trade}</span></div></div><nav aria-label="Workspace"><Link href={base}>◫ <span>Overview</span></Link><Link href={`${base}/customers`}>◎ <span>Customers</span></Link><Link href={`${base}/leads`}>↗ <span>Leads</span></Link><Link href={`${base}/jobs`}>▤ <span>{role === 'technician' ? 'My jobs' : 'Jobs & dispatch'}</span></Link><Link href={`${base}/calendar`}>▦ <span>Calendar</span></Link><Link href={`${base}/onboarding`}>◇ <span>Setup</span></Link><Link href={`${base}/launch`}>◉ <span>Launch</span></Link><Link href={`${base}/pilot`}>◌ <span>Pilot</span></Link><Link href={`${base}/integrations`}>⌁ <span>Integrations</span></Link><Link href={`${base}/settings`}>⚙ <span>Settings</span></Link></nav><div className="sidebar-bottom"><span className="role">{role} access</span><Link href="/workspaces">Switch workspace ↗</Link><form action={signOut}><button className="text-button" type="submit">Sign out</button></form></div></aside><div className="workspace-content"><header className="topbar"><span>WORKSPACE / <strong>{tenant.name}</strong></span><span className="pill">SECURE WORKSPACE</span></header><main id="main">{children}</main><footer className="app-footer">Cevanta · Your service business, connected.</footer></div></div>; }
+
+
+

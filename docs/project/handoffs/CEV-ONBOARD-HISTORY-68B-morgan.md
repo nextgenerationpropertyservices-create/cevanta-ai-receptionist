@@ -1,0 +1,25 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-HISTORY-68B
+- Work completed: Morgan reviewed Blake's bounded backend projection implementation, Atlas's PASS WITH LIMITATIONS architecture review, and Quinn's PASS WITH LIMITATIONS quality/security review, then accepted the slice with recorded limitations. Normal onboarding snapshots now use bounded current projections locally: owner/admin services and escalation contacts are enabled-only and capped, owner/admin date exceptions are active-only, and dispatcher services are enabled-only. Retained disabled/inactive rows remain stored for audit/recovery.
+- Files changed:
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68B.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-ONBOARD-HISTORY-68B-morgan.md
+  - docs/project/tasks/CEV-ONBOARD-HISTORY-68C.md
+- Database changes: Blake updated the existing local onboarding snapshot RPC definition in supabase/migrations/202610020006_onboarding_commands.sql. No hosted database was changed by Morgan, and no production deployment occurred.
+- API or contract changes: The local normal setup snapshot read contract is now bounded current projection behavior. Runtime hosted environments still need owner-authorized forward refresh before this exists outside local migration replay.
+- Verification commands and results:
+  - Blake reported `pnpm test -- tests/onboarding-actions.test.ts` PASS with 665 Vitest tests, `pnpm test:onboarding:commands:db` PASS, `pnpm typecheck` PASS and `pnpm check` PASS.
+  - Atlas repeated focused action and onboarding command DB checks: PASS.
+  - Quinn reported `pnpm test -- tests/onboarding-actions.test.ts` PASS, `pnpm test:onboarding:commands:db` PASS and `pnpm check` PASS including typecheck, lint, Vitest, embedded database suites and production build.
+  - Morgan performed source/status review and did not rerun the full check after documentation/status-only acceptance edits.
+- Known limitations:
+  - No authenticated browser run, rendered Server Action HTTP verification, hosted Supabase Auth/JWT/PostgREST check, genuine multi-connection race, hosted advisor, hosted migration refresh, provider/calendar path or production deployment was performed.
+  - No owner history/recovery projection, re-enable UI, pagination, history count or has-more field exists yet.
+- Risks:
+  - Hosted databases that already applied migration 006 need a separate owner-authorized forward RPC/migration refresh task before the hosted runtime changes.
+  - Tenants with more than current editor caps need future paged history/recovery projections rather than normal editor payload expansion.
+- Rollback notes: Revert Blake's implementation files and these acceptance/status updates. Rolling back projection code restores unbounded normal owner history reads but does not delete retained rows.
+- Exact next action: Atlas owns CEV-ONBOARD-HISTORY-68C to define the exact owner history/recovery and re-enable API contract before backend/UI implementation.

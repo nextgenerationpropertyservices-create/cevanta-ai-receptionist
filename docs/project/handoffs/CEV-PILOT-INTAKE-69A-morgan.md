@@ -1,0 +1,21 @@
+# Agent handoff
+- Task ID: CEV-PILOT-INTAKE-69A
+- Work completed: Created a first-client intake package and pilot readiness document for selling a managed first version without overstating live automation readiness.
+- Files changed:
+  - docs/business/FIRST_CLIENT_INTAKE.md
+  - docs/business/FIRST_CLIENT_PILOT_READINESS.md
+  - docs/project/tasks/CEV-PILOT-INTAKE-69A.md
+  - docs/project/BACKLOG.md
+  - docs/project/PROJECT_STATUS.md
+  - context/NEXT_TASK.md
+  - docs/project/handoffs/CEV-PILOT-INTAKE-69A-morgan.md
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results:
+  - Documentation inspection PASS: intake covers business profile, service area, services, hours, date exceptions, call handling, emergencies, lead qualification, pilot booking policy, Make/Retell/Twilio/calendar readiness, fictional test data and owner approvals.
+  - Documentation inspection PASS: pilot readiness states managed-pilot positioning, what can be sold now, what remains manual, claims to avoid, evidence still needed, first-client fit, launch checklist and stop conditions.
+  - Runtime checks were not run because this was documentation-only.
+- Known limitations: These documents do not prove app browser behavior, hosted Supabase behavior, Make/Retell live behavior, calendar/SMS/email automation, or production readiness.
+- Risks: The docs must be kept aligned with actual evidence before being sent to a paying client. Avoid editing them to promise live booking or production automation until those gates pass.
+- Rollback notes: Remove the two business docs and revert status/backlog/context updates if a different sales package replaces this one.
+- Exact next action: Use FIRST_CLIENT_INTAKE.md to collect a pilot client’s information, then run local/browser demo evidence and Make/Retell dry-run preparation before live selling claims.

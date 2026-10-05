@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-MAKE-20.
+- Completed: Owner approved 1hr/60-minute appointments in chat. Freshly inspected private scenario6495889: Start2 → Return3 only; no provider or nested operational modules. Performed two manual runs with fictional test-call-cev-make-20, without activation. Tested empty required input first; UI rejected Value must not be empty and kept form open.
+- Files changed: Task20, this handoff and safe CEV-MAKE-20.png.
+- Database/API/config changes: No schema, app, provider mapping, permissions, parent or scenario edits. Approved duration recorded as business policy, not silently wired to booking.
+- Evidence: Both runs completed successfully. Return3 JSON output each time exactly call_id test-call-cev-make-20, simulation Boolean true, status simulated_not_persisted. JSON confirms unquoted true, not text. Repeat output structurally identical. History lists two Manual Success entries at9:26 and9:27. Returned overview still Inactive, no execution running, displayed0credits. Safe screenshot captures fictional JSON result only.
+- Checks: Manual isolated runtime PASS for these two inputs and form validation. No app type/lint/build/database checks rerun: no app code changed; preceding task19 checks passed. Independent Quality review requested.
+- Limitations: Required-input check is form validation, not direct API validation. Make input pattern restriction remains descriptive only; offline prototype enforces it but is not integrated. No concurrency/durable dedupe/auth/tenant claims. Actual Retell extraction format, booking parser adapter, availability/conflicts, event provenance and production integration unverified. No real messages/calls/appointments sent.
+- Risks: Simulation result must never authorize customer success messages or provider writes. Parent6495246 write/SMS blockers unchanged; it was not run. Inactive subscenario manual run is supported; authenticated parent call readiness still not accepted.
+- Rollback: No operational side effects to reverse; retain private simulation history and inactive draft. Preserve every existing/shared workflow.
+- Next: Independent review of this scoped runtime evidence, then strict datetime/consent normalization integration in an isolated no-writer harness before parent changes.

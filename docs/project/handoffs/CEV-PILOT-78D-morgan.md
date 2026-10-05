@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-PILOT-78D
+- Work completed: Added a protected workspace Pilot runbook page and navigation link so a first HVAC managed pilot can be run with clear pre-call, live-day, post-call and stop-rule guidance. Added links from Launch into the runbook.
+- Files changed: `src/components/workspace-shell.tsx`; `src/app/workspaces/[tenantId]/launch/page.tsx`; `src/app/workspaces/[tenantId]/pilot/page.tsx`; `tests/pilot-ui.test.ts`; `docs/project/tasks/CEV-PILOT-78D.md`; `docs/project/handoffs/CEV-PILOT-78D-morgan.md`; `docs/project/PROJECT_STATUS.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/pilot-ui.test.ts` PASS with project script reporting 21 files / 743 tests. Later `pnpm check` PASS with typecheck, lint, 22 files / 747 tests, embedded database suites, Retell lead-ingestion embedded suite and production build. Build route table includes `/workspaces/[tenantId]/pilot`.
+- Known limitations: Runbook only; no live provider activation, external sends, automatic booking, billing or production deployment.
+- Risks: Operators still need to follow the stop rules manually until live automation guardrails and provider write controls are approved.
+- Rollback notes: Remove the Pilot nav/link, `src/app/workspaces/[tenantId]/pilot/page.tsx` and `tests/pilot-ui.test.ts`.
+- Exact next action: Use the runbook during the first managed pilot after owner approves the live webhook/write path and Retell credits are ready.

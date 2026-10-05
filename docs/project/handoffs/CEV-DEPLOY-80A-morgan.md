@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DEPLOY-80A
+- Work completed: Prepared Vercel production deployment configuration, release documentation, environment variable checklist and post-deploy verification plan. Attempted Vercel CLI authentication and confirmed the release candidate still passes the full local check suite.
+- Files changed: `vercel.json`; `.vercelignore`; `docs/project/PRODUCTION_DEPLOYMENT.md`; `docs/project/tasks/CEV-DEPLOY-80A.md`; `docs/project/handoffs/CEV-DEPLOY-80A-morgan.md`; `README.md`; `docs/project/PROJECT_STATUS.md`; `docs/project/OWNER_ATTENTION.md`; `docs/project/FIRST_CLIENT_EVIDENCE_TRACKER.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. `pnpm check` PASS with 22 Vitest files / 747 tests, embedded database suites, Retell lead-ingestion embedded suite and production build. Vercel connector shows team access but no linked Git project. Vercel CLI deploy remains blocked by authentication/linking state.
+- Known limitations: No production deployment URL was created. The local folder has no Git remote. Vercel CLI latest login fails under this pnpm/Node runtime because `@vercel/cli-auth` does not resolve; older CLI can run but legacy login is disabled and the saved token is invalid.
+- Risks: Deploying before production env vars and Supabase Auth redirect URLs are set would make sign-in/recovery fail on the public domain. Enabling Retell writer or external sends before approval could create live records/messages.
+- Rollback notes: Remove `vercel.json`, `.vercelignore` and the production deployment docs if switching away from Vercel. No deployed production artifact exists to roll back.
+- Exact next action: Owner completes one deployment-unblocking path: fix Vercel CLI login on this machine, connect a Git repository to Vercel, or add a valid Vercel token securely as a local environment secret. Then run the production deploy and post-deploy checks.

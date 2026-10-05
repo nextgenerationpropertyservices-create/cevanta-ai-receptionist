@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-GAP-56.
+- Work completed: Morgan accepted Atlas's onboarding remaining-gaps review as architecture planning. The accepted output prioritizes environment proof, lock/concurrency proof, JWT/PostgREST evidence, transport/browser runtime proof, settings alignment, resume/exceptions/history, readiness policy, access model, invitations, provider readiness and release gates.
+- Files changed: docs/project/tasks/CEV-ONBOARD-GAP-56.md; docs/project/PROJECT_STATUS.md; docs/project/BACKLOG.md; context/NEXT_TASK.md; docs/project/handoffs/CEV-ONBOARD-GAP-56-morgan.md.
+- Database changes: None.
+- API or contract changes: None. Proposed future task IDs are planning suggestions until Morgan creates exact ledger assignments.
+- Verification commands and results: Atlas reported source/document review only. No typecheck, lint, tests, SQL, browser, hosted, provider or production checks were run for this planning task.
+- Known limitations: The review does not prove live hosted state or reproduce runtime defects. It is a dependency-aware roadmap for remaining evidence and implementation slices.
+- Risks: Treating locally accepted setup storage as full first-client or provider readiness would overstate the product. Keep broader claims blocked until their direct evidence exists.
+- Rollback notes: Documentation only; revise the planning document if the sequence changes.
+- Exact next action: Create exact tasks for ENV59 and LOCK60 first, then serialize settings/history/resume/browser/provider work by file ownership.

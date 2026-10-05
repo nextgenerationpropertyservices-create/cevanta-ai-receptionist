@@ -1,0 +1,1 @@
+export default function Loading() { return <main id="main" className="state-page" aria-busy="true"><div className="spinner"/><h1>Opening your workspace</h1><p>Loading your records securely…</p></main>; }

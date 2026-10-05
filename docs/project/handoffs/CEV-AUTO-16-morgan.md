@@ -1,0 +1,12 @@
+# Coordinator integration handoff
+- Task ID: CEV-AUTO-16
+- Work completed: Integrated reviewed recovery backend/UI, clearer overview links, stricter browser denial checks and narrow loopback development allowance. Owner confirms existing Make handles leads, booking, messages and transfers; preserve existing workflow.
+- Files changed: Coordinator task/status/acceptance records; specialist changes are listed in their individual handoffs. next.config.ts ownership belongs solely to Phoenix under CEV-AUTO-16-dev-origin, separate from ops ownership.
+- Database changes: None in this wave. Hosted migrations003/004 already installed; do not rerun.
+- API or contract changes: Dedicated verified recovery callback and authenticated self-change; Architect-approved contract in auth task.
+- Verification commands and results: Full pnpm check PASS: typecheck, lint,350 tests and four actual embedded SQL suites. Final pnpm build PASS after conditional notice and dev-origin edits. Preview restarted with approved Supabase network access; own calendar persisted. Owner foreign CRM/Jobs/Calendar rendered unavailable without records, with server membership denial. Anonymous browser suite1 pass,3 skipped as recorded by Phoenix.
+- Known limitations: Recovery provider template/allowlist/trusted origin and private end-to-end test open. Make browser unsigned; no scenario inspected. Other-role/direct JWT, hosted CI, restore and migration-history gates remain open. No production acceptance.
+- Risks: Duplicate actions if existing Make writers and new Cevanta writers are enabled together; transformed Make payload cannot inherit original Retell signature verification.
+- Rollback notes: Source changes reversible; no provider/scenario changes made. Do not revert unrelated work.
+- Make discovery update: Owner signed in. Cevanta hvac and HVAC Receptionist v1.1 — DEVELOPMENT v1.0 diagrams inspected read-only; both inactive. Observed booking checks/calendar creation, urgent/follow-up emails and consent-gated SMS branch. Development version has one queued record, not opened or executed. No credential, private URL or customer payload recorded. Exact working version awaits owner identification; diagram is not successful execution evidence.
+- Exact next action: Confirm working Make scenario among versions and obtain actual event mapping and single-writer ownership before provider integration implementation.
