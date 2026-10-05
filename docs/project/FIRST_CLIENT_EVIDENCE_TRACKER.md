@@ -307,8 +307,8 @@ Date: 2026-10-05
 | Area | Status | Evidence note | Next safe action |
 | --- | --- | --- | --- |
 | Workspace Pilot runbook | PASS WITH LIMITATIONS | 2026-10-05: CEV-PILOT-78D added protected Pilot runbook page, sidebar link and Launch link. Full `pnpm check` later passed with 22 files / 747 tests and production build. | Use for managed-pilot operating steps after live path approval. |
-| Windows install support | READY WITH LIMITATIONS | 2026-10-05: CEV-PACKAGE-79A added manifest, icons and safe service worker. PWA install test, typecheck, lint and build passed. | After approved HTTPS production deployment, test Edge/Chrome install. |
-| Android install support | READY WITH LIMITATIONS | 2026-10-05: Same manifest/icons support Android Chrome install. Service worker avoids private workspace/API/Auth route caching. | After approved HTTPS production deployment, test Android Chrome install. |
+| Windows install support | READY TO TEST | 2026-10-05: Hosted manifest is reachable and hosted service worker returns HTTP 200 at the production URL. Browser install can be tested in Edge/Chrome. | Test Edge/Chrome install manually; signed installer remains a later decision. |
+| Android install support | READY TO TEST | 2026-10-05: Hosted manifest/icons and service worker are available from the production URL. Android Chrome install can be tested. | Test Android Chrome add-to-home/install manually; Play Store package remains a later decision. |
 | Signed Windows `.exe` | NOT CREATED | Requires package choice, production URL, packaging dependencies, signing decision and owner approval. | Decide if a real installer is needed after first hosted pilot. |
 | Android APK/AAB or Play Store | NOT CREATED | Requires production URL, Android package identity, signing key, store assets/account and owner approval. | Prefer Chrome install first; revisit store packaging later. |
 
@@ -321,6 +321,7 @@ Date: 2026-10-05
 | Vercel production URL | PASS WITH LIMITATIONS | 2026-10-05: GitHub repo connected and Vercel production URL is https://cevanta-ai-receptionist.vercel.app/. | Continue only no-cost checks unless owner approves paid/provider actions. |
 | Supabase production redirects | PASS WITH LIMITATIONS | 2026-10-05: Production origin and auth callback/recovery URLs configured for Vercel and local support. | Keep testing confirmation/recovery emails with private owner-approved inboxes only. |
 | Installable Windows/Android app | READY TO TEST | HTTPS production URL exists and app shell is ready. | Test browser install on Windows/Android before promising app-store style installers. |
+
 
 
 

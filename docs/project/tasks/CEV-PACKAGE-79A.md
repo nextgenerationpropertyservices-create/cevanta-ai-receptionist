@@ -11,7 +11,7 @@ Prepare Cevanta so the dashboard can be installed as an app on Windows and Andro
 ## Dependencies
 
 - Existing authenticated Cevanta dashboard.
-- Production hosting approval and URL before final signed packages.
+- Production hosting URL exists for browser-install testing. Signed packages still require owner decisions and possible paid accounts/signing.
 
 ## Allowed files
 
@@ -50,4 +50,12 @@ Prepare Cevanta so the dashboard can be installed as an app on Windows and Andro
 
 ## Limitations
 
-This prepares an installable hosted app. It does not create a signed Windows `.exe`, MSIX, Android APK, Android AAB, app-store listing, production deployment, or public URL. Those require owner approval for the production URL, package format, publisher identity, store/developer-account costs, signing, and release process.
+This prepares and hosts an installable web app at the production URL. It does not create a signed Windows `.exe`, MSIX, Android APK, Android AAB or app-store listing. Those require owner approval for package format, publisher identity, store/developer-account costs, signing and release process.
+
+## Hosted follow-up evidence
+
+2026-10-05 read-only production checks confirmed https://cevanta-ai-receptionist.vercel.app/manifest.webmanifest is reachable with Cevanta app metadata and https://cevanta-ai-receptionist.vercel.app/sw.js returns HTTP 200. Browser install is ready to test on Windows/Android. No signed .exe, MSIX, APK, AAB, store listing, paid account or code-signing action was created.
+
+
+
+
