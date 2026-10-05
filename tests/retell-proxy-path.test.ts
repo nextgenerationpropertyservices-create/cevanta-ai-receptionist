@@ -24,7 +24,7 @@ const request = (path: string) => new NextRequest(`http://localhost${path}`, {
 });
 
 describe("narrow machine ingress proxy exclusion", () => {
-  it.each(["/api/integrations/retell", "/api/integrations/retell/", "/api/integrations/retell?fictional=1"])("excludes only the ingress endpoint: %s", async path => {
+  it.each(["/api/integrations/retell", "/api/integrations/retell/", "/api/integrations/retell?fictional=1", "/api/integrations/make/retell-lead", "/api/integrations/make/retell-lead/", "/api/integrations/make/retell-lead?fictional=1"])("excludes only the ingress endpoint: %s", async path => {
     expect(matches(path)).toBe(false);
     const incoming = request(path);
     const cookieRead = vi.spyOn(incoming.cookies, "getAll");
@@ -38,7 +38,7 @@ describe("narrow machine ingress proxy exclusion", () => {
     expect(response.headers.has("set-cookie")).toBe(false);
   });
 
-  it.each(["/workspaces", "/api/integrations/retell-other", "/api/integrations/retell/child", "/api/integrations/other"])("retains configured user/session behavior: %s", async path => {
+  it.each(["/workspaces", "/api/integrations/retell-other", "/api/integrations/retell/child", "/api/integrations/make/retell-lead/child", "/api/integrations/make-other", "/api/integrations/other"])("retains configured user/session behavior: %s", async path => {
     expect(matches(path)).toBe(true);
     await proxy(request(path));
     expect(mocks.create).toHaveBeenCalledOnce();
@@ -65,7 +65,7 @@ describe("narrow machine ingress proxy exclusion", () => {
     expect(mocks.getUser).toHaveBeenCalledOnce();
   });
 
-  it.each(["/api/integrations/retell", "/workspaces"])("does not read, lock, consume or change body bytes: %s", async path => {
+  it.each(["/api/integrations/retell", "/api/integrations/make/retell-lead", "/workspaces"])("does not read, lock, consume or change body bytes: %s", async path => {
     const incoming = request(path);
     const body = incoming.body;
     const readers = ["text", "json", "arrayBuffer", "formData", "blob", "clone"] as const;
@@ -95,4 +95,6 @@ describe("narrow machine ingress proxy exclusion", () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 });
+
+
 

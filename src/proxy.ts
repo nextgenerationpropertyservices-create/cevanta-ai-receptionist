@@ -9,12 +9,18 @@ const publicAuthPaths = new Set([
   "/auth/callback",
   "/auth/recovery",
 ]);
+const machineIngressPaths = new Set([
+  "/api/integrations/retell",
+  "/api/integrations/retell/",
+  "/api/integrations/make/retell-lead",
+  "/api/integrations/make/retell-lead/",
+]);
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   // Machine ingress verifies its own raw-body signature; user cookies are unrelated.
   // Keep this guard narrow even when the proxy is invoked outside Next's matcher.
-  if (request.nextUrl.pathname === "/api/integrations/retell" || request.nextUrl.pathname === "/api/integrations/retell/") return response;
+  if (machineIngressPaths.has(request.nextUrl.pathname)) return response;
   // Public auth entry points should render even when hosted Auth is slow or temporarily unreachable.
   // Protected pages and server actions still perform authoritative verified-user checks before data access.
   if (publicAuthPaths.has(request.nextUrl.pathname)) return response;
@@ -32,4 +38,5 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health|api/integrations/retell/?$).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health|api/integrations/retell/?$|api/integrations/make/retell-lead/?$).*)"] };
+
