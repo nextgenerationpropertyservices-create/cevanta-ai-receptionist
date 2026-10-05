@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-LAUNCH-SMOKE-81A
+- Work completed: Ran a safe production smoke check against the live Vercel site after deployment and Supabase Auth redirect configuration. Checked public pages, installable app files and browser sign-up page without submitting personal information or creating accounts.
+- Files changed: `docs/project/tasks/CEV-LAUNCH-SMOKE-81A.md`; `docs/project/handoffs/CEV-LAUNCH-SMOKE-81A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- Hosted configuration changes: None.
+- API or contract changes: None.
+- Verification commands and results: Production `/api/health` returned HTTP 200 with `{"status":"ok","databaseConfigured":true}`. Production `/sign-in`, `/sign-up`, `/forgot-password` and `/auth/recovery` returned HTTP 200. Production `/manifest.webmanifest`, `/sw.js`, `/icons/icon-192.png` and `/icons/icon-512.png` returned HTTP 200. Browser check on `/sign-up` confirmed the owner account form was present and no console warnings/errors were reported.
+- Known limitations: No real signup email, password recovery email, token exchange, authenticated workspace persistence, Windows/Android install prompt or live Retell/Make/Twilio writer was tested.
+- Risks: Live account/email tests will send email through Supabase and should use the owner's approved test inbox only.
+- Rollback notes: Documentation-only evidence. No rollback needed.
+- Exact next action: Run a real production signup test with an owner-approved test email inbox, then confirm the email link lands on the production domain and creates/signs into the workspace.
