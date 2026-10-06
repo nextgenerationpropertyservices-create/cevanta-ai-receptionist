@@ -30,11 +30,12 @@ const payload = {
 };
 const body = JSON.stringify(payload);
 const sign = (value = body, at = now) => `v=${at},d=${createHmac("sha256", secret).update(value).update(String(at)).digest("hex")}`;
-const request = (value = body, signature: string | null = sign(value)) => new Request("http://localhost/api/integrations/make/retell-lead", {
+const request = (value = body, signature: string | null = sign(value), headers: Record<string, string> = {}) => new Request("http://localhost/api/integrations/make/retell-lead", {
   method: "POST",
   body: value,
-  headers: { "content-type": "application/json", ...(signature ? { "x-cevanta-make-signature": signature } : {}) },
+  headers: { "content-type": "application/json", ...(signature ? { "x-cevanta-make-signature": signature } : {}), ...headers },
 });
+const bearerRequest = (value = body, token = secret) => request(value, null, { authorization: `Bearer ${token}` });
 
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "test");
@@ -76,6 +77,18 @@ describe("Make Retell lead bridge", () => {
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
+  it("accepts private Make app bearer authorization in verifier-only mode without persistence", async () => {
+    vi.stubEnv("MAKE_RETELL_INGRESS_LEAD_WRITER", "");
+    const response = await POST(bearerRequest());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "verified_not_persisted", persisted: false, bookingCreated: false });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects wrong private Make app bearer authorization before RPC", async () => {
+    expect((await POST(bearerRequest(body, "wrong-fictional-token"))).status).toBe(401);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it("rejects unsigned, stale, altered and unsupported payloads before RPC", async () => {
     expect((await POST(request(body, null))).status).toBe(401);
     expect((await POST(request(body, sign(body, now - 301_000)))).status).toBe(401);
@@ -120,4 +133,3 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual(expected);
   });
 });
-

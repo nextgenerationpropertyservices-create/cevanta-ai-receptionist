@@ -12,6 +12,7 @@ Use this list when you return. These are decisions or actions I should not compl
 | --- | --- | --- | --- |
 | High | Retell credits | Retell showed a low credit warning. Live demos and client calls can fail if balance runs out. | Add credits or enable the Retell recharge setting you are comfortable with. |
 | High | Retell-to-Make or Retell-to-Cevanta webhook activation | This turns live calls into downstream automation. It can create records or trigger workflows. | Approve the exact path: Retell → Make safe intake, Retell → Cevanta, or both in stages. |
+| High | Make-to-Cevanta bridge private credential | Cevanta must authenticate Make before trusting bridge traffic. The private bridge secret must not appear in docs, chat, screenshots, visible scenario notes or normal HTTP fields. | Use the private Cevanta Bridge Make app/credential path, then run one fictional verifier-only test before enabling any writer. |
 | High | Production deployment approval | Public production launch changes who can access the app and may expose live workflows. | Approve a concrete release candidate after final checks. |
 | High | First live client/pilot boundary | Sales language must match what is proven. | Decide whether the first offer is “managed pilot with office review” only. Recommended: yes. |
 | Medium | SMS/email/calendar writes | These contact customers or change schedules outside the app. | Approve each channel separately after wording, consent, and rollback rules are reviewed. |
@@ -51,4 +52,3 @@ Do not complete without owner approval if it can charge money or contact/change 
 4. Send SMS/email or create/update external calendar events.
 5. Enable billing/payments or sell a committed self-service plan.
 6. Run a live client pilot outside the managed office-review boundary.
-

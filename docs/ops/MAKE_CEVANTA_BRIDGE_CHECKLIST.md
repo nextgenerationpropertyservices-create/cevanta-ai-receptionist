@@ -14,6 +14,8 @@ This checklist is safe to keep in source because it contains no private webhook 
 - Confirm the Make bridge secret will be entered through a private field or controlled UI path, not copied into docs, chat, screenshots or command logs.
 - Use fictional data for every test.
 
+2026-10-06 status: scenario `6515719` was re-inspected and remains inactive. Cevanta bridge tests passed locally. A new Make canvas note `354328` records the verifier-only status and signing gate. A private Make custom app shell `Cevanta Bridge` (`cevanta-bridge-cgv2vw`) was created for the safer credential-based bridge path. Do not add a normal HTTP module with visible secret fields.
+
 ## Where the bridge belongs
 
 Add the Cevanta HTTP call only on the new-call create path:
@@ -71,6 +73,7 @@ Unsigned, stale, altered or malformed tests should reject before any write.
 
 Stop before continuing if any of these happen:
 
+- Make cannot send the bridge secret through a private credential/connection without exposing it in scenario config, docs, chat, screenshots or logs.
 - Make requires a paid upgrade or paid connection.
 - A test would consume Retell minutes or paid phone credits.
 - A module would send SMS, email or calendar updates.

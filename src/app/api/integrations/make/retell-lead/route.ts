@@ -92,13 +92,27 @@ function leadDraft(callId: string, fields: z.infer<typeof leadFields> | undefine
   return { leadName, phone, email, priority: normalizePriority(fields), description: parts.join("\n") };
 }
 
+function safeSecretEqual(provided: string, expected: string | undefined) {
+  const trimmed = expected?.trim();
+  if (!trimmed) return false;
+  const providedBytes = Buffer.from(provided, "utf8");
+  const expectedBytes = Buffer.from(trimmed, "utf8");
+  return providedBytes.length === expectedBytes.length && timingSafeEqual(providedBytes, expectedBytes);
+}
+
 function verifyMakeSignature(rawBody: Uint8Array, signature: string | null, secret: string | undefined, verifiedAtMs: number) {
-  if (!secret?.trim()) return false;
   const match = signature && /^v=([1-9]\d{0,15}),d=([a-f0-9]{64})$/i.exec(signature);
   const deliveredAtMs = match ? Number(match[1]) : NaN;
   if (!match || !Number.isSafeInteger(deliveredAtMs) || Math.abs(verifiedAtMs - deliveredAtMs) > SIGNATURE_WINDOW_MS) return false;
+  if (!secret?.trim()) return false;
   const expected = createHmac("sha256", secret).update(rawBody).update(match[1], "utf8").digest();
   return timingSafeEqual(expected, Buffer.from(match[2], "hex"));
+}
+
+function verifyMakeAuthorization(rawBody: Uint8Array, request: Request) {
+  if (verifyMakeSignature(rawBody, request.headers.get("x-cevanta-make-signature"), process.env.MAKE_RETELL_INGRESS_SECRET, Date.now())) return true;
+  const match = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") ?? "");
+  return Boolean(match && safeSecretEqual(match[1], process.env.MAKE_RETELL_INGRESS_SECRET));
 }
 
 async function readBody(request: Request) {
@@ -169,9 +183,7 @@ export async function POST(request: Request): Promise<Response> {
   const read = await readBody(request);
   if (read.error) return read.error;
   const rawBody = read.body!;
-  if (!verifyMakeSignature(rawBody, request.headers.get("x-cevanta-make-signature"), process.env.MAKE_RETELL_INGRESS_SECRET, Date.now())) {
-    return response(401, "rejected");
-  }
+  if (!verifyMakeAuthorization(rawBody, request)) return response(401, "rejected");
   let input: unknown;
   try {
     const text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(rawBody);
@@ -195,4 +207,3 @@ export const PUT = methodNotAllowed;
 export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
-
