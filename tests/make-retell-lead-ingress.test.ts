@@ -84,6 +84,27 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual({ status: "verified_not_persisted", persisted: false, bookingCreated: false });
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
+  it("treats blank optional Make fields as missing in verifier-only mode", async () => {
+    vi.stubEnv("MAKE_RETELL_INGRESS_LEAD_WRITER", "");
+    const blankOptionalPayload = JSON.stringify({
+      ...payload,
+      call_id: "call_make_bridge_blank_optional_001",
+      lead: {
+        caller_name: "",
+        caller_phone: "+15550100301",
+        service_type: "",
+        call_summary: "The fictional caller gave service details in the summary only.",
+        service_address: "",
+        urgency: "",
+        preferred_appointment_time: " ",
+      },
+    });
+    const response = await POST(request(blankOptionalPayload, sign(blankOptionalPayload)));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "verified_not_persisted", persisted: false, bookingCreated: false });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
 
   it("rejects wrong private Make app bearer authorization before RPC", async () => {
     expect((await POST(bearerRequest(body, "wrong-fictional-token"))).status).toBe(401);
@@ -133,3 +154,4 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual(expected);
   });
 });
+

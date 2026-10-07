@@ -9,25 +9,37 @@ const SIGNATURE_WINDOW_MS = 5 * 60 * 1000;
 const READ_DEADLINE_MS = 5000;
 
 const connectionIdSchema = z.uuid();
+const optionalText = (max: number) => z.preprocess(
+  value => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().trim().min(1).max(max).optional(),
+);
+const optionalEmail = z.preprocess(
+  value => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().trim().email().max(254).optional(),
+);
+const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) => z.preprocess(
+  value => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.enum(values).optional(),
+);
 const leadFields = z.object({
-  lead_name: z.string().trim().min(1).max(160).optional(),
-  customer_name: z.string().trim().min(1).max(160).optional(),
-  name: z.string().trim().min(1).max(160).optional(),
-  caller_name: z.string().trim().min(1).max(160).optional(),
-  lead_phone: z.string().trim().min(1).max(40).optional(),
-  phone: z.string().trim().min(1).max(40).optional(),
-  caller_phone: z.string().trim().min(1).max(40).optional(),
-  lead_email: z.string().trim().email().max(254).optional(),
-  email: z.string().trim().email().max(254).optional(),
-  service_type: z.string().trim().min(1).max(120).optional(),
-  issue_summary: z.string().trim().min(1).max(1000).optional(),
-  call_summary: z.string().trim().min(1).max(1000).optional(),
-  preferred_time: z.string().trim().min(1).max(120).optional(),
-  preferred_appointment_time: z.string().trim().min(1).max(120).optional(),
-  address: z.string().trim().min(1).max(200).optional(),
-  service_address: z.string().trim().min(1).max(200).optional(),
-  urgency: z.enum(["normal", "high", "urgent", "Normal", "Urgent", "Emergency"]).optional(),
-  priority: z.enum(["normal", "high", "urgent"]).optional(),
+  lead_name: optionalText(160),
+  customer_name: optionalText(160),
+  name: optionalText(160),
+  caller_name: optionalText(160),
+  lead_phone: optionalText(40),
+  phone: optionalText(40),
+  caller_phone: optionalText(40),
+  lead_email: optionalEmail,
+  email: optionalEmail,
+  service_type: optionalText(120),
+  issue_summary: optionalText(1000),
+  call_summary: optionalText(1000),
+  preferred_time: optionalText(120),
+  preferred_appointment_time: optionalText(120),
+  address: optionalText(200),
+  service_address: optionalText(200),
+  urgency: optionalEnum(["normal", "high", "urgent", "Normal", "Urgent", "Emergency"]),
+  priority: optionalEnum(["normal", "high", "urgent"]),
 }).passthrough();
 
 const envelope = z.object({
@@ -207,3 +219,4 @@ export const PUT = methodNotAllowed;
 export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
+
