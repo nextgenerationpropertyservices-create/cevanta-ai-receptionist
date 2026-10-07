@@ -25,7 +25,7 @@ const payload = {
     call_summary: "AC stopped cooling during a fictional bridge test.",
     preferred_appointment_time: "Tomorrow afternoon",
     service_address: "123 Fictional Bridge Street",
-    urgency: "Urgent",
+    urgency: "Routine",
   },
 };
 const body = JSON.stringify(payload);
@@ -134,7 +134,7 @@ describe("Make Retell lead bridge", () => {
       lead_phone: "+15550100300",
       lead_email: "make-caller@example.invalid",
       lead_description: expect.stringContaining("AC stopped cooling during a fictional bridge test."),
-      lead_priority: "urgent",
+      lead_priority: "normal",
     } });
     const sent = mocks.rpc.mock.calls[0][1].input;
     expect(JSON.stringify(sent)).not.toContain("forged-tenant-id");
@@ -154,4 +154,5 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual(expected);
   });
 });
+
 

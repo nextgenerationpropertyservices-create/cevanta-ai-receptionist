@@ -38,7 +38,7 @@ const leadFields = z.object({
   preferred_appointment_time: optionalText(120),
   address: optionalText(200),
   service_address: optionalText(200),
-  urgency: optionalEnum(["normal", "high", "urgent", "Normal", "Urgent", "Emergency"]),
+  urgency: optionalEnum(["normal", "high", "urgent", "Normal", "Routine", "Urgent", "Emergency"]),
   priority: optionalEnum(["normal", "high", "urgent"]),
 }).passthrough();
 
@@ -219,4 +219,5 @@ export const PUT = methodNotAllowed;
 export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
+
 
