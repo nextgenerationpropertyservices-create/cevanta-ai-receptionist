@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-CLIENT-ONBOARDING-92A
+- Work completed: Added clear client onboarding instructions for the first managed pilot. The guide explains what the client fills out in the dashboard, what stays internal, where completed intake records are saved, and how to run test-call, go-live and support checks.
+- Files changed: `docs/business/CLIENT_ONBOARDING_INSTRUCTIONS.md`, `docs/project/tasks/CEV-CLIENT-ONBOARDING-92A.md`, `docs/project/handoffs/CEV-CLIENT-ONBOARDING-92A-morgan.md`, `docs/project/PROJECT_STATUS.md`, plus Desktop Cevanta Business folder copies.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Documentation-only change; reviewed content for managed-pilot boundaries and secret-handling language. No code checks required.
+- Known limitations: This guide does not add or change dashboard onboarding fields. It explains the current first-client operating process.
+- Risks: Client instructions must still be reviewed with the first real client so business-specific emergency and escalation rules are not guessed.
+- Rollback notes: Remove `CLIENT_ONBOARDING_INSTRUCTIONS.md` and its Desktop business-folder copies if a different onboarding process replaces it.
+- Exact next action: Use the guide with the first client, then save the completed intake in that client folder under `04 - Clients`.

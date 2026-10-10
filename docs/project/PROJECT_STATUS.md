@@ -597,3 +597,7 @@ CEV-DEMO-DASHBOARD-91A is accepted locally with limitations. A standalone `/demo
 ## Demo dashboard production verification — 2026-10-10
 
 CEV-DEMO-DASHBOARD-91A was pushed to GitHub and deployed to production after owner approval. Production verification returned HTTP 200 for `https://cevanta-ai-receptionist.vercel.app/demo-dashboard`, with the expected `Northstar HVAC Demo Dashboard` content and fictional-data boundary text present. The route remains a static prospect demo only; it performs no Retell, Make, Supabase, SMS, email, calendar, payment, quote or dispatch writes.
+
+## Client onboarding instructions — 2026-10-10
+
+CEV-CLIENT-ONBOARDING-92A is accepted as documentation. `docs/business/CLIENT_ONBOARDING_INSTRUCTIONS.md` now gives a plain-language first-client onboarding process: what the client fills out in the dashboard, what Morgan keeps internal, where completed intake records are saved, and the required test-call, go-live and support checks. No app code, database, provider configuration or production behavior changed.
