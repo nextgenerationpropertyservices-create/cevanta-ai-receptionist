@@ -77,3 +77,10 @@ DO THIS: Call the Retell number, give fictional HVAC service details, do not use
 SUCCESS LOOKS LIKE: one fictional lead appears in the correct workspace, no duplicate is created on replay, and no appointment/SMS/email/calendar/payment/dispatch action happens automatically.
 
 Important security follow-up: rotate the Supabase service-role key after this pilot validation because it was revealed during setup. Keep the replacement only in Vercel server-side secrets.
+
+## Live phone-call proof completed — 2026-10-10
+
+CURRENT STEP: Review the new lead in the Cevanta dashboard and confirm the office-review workflow feels usable.
+WHY: The live call created exactly one Cevanta lead and did not book or message anyone automatically.
+DO THIS: Open the dashboard Leads page, review the newest lead, and verify the office can understand the request from the summary.
+SUCCESS LOOKS LIKE: the lead is usable for a managed pilot. Before scaling, tune Retell extraction so name, phone, service type, address, urgency and preferred time fill cleaner dashboard fields instead of relying mostly on the summary.

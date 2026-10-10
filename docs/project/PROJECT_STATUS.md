@@ -567,3 +567,9 @@ Make scenario `6515719` remains active and module 11 now maps Retell extraction 
 Verification: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-lead-writer.test.ts tests/retell-proxy-path.test.ts` PASS with 23 files / 769 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS. The first sandboxed test attempt hit Windows OneDrive `EPERM realpath`; unrestricted rerun passed.
 
 Current honest launch position: Cevanta can now be used for a first managed HVAC AI receptionist pilot that captures calls into dashboard leads for office review. It is still not an automatic booking, SMS/email/calendar, quote, dispatch, payment or fully self-service system. Retell credits and one real phone-call proof with fictional details remain the next operator checks.
+
+## Live Retell phone-call proof — 2026-10-10
+
+The owner completed a live Retell phone call through the deployed pilot number. Make execution `94e8414976c448bd89730fdaf090427f` reached Cevanta module 11 and Cevanta returned HTTP200 with `status: lead_created`, `persisted:true`, and `bookingCreated:false`. Supabase confirmed exactly one matching lead for Retell call reference `call_b2f3d73a83b3ce8fe3db381da8e`, created at 2026-10-10 12:19:39 UTC.
+
+No booking, SMS, email, calendar write, quote, payment or dispatch action was created by this call. Remaining improvement: Retell delivered the caller details mostly in `call_summary`; the structured extraction fields mapped by Make were blank. The managed pilot still works because the office-review lead was created, but Retell extraction should be tuned so dashboard fields are cleaner before scaling beyond the first pilot.
