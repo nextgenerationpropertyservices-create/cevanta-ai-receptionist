@@ -120,6 +120,18 @@ describe("Make Retell lead bridge", () => {
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
+  it("normalizes unknown Retell urgency text instead of rejecting the lead", async () => {
+    mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
+    const unknownUrgencyPayload = JSON.stringify({
+      ...payload,
+      call_id: "call_make_bridge_unknown_urgency_001",
+      lead: { ...payload.lead, urgency: "Unknown" },
+    });
+    const response = await POST(request(unknownUrgencyPayload, sign(unknownUrgencyPayload)));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "lead_created", persisted: true, bookingCreated: false });
+    expect(mocks.rpc.mock.calls[0][1].input.lead_priority).toBe("normal");
+  });
   it("writes only a safe lead draft through the existing Retell lead RPC", async () => {
     mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
     const response = await POST(request());
@@ -154,5 +166,4 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual(expected);
   });
 });
-
 

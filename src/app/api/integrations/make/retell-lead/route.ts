@@ -17,9 +17,9 @@ const optionalEmail = z.preprocess(
   value => typeof value === "string" && value.trim() === "" ? undefined : value,
   z.string().trim().email().max(254).optional(),
 );
-const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) => z.preprocess(
+const optionalPriority = z.preprocess(
   value => typeof value === "string" && value.trim() === "" ? undefined : value,
-  z.enum(values).optional(),
+  z.enum(["normal", "high", "urgent"]).optional(),
 );
 const leadFields = z.object({
   lead_name: optionalText(160),
@@ -38,8 +38,8 @@ const leadFields = z.object({
   preferred_appointment_time: optionalText(120),
   address: optionalText(200),
   service_address: optionalText(200),
-  urgency: optionalEnum(["normal", "high", "urgent", "Normal", "Routine", "Urgent", "Emergency"]),
-  priority: optionalEnum(["normal", "high", "urgent"]),
+  urgency: optionalText(80),
+  priority: optionalPriority,
 }).passthrough();
 
 const envelope = z.object({
@@ -79,8 +79,8 @@ function firstText(...values: (string | undefined)[]) {
 }
 
 function normalizePriority(fields: z.infer<typeof leadFields> | undefined): "normal" | "high" | "urgent" {
-  const value = fields?.priority ?? fields?.urgency;
-  if (value === "urgent" || value === "Urgent" || value === "Emergency") return "urgent";
+  const value = (fields?.priority ?? fields?.urgency)?.trim().toLowerCase();
+  if (value === "urgent" || value === "emergency") return "urgent";
   if (value === "high") return "high";
   return "normal";
 }
@@ -219,5 +219,4 @@ export const PUT = methodNotAllowed;
 export const PATCH = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 export const OPTIONS = methodNotAllowed;
-
 
