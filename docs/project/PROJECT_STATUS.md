@@ -573,3 +573,19 @@ Current honest launch position: Cevanta can now be used for a first managed HVAC
 The owner completed a live Retell phone call through the deployed pilot number. Make execution `94e8414976c448bd89730fdaf090427f` reached Cevanta module 11 and Cevanta returned HTTP200 with `status: lead_created`, `persisted:true`, and `bookingCreated:false`. Supabase confirmed exactly one matching lead for Retell call reference `call_b2f3d73a83b3ce8fe3db381da8e`, created at 2026-10-10 12:19:39 UTC.
 
 No booking, SMS, email, calendar write, quote, payment or dispatch action was created by this call. Remaining improvement: Retell delivered the caller details mostly in `call_summary`; the structured extraction fields mapped by Make were blank. The managed pilot still works because the office-review lead was created, but Retell extraction should be tuned so dashboard fields are cleaner before scaling beyond the first pilot.
+
+## Retell live agent tuning — 2026-10-10
+
+Morgan tuned and published Retell agent `agent_b44c3917587cfd493655ff75b2` version V11 for the live inbound phone number `+1(207)407-9904`. The phone number now points to `Cevanta Advertising Demo — Fictional HVAC Intake/V11`.
+
+Changes made in Retell configuration only:
+
+- Kept the live receptionist prompt out of demo/test language.
+- Confirmed pause-before-speaking is set to 0.2 seconds.
+- Confirmed the prompt asks for a full callback number with area code and repeats phone numbers digit by digit.
+- Tuned post-call extraction descriptions for caller name, callback phone, service address/location, HVAC problem, urgency, preferred appointment date, and preferred appointment time.
+- Preserved the managed pilot boundary: office review only; no booking, SMS, email, calendar write, payment, quote, or dispatch was enabled.
+
+Evidence: Retell dashboard showed V11 published at Oct 10, 2026, 08:27 AM and the phone number inbound agent selector showed `Cevanta Advertising Demo — Fictional HVAC Intake/V11`.
+
+Remaining validation: place one more fictional Retell phone call and confirm Make/Cevanta receives populated structured fields, especially name, callback phone, service location, HVAC problem, urgency, preferred date, and preferred time.

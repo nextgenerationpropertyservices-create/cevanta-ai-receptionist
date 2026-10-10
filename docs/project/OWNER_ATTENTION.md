@@ -84,3 +84,12 @@ CURRENT STEP: Review the new lead in the Cevanta dashboard and confirm the offic
 WHY: The live call created exactly one Cevanta lead and did not book or message anyone automatically.
 DO THIS: Open the dashboard Leads page, review the newest lead, and verify the office can understand the request from the summary.
 SUCCESS LOOKS LIKE: the lead is usable for a managed pilot. Before scaling, tune Retell extraction so name, phone, service type, address, urgency and preferred time fill cleaner dashboard fields instead of relying mostly on the summary.
+
+## Retell V11 tuning validation — 2026-10-10
+
+CURRENT STEP: Place one more short fictional call to the Retell number and check the new Cevanta lead.
+WHY: V11 is now published and assigned to the live inbound number, with improved extraction fields. The final proof is that Retell, Make, and Cevanta carry the structured fields into the dashboard.
+DO THIS: Call `+1(207)407-9904`, give fictional HVAC details, include a full callback number with area code, a fictional service town/address, urgency, and a preferred day/time. Do not use real customer data.
+SUCCESS LOOKS LIKE: one new office-review lead appears in Cevanta with populated structured fields. No appointment, SMS, email, calendar event, payment, quote, or dispatch is created automatically.
+
+Important: Retell still shows low credits. Add credits before real prospect/client testing if the balance remains low.
