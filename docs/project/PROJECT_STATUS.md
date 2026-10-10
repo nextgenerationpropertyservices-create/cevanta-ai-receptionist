@@ -593,3 +593,7 @@ Remaining validation: place one more fictional Retell phone call and confirm Mak
 ## Fictional demo dashboard acceptance — 2026-10-10
 
 CEV-DEMO-DASHBOARD-91A is accepted locally with limitations. A standalone `/demo-dashboard` page now presents a clean fictional Northstar HVAC demo dashboard for prospect walkthroughs. It includes fictional AI receptionist leads, jobs/calendar preview, setup snapshot, and managed-pilot close language. It explicitly says the data is fictional and that no SMS, email, payment, quote, dispatch or confirmed appointment is sent from the demo. Verification passed: focused demo UI test, typecheck, lint and production build. No database, Retell, Make, SMS, email, calendar, payment, quote or dispatch writes were added. Production availability still requires owner approval to push/deploy the verified candidate.
+
+## Demo dashboard production verification — 2026-10-10
+
+CEV-DEMO-DASHBOARD-91A was pushed to GitHub and deployed to production after owner approval. Production verification returned HTTP 200 for `https://cevanta-ai-receptionist.vercel.app/demo-dashboard`, with the expected `Northstar HVAC Demo Dashboard` content and fictional-data boundary text present. The route remains a static prospect demo only; it performs no Retell, Make, Supabase, SMS, email, calendar, payment, quote or dispatch writes.

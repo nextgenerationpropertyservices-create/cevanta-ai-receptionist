@@ -100,3 +100,10 @@ CURRENT STEP: Review the new fictional demo dashboard and decide whether to publ
 WHY: This gives you a clean prospect-facing dashboard walkthrough without exposing real customer data or triggering live Retell, Make, SMS, email, calendar, payment, quote or dispatch actions.
 DO THIS: Open `/demo-dashboard` locally or approve pushing/deploying the verified candidate to production.
 SUCCESS LOOKS LIKE: the page is available as a simple demo URL and can be used in your first-sale walkthrough while keeping the managed-pilot boundary clear.
+
+## Demo dashboard live — 2026-10-10
+
+CURRENT STEP: Use the production demo dashboard for prospect walkthroughs.
+WHY: The clean fictional dashboard is now live and verified at `https://cevanta-ai-receptionist.vercel.app/demo-dashboard`.
+DO THIS: Use it for demo videos, sales calls and prospect follow-up. Keep using fictional data and the managed-pilot wording.
+SUCCESS LOOKS LIKE: prospects can understand the AI receptionist, lead review, jobs/calendar preview and setup flow without seeing real customer data or triggering live automation.
