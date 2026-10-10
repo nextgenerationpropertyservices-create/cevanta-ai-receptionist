@@ -601,3 +601,7 @@ CEV-DEMO-DASHBOARD-91A was pushed to GitHub and deployed to production after own
 ## Client onboarding instructions — 2026-10-10
 
 CEV-CLIENT-ONBOARDING-92A is accepted as documentation. `docs/business/CLIENT_ONBOARDING_INSTRUCTIONS.md` now gives a plain-language first-client onboarding process: what the client fills out in the dashboard, what Morgan keeps internal, where completed intake records are saved, and the required test-call, go-live and support checks. No app code, database, provider configuration or production behavior changed.
+
+## Internal operations workspace established — 2026-10-10
+
+CEV-INTERNAL-OPS-93A is accepted. The production workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449` was renamed from `Heath Herrick` to `Cevanta Internal Operations` with trade `AI Receptionist Operations`. This is Heath's internal operations dashboard for Cevanta testing, demo practice, pilot review and operating notes. It is not a permanent paying-client workspace. Each HVAC client should receive a separate workspace, while Cevanta keeps owner/admin or support-admin access for onboarding review, leads, jobs, setup and support.

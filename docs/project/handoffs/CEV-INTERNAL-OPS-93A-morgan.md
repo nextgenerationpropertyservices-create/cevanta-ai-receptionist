@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-INTERNAL-OPS-93A
+- Work completed: Renamed the current production workspace from `Heath Herrick` to `Cevanta Internal Operations` and documented it as the internal operations dashboard. Added business-folder copies explaining where client setup information appears and how future client workspaces should be separated.
+- Files changed: `docs/business/CEVANTA_INTERNAL_OPERATIONS_DASHBOARD.md`, `docs/project/tasks/CEV-INTERNAL-OPS-93A.md`, `docs/project/handoffs/CEV-INTERNAL-OPS-93A-morgan.md`, `docs/project/PROJECT_STATUS.md`, plus Desktop Cevanta Business folder copies.
+- Database changes: Updated `public.tenants` row `1cb2a226-84ef-4dcd-9976-5ce87dd3e449` in Supabase project `rafiksklbrfgefkypvkn` to name `Cevanta Internal Operations`, trade `AI Receptionist Operations`, timezone `America/New_York`.
+- API or contract changes: None.
+- Verification commands and results: Supabase read before update returned the expected current workspace. Supabase update returned the updated workspace row with the new name/trade/timezone.
+- Known limitations: This does not create a new admin portal or multi-client management screen. It names and documents the existing workspace as internal operations.
+- Risks: Existing leads/jobs in this workspace remain internal/test/pilot records. Future paying clients need separate workspaces to avoid mixing records.
+- Rollback notes: Rename the same workspace back through Settings or by updating `public.tenants` if needed.
+- Exact next action: Refresh the production app workspace picker and use `Cevanta Internal Operations` as the internal workspace. Create or provision separate workspaces for each HVAC client.
