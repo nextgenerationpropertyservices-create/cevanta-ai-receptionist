@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DEMO-DASHBOARD-91A
+- Work completed: Added a standalone prospect-safe demo dashboard at `/demo-dashboard` using only fictional static HVAC data. The page shows AI receptionist leads, office-review jobs/calendar preview, setup snapshot, and pilot close language while clearly preserving the managed-pilot boundary.
+- Files changed: `src/app/demo-dashboard/page.tsx`, `src/app/globals.css`, `tests/demo-dashboard-ui.test.ts`, `docs/project/tasks/CEV-DEMO-DASHBOARD-91A.md`, `docs/project/handoffs/CEV-DEMO-DASHBOARD-91A-morgan.md`, `docs/project/PROJECT_STATUS.md`, `docs/project/OWNER_ATTENTION.md`.
+- Database changes: None.
+- API or contract changes: None. The page is static and does not call Supabase, Retell, Make, SMS, email, calendar, payment, quote or dispatch services.
+- Verification commands and results: `pnpm exec vitest run tests/demo-dashboard-ui.test.ts --configLoader native` PASS with 1 focused test; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS and includes `/demo-dashboard` as a static route.
+- Known limitations: This is a demo page only. It does not prove live Retell, Make, Supabase ingestion, email, SMS, calendar or billing behavior. Production availability still depends on pushing/deploying the verified candidate.
+- Risks: The page is intentionally public-demo friendly; it should not be confused with a tenant dashboard that contains live operational data.
+- Rollback notes: Remove `src/app/demo-dashboard/page.tsx`, remove the demo-dashboard CSS block from `src/app/globals.css`, and remove the focused test if the demo page is not wanted.
+- Exact next action: Owner reviews `/demo-dashboard`; if approved, push/deploy the verified candidate to make the demo URL available on the production Vercel app.

@@ -589,3 +589,7 @@ Changes made in Retell configuration only:
 Evidence: Retell dashboard showed V11 published at Oct 10, 2026, 08:27 AM and the phone number inbound agent selector showed `Cevanta Advertising Demo — Fictional HVAC Intake/V11`.
 
 Remaining validation: place one more fictional Retell phone call and confirm Make/Cevanta receives populated structured fields, especially name, callback phone, service location, HVAC problem, urgency, preferred date, and preferred time.
+
+## Fictional demo dashboard acceptance — 2026-10-10
+
+CEV-DEMO-DASHBOARD-91A is accepted locally with limitations. A standalone `/demo-dashboard` page now presents a clean fictional Northstar HVAC demo dashboard for prospect walkthroughs. It includes fictional AI receptionist leads, jobs/calendar preview, setup snapshot, and managed-pilot close language. It explicitly says the data is fictional and that no SMS, email, payment, quote, dispatch or confirmed appointment is sent from the demo. Verification passed: focused demo UI test, typecheck, lint and production build. No database, Retell, Make, SMS, email, calendar, payment, quote or dispatch writes were added. Production availability still requires owner approval to push/deploy the verified candidate.

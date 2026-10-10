@@ -93,3 +93,10 @@ DO THIS: Call `+1(207)407-9904`, give fictional HVAC details, include a full cal
 SUCCESS LOOKS LIKE: one new office-review lead appears in Cevanta with populated structured fields. No appointment, SMS, email, calendar event, payment, quote, or dispatch is created automatically.
 
 Important: Retell still shows low credits. Add credits before real prospect/client testing if the balance remains low.
+
+## Demo dashboard ready for review — 2026-10-10
+
+CURRENT STEP: Review the new fictional demo dashboard and decide whether to publish it.
+WHY: This gives you a clean prospect-facing dashboard walkthrough without exposing real customer data or triggering live Retell, Make, SMS, email, calendar, payment, quote or dispatch actions.
+DO THIS: Open `/demo-dashboard` locally or approve pushing/deploying the verified candidate to production.
+SUCCESS LOOKS LIKE: the page is available as a simple demo URL and can be used in your first-sale walkthrough while keeping the managed-pilot boundary clear.
