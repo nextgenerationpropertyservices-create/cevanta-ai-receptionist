@@ -52,3 +52,28 @@ Do not complete without owner approval if it can charge money or contact/change 
 4. Send SMS/email or create/update external calendar events.
 5. Enable billing/payments or sell a committed self-service plan.
 6. Run a live client pilot outside the managed office-review boundary.
+
+
+## Pilot demo recording
+
+Priority: Medium
+Why it matters: A reusable 5–8 minute demo video lets prospects self-qualify before a live call.
+Ready action: record the demo using docs/business/ONE_TIME_DEMO_VIDEO_SCRIPT.md and docs/business/PILOT_DEMO_RECORDING_CHECKLIST.md. Use fictional data only and review the recording before sending.
+Success looks like: no secrets/private data visible, managed-pilot boundary is clear, and the call to action is a 10-minute fit call.
+
+
+## Current live-pilot gate — 2026-10-09
+
+CURRENT STEP: Prove one controlled live writer test for office-review lead creation.
+WHY: Retell and Make can already deliver safe analyzed-call data to Cevanta verifier mode, but the pilot is not fully live until a real call creates exactly one dashboard lead for office review.
+DO THIS: Before turning the writer on, confirm the private hosted Retell mapping uses the current live agent `agent_b44c3917587cfd493655ff75b2`, then run one fictional HVAC service call. Do not enable SMS, email, calendar booking, payment, quotes or dispatch.
+SUCCESS LOOKS LIKE: the dashboard shows one new fictional office-review lead from the call; repeating the same event does not create a duplicate; no customer message or appointment is sent automatically.
+
+## Live writer proof completed — 2026-10-10
+
+CURRENT STEP: Run one real Retell phone call using fictional details and confirm it appears in the dashboard.
+WHY: The synthetic live Make/Cevanta proof now works, but the final pilot confidence check is a real phone-number call through Retell using made-up caller data.
+DO THIS: Call the Retell number, give fictional HVAC service details, do not use real customer data, then check the Cevanta Leads page for one new office-review lead.
+SUCCESS LOOKS LIKE: one fictional lead appears in the correct workspace, no duplicate is created on replay, and no appointment/SMS/email/calendar/payment/dispatch action happens automatically.
+
+Important security follow-up: rotate the Supabase service-role key after this pilot validation because it was revealed during setup. Keep the replacement only in Vercel server-side secrets.

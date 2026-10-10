@@ -484,3 +484,86 @@ CEV-MAKE-CEVANTA-BRIDGE-85A now has hosted verifier evidence and a Make canvas n
 Morgan re-inspected Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`, using the Make plugin. The scenario remains inactive and safe. Current modules still receive Retell-style webhook events, route non-analysis events to ignored acknowledgement, check the Make data store by `call.call_id`, return a duplicate acknowledgement without `AddRecord` for duplicates, and create one safe office-review record only for new analyzed calls. Morgan added Make canvas note `354328` to the create/response section documenting the current verifier-only status, exact signing requirement, allowed payload and stop conditions. No Make module wiring was changed, no run was triggered, no writer was enabled and no SMS/email/calendar/booking side effect occurred. Focused Cevanta verification passed: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-proxy-path.test.ts` returned 23 files / 764 tests passed. Remaining blocker: Make must calculate `x-cevanta-make-signature` with HMAC-SHA256 while keeping the private bridge secret out of docs, chat, screenshots, command output and ordinary visible scenario config.
 
 Follow-up in the same work cycle: Morgan created private Make custom app shell `Cevanta Bridge` (`cevanta-bridge-cgv2vw`) and added a local Cevanta route update so the Make bridge can also authenticate with the same private bridge secret through an `Authorization: Bearer` header. This lets the bridge use a private Make credential instead of visible HMAC fields. Focused Cevanta verification now passes with 23 files / 766 tests, including bearer verifier-only acceptance and wrong-bearer rejection; `pnpm typecheck` and `pnpm lint` pass. The route change is local only until committed, pushed and deployed. The Make custom app is only a shell until its private credential/module setup is completed and tested.
+
+## Make Cevanta Bridge private app progress — 2026-10-07
+
+Morgan continued the Make-to-Cevanta pilot bridge setup. The Make custom app `Cevanta Bridge` (`cevanta-bridge-cgv2vw`) now has a private API-key connection definition named `Cevanta Bridge Secret`, with a password parameter named `apiKey`. The `sendRetellLead` module is now attached to that connection definition and still posts only the minimal Retell analyzed-call lead package to `/api/integrations/make/retell-lead`.
+
+The Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`, remains inactive. No scenario activation, no Make run, no writer enablement, no SMS/email/calendar action, and no booking action occurred.
+
+Remaining blocker: the private custom app still needs its connection Communication JSON replaced from Make's default example validator to the Cevanta verifier-only validation request. Codex browser control was blocked by usage review before that edit could be saved. Do not paste the bridge secret into normal HTTP fields. After the connection Communication JSON is saved and the private app is publish/available in the scenario builder, add `Cevanta Bridge → Send Retell lead to Cevanta` between `Create safe office review record` and `Return safe intake acknowledgement`, then run one fictional verifier-only test while writer mode remains off.
+
+## Make Cevanta Bridge private app continuation — 2026-10-07
+
+Morgan completed the Make custom app connection Communication setup for private app `Cevanta Bridge` (`cevanta-bridge-cgv2vw`). The connection definition `Cevanta Bridge Secret` now validates against `https://cevanta-ai-receptionist.vercel.app/api/integrations/make/retell-lead` using `Authorization: Bearer {{parameters.apiKey}}` and a fictional verifier-only Retell analyzed-call payload. Make metadata confirms the saved API section and password parameter `apiKey` without exposing any secret value.
+
+The custom module `sendRetellLead` remains attached to the private connection definition, but Make still does not expose `cevanta-bridge-cgv2vw:sendRetellLead` through the scenario builder/module spec while the app remains private and unpublished. The visible Make Publish confirmation says publishing would make the custom app shareable and cannot be undone by making it private or deleting the app, so Morgan stopped before publishing and added Make scenario note `354654` documenting the gate.
+
+Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`, remains inactive. No scenario wiring was changed, no Make run was triggered, no writer was enabled, and no SMS/email/calendar/booking side effect occurred. Next owner decision: approve publishing the custom app despite Make's irreversible visibility warning, or use the built-in HTTP module with a private Make credential instead.
+
+## Make HTTP bridge credential request — 2026-10-07
+
+Morgan switched the recommended Make path from publishing the private custom app to the safer built-in HTTP module path. A Make credential request was created for the HTTP app under request ID `8dd0934a-472f-4700-9edb-42a2439277d3`, titled `Cevanta Bridge HTTP API key`, and opened in Make for owner completion. The request remains pending; no secret was entered by Codex, no scenario module was added, no scenario run was triggered, and scenario `6515719` remains inactive.
+
+Next gate: the owner must authorize an HTTP API-key credential inside Make and enter the private Cevanta bridge bearer secret there. After Make returns a credential ID, Morgan can add an `HTTP → Make a request` module between `Create safe office review record` and `Return safe intake acknowledgement`, with JSON body mapped from Retell data and the scenario still inactive.
+
+## Make HTTP bridge active verifier proof — 2026-10-07
+
+Morgan completed the safer built-in HTTP path for Make scenario `6515719`, `Cevanta Receptionist — MCP Intake Receiver`. The owner authorized the Make HTTP API-key credential for the approved Cevanta bridge data fields only: caller name, phone, service type, call summary, service address, urgency and preferred appointment time. Morgan added `HTTP → Make a request` after the safe Make data-store record and before the webhook response. The request posts only the minimal Retell analyzed-call lead package to `https://cevanta-ai-receptionist.vercel.app/api/integrations/make/retell-lead` using the private Make HTTP credential. No secret value is stored in source or docs.
+
+The scenario is now active because the owner approved activation. First fictional test reached Cevanta but returned HTTP401 because production had not loaded the newly rotated Vercel secret. Morgan redeployed Vercel production from commit `10fcdbc` (`dpl_GxBr8PjTPAtC6z9z5y7c5cJKSMVw`, READY). The second fictional test then returned HTTP200 from Cevanta with `status: verified_not_persisted`, `persisted:false` and `bookingCreated:false`. Make execution `273f8592c5804d65a90ff1431b32669b` ran modules 1, 9, 3, 11 and 2 with zero module errors; the final webhook response returned HTTP200. Make still labels the execution as `warning`, but module drill-down shows the bridge and response completed safely.
+
+Writer mode remains off. No Cevanta lead was created by this bridge test, and no booking, SMS, email or calendar write occurred. Next gate: keep Retell/Make live in office-review verifier mode, then enable `MAKE_RETELL_INGRESS_LEAD_WRITER=enabled` only after owner approval and a fresh acceptance test for safe lead creation/dedupe.
+
+## Live Retell to Make delivery proof — 2026-10-07
+
+A real Retell phone-number test reached Make after the phone number was assigned to the updated `Cevanta Advertising Demo — Fictional HVAC Intake` agent (`agent_b44c3917587cfd493655ff75b2`) and the Retell agent draft was published. Make execution `eaf57de3f85748e2be0d0e69b450efe8` ran modules 1, 9, 3, 11 and 2 with zero module errors. This proves the live Retell phone-number path can deliver analyzed-call events to active Make scenario `6515719`.
+
+The Cevanta HTTP bridge returned HTTP400 `rejected` for this call because the caller declined the fictional HVAC intake and the analyzed payload had blank intake fields. No Cevanta lead was created, writer mode remains off, and no booking/SMS/email/calendar write occurred. Next gate: run a complete fictional HVAC service-request call with made-up name, service type, address, urgency and preferred callback/appointment window, then verify Cevanta returns verifier-only success. After that, add or confirm a Make filter so declined/demo-incomplete calls do not attempt Cevanta lead ingestion.
+
+## Make bridge blank-field production fix — 2026-10-07
+
+After live Retell call `f33fc4882d9a4c12bfc5419850a35298`, Morgan found that Make was correctly delivering live Retell analyzed-call events to Cevanta, but Retell's structured custom extraction fields were blank while useful details were present only in `call_summary`. The Cevanta Make bridge rejected blank optional fields before verifier mode could succeed.
+
+Morgan updated `/api/integrations/make/retell-lead` so blank optional Make fields are treated as missing rather than invalid, preserving strict validation for nonblank values. Focused verification passed: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-proxy-path.test.ts` reported 23 files / 767 tests passed; `pnpm typecheck`, `pnpm lint` and `pnpm build` passed. Commit `9e953e6` was pushed to GitHub and Vercel production deployment `dpl_3TXe42MypnxxPacCsYUudqHbD8Hb` reached READY.
+
+A fictional deployed Make webhook test with blank optional fields then reached Cevanta and returned HTTP200 `verified_not_persisted`, `persisted:false`, `bookingCreated:false` in Make execution `528bd1bbcf6047b5a88d4a30abe45b80`. Writer mode remains off. No Cevanta lead, booking, SMS, email or calendar write occurred. Remaining product gap: Retell post-call extraction should populate structured name/service/address/urgency/preferred-time fields before writer mode is enabled, or Make must map a safe summary-only fallback intentionally.
+
+## Make mapping to Retell extraction keys — 2026-10-07/08
+
+Morgan confirmed Retell post-call extraction was already producing structured fields, but with display-label keys such as `Caller Name`, `Service Address`, `HVAC Problem`, `Urgency`, `Preferred Appointment Date`, and `Preferred Appointment Time`. Make module 11 had been mapped to lower-case keys that did not exist in Retell's live payload, so Cevanta received blank fields.
+
+Make scenario `6515719` module 11 was updated to map Retell's actual extraction keys into the Cevanta bridge payload. A first structured test then reached Cevanta but returned HTTP400 because Retell's normal-urgency value was `Routine`. Morgan updated the Cevanta bridge to accept `Routine` as normal urgency, verified locally with `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-proxy-path.test.ts` PASS with 23 files / 767 tests, plus `pnpm typecheck`, `pnpm lint`, and `pnpm build` PASS. Commit `2c31ef7` was pushed and Vercel production deployment `dpl_EQ4ERt85mR2UwdA73rR63cNUhsbo` reached READY.
+
+A fictional structured Make webhook test after the Make mapping and production urgency fix returned HTTP200 from Cevanta with `status: verified_not_persisted`, `persisted:false`, and `bookingCreated:false` in Make execution `e55ceede2c9d4612afd328a1a7ed5255`. Writer mode remains off. No Cevanta lead, booking, SMS, email, or calendar write occurred. Next gate: run one more live Retell phone call and confirm the same verifier-only success from a real phone-number delivery.
+
+## Managed pilot live-readiness control — 2026-10-09
+
+CEV-PILOT-LIVE-90A is active as the next safe live-pilot gate after the Retell pilot agent was published. Retell V9 is live with the 0.2-second pause before speaking, no spoken demo language, digit-by-digit callback confirmation, area-code check when missing, longer silence tolerance and office-review-only appointment language. This is provider-dashboard/operator evidence, not a transcript or call recording.
+
+Focused verification passed locally for the Retell/Make/Cevanta bridge: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-lead-writer.test.ts tests/retell-proxy-path.test.ts` passed with 23 test files and 767 tests. The first sandboxed attempt failed before tests because Windows denied `realpath` access to the OneDrive project folder; rerunning the same local test command unrestricted passed. No production env values, database rows, Make scenario modules, SMS/email/calendar writers, payments, quotes, dispatch, or automatic booking were changed.
+
+Current launch gate: production Make bridge verifier mode is proven, but lead-writer mode should not be enabled until the hosted private Retell connection mapping is confirmed for the currently assigned live Retell agent `agent_b44c3917587cfd493655ff75b2`. Earlier mapping evidence referenced older agent `agent_a9182cc8117ac588f68bc52a3d`. If the writer is enabled with only the older mapping, live calls may verify but fail to create office-review leads with `unmapped_tenant`.
+
+CURRENT STEP: prepare one controlled live writer test for office-review lead creation only.
+WHY: this proves the real chain Retell → Make → Cevanta dashboard creates exactly one reviewable lead without booking, SMS, email or calendar writes.
+DO THIS: confirm/add the hosted private mapping for the current Retell agent, enable the lead-writer gate only for the existing signed Make bridge, run one fictional HVAC call, and verify one dashboard lead plus duplicate-safe behavior.
+SUCCESS LOOKS LIKE: one fictional call creates one Cevanta lead in the right workspace, a repeated event returns duplicate/no extra lead, and no appointment, SMS, email, payment or calendar record is created.
+
+## Hosted mapping update for current Retell agent — 2026-10-09
+
+Morgan verified the hosted private Retell connection mapping for connection ID `49000000-0000-4000-8002-000000000001`. Before the update, hosted mapping existed for older Retell agent `agent_a9182cc8117ac588f68bc52a3d` and the fictional writer test agent, but not for the current live phone-number agent `agent_b44c3917587cfd493655ff75b2`.
+
+Morgan added/enabled the private mapping for tenant/workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`, connection ID `49000000-0000-4000-8002-000000000001`, provider account ID `agent_b44c3917587cfd493655ff75b2`. This database routing update does not turn on lead writing by itself. Vercel project discovery through the connected API could see the Vercel team but returned no projects, and the local checkout is not linked with `.vercel/project.json`, so production env writer state was not changed or verified in this step.
+
+Next gate remains: confirm production Vercel envs in the dashboard or through a working Vercel project link, enable `MAKE_RETELL_INGRESS_LEAD_WRITER=enabled` only for a controlled office-review lead test, redeploy if needed, then run one fictional live call and verify one Cevanta lead with no external customer writes.
+
+## Managed pilot live writer proof — 2026-10-10
+
+CEV-PILOT-LIVE-90A is accepted with limitations. Production Cevanta now has the approved Supabase service-role key in Vercel Production for server-side Make lead ingestion, and commit `6f5e7fd` fixed the bridge so missing optional email/phone fields are omitted before the database writer. Vercel production deployment `24eLd4eoR6hWA5diqj6z1AKi5W6J` reached Ready from commit `6f5e7fd`.
+
+Make scenario `6515719` remains active and module 11 now maps Retell extraction fields from `call.custom_analysis_data`. A controlled fictional webhook test for `call_live_writer_fictional_20261010_080652` returned HTTP200 from Cevanta with `status: lead_created`, `persisted:true`, and `bookingCreated:false`. Supabase confirmed one fictional lead in workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449`; a duplicate replay returned the duplicate acknowledgement and the matching lead count remained one.
+
+Verification: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-lead-writer.test.ts tests/retell-proxy-path.test.ts` PASS with 23 files / 769 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS. The first sandboxed test attempt hit Windows OneDrive `EPERM realpath`; unrestricted rerun passed.
+
+Current honest launch position: Cevanta can now be used for a first managed HVAC AI receptionist pilot that captures calls into dashboard leads for office review. It is still not an automatic booking, SMS/email/calendar, quote, dispatch, payment or fully self-service system. Retell credits and one real phone-call proof with fictional details remain the next operator checks.
