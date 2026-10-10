@@ -132,6 +132,27 @@ describe("Make Retell lead bridge", () => {
     expect(await response.json()).toEqual({ status: "lead_created", persisted: true, bookingCreated: false });
     expect(mocks.rpc.mock.calls[0][1].input.lead_priority).toBe("normal");
   });
+
+  it("omits missing optional contact fields before calling the lead RPC", async () => {
+    mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
+    const noOptionalContactPayload = JSON.stringify({
+      ...payload,
+      call_id: "call_make_bridge_no_optional_contact_001",
+      lead: {
+        caller_name: "Fictional No Email Caller",
+        service_type: "No cooling",
+        call_summary: "Fictional caller skipped email and phone during a bridge test.",
+        urgency: "Unknown",
+      },
+    });
+    const response = await POST(request(noOptionalContactPayload, sign(noOptionalContactPayload)));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "lead_created", persisted: true, bookingCreated: false });
+    const sent = mocks.rpc.mock.calls[0][1].input;
+    expect(sent).not.toHaveProperty("lead_email");
+    expect(sent).not.toHaveProperty("lead_phone");
+    expect(sent.lead_priority).toBe("normal");
+  });
   it("writes only a safe lead draft through the existing Retell lead RPC", async () => {
     mocks.rpc.mockResolvedValueOnce({ data: { status: "applied", tenant_id: tenant, lead_id: lead }, error: null });
     const response = await POST(request());

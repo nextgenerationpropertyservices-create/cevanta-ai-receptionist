@@ -85,6 +85,10 @@ function normalizePriority(fields: z.infer<typeof leadFields> | undefined): "nor
   return "normal";
 }
 
+function definedEntries<T extends Record<string, unknown>>(value: T) {
+  return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null)) as Partial<T>;
+}
+
 function leadDraft(callId: string, fields: z.infer<typeof leadFields> | undefined) {
   const leadName = firstText(fields?.lead_name, fields?.customer_name, fields?.caller_name, fields?.name) ?? "AI receptionist call";
   const phone = firstText(fields?.lead_phone, fields?.caller_phone, fields?.phone);
@@ -161,7 +165,7 @@ async function persistLead(parsed: z.infer<typeof envelope>) {
   const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
   if (!connection.success) return response(503, "unconfigured");
   const draft = leadDraft(parsed.call_id, parsed.lead);
-  const payload = {
+  const payload = definedEntries({
     connection_id: connection.data,
     provider_account_id: parsed.agent_id,
     provider_event_id: `call_analyzed:${parsed.call_id}`,
@@ -171,7 +175,7 @@ async function persistLead(parsed: z.infer<typeof envelope>) {
     lead_email: draft.email,
     lead_description: draft.description,
     lead_priority: draft.priority,
-  };
+  });
   try {
     const { data, error } = await createServiceClient().rpc("ingest_retell_call_lead", { input: payload });
     if (error) return response(503, "retryable_failure");
