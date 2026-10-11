@@ -651,3 +651,9 @@ Production smoke proof passed in the signed-in browser on `https://cevanta-ai-re
 CEV-DISPATCH-97A is implemented locally with limitations. The dispatch board now makes active unassigned jobs harder to miss and lets owner/admin/dispatcher users assign or change a technician directly from each job card. Technician users keep a read-only field-work view and do not see assignment controls. The change uses the existing secure `updateJob` path and existing technician roster validation; no database migration, Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation was added.
 
 Evidence on 2026-10-11: `pnpm typecheck` PASS; `pnpm lint` PASS; focused `pnpm test -- tests/jobs-ui.test.ts tests/jobs.test.ts tests/calendar-ui.test.ts` PASS with the full configured suite, 28 files / 795 tests; `pnpm build` PASS. Production deployment remains pending explicit owner release approval.
+
+## Quick technician assignment production release — 2026-10-11
+
+CEV-DISPATCH-97A was released to production after owner approval. Commit `7570738` was pushed to GitHub `main`. Production browser smoke proof on `https://cevanta-ai-receptionist.vercel.app/workspaces/10000000-0000-4000-8000-000000000001/jobs` confirmed the live Jobs page shows the topbar, `3 jobs need technician assignment` alert, `Needs Tech` flags, and `Assign technician` controls on active unassigned job cards.
+
+This release did not add a database migration and did not enable Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation. It only makes manual technician assignment faster through the existing secured job update path.

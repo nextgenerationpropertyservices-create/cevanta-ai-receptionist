@@ -9,3 +9,5 @@
 - Risks: Inline assignment submits the full job update payload as hidden fields, so future job schema changes must keep the card form in sync with `updateJob` requirements.
 - Rollback notes: Revert CEV-DISPATCH-97A files or restore the previous dispatch board component.
 - Exact next action: Owner approval is required before production deployment.
+
+- Production release update: Owner approved release on 2026-10-11. Commit 7570738 was pushed. Signed-in production browser smoke proof confirmed the unassigned-job alert, Needs Tech flags, and Assign technician controls on the live Jobs page.
