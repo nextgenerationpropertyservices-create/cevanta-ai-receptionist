@@ -20,6 +20,22 @@ export async function getWorkspace(tenantId: string) {
   return { tenant: data as Tenant, role };
 }
 
+export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string }
+
+export async function getManagedClientWorkspaces(operatorTenantId: string): Promise<{ operator: Tenant; role: string; clients: ManagedClientWorkspace[]; allowed: boolean }> {
+  const { tenant, role } = await getWorkspace(operatorTenantId);
+  const allowed = tenant.account_type === "internal" && (role === "owner" || role === "admin");
+  if (!allowed) return { operator: tenant, role, clients: [], allowed: false };
+  const { client } = await requireMembership(operatorTenantId, ["owner", "admin"]);
+  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).order("created_at", { ascending: false });
+  if (result.error) throw new Error("Could not load client workspaces.");
+  const clients = (result.data ?? []).flatMap(row => {
+    const clientRow = Array.isArray(row.client) ? row.client[0] : row.client;
+    if (!clientRow) return [];
+    return [{ id: clientRow.id, name: clientRow.name, trade: clientRow.trade, timezone: clientRow.timezone, status: row.status, created_at: row.created_at, updated_at: clientRow.updated_at }];
+  });
+  return { operator: tenant, role, clients, allowed: true };
+}
 export async function getCustomers(tenantId: string): Promise<Customer[]> {
   const { client } = await requireMembership(tenantId);
   const { data, error } = await client.from("customers").select("*").eq("tenant_id", tenantId).order("name");

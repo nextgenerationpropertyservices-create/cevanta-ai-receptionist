@@ -605,3 +605,11 @@ CEV-CLIENT-ONBOARDING-92A is accepted as documentation. `docs/business/CLIENT_ON
 ## Internal operations workspace established — 2026-10-10
 
 CEV-INTERNAL-OPS-93A is accepted. The production workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449` was renamed from `Heath Herrick` to `Cevanta Internal Operations` with trade `AI Receptionist Operations`. This is Heath's internal operations dashboard for Cevanta testing, demo practice, pilot review and operating notes. It is not a permanent paying-client workspace. Each HVAC client should receive a separate workspace, while Cevanta keeps owner/admin or support-admin access for onboarding review, leads, jobs, setup and support.
+
+## Managed client workspace foundation — 2026-10-11
+
+CEV-FULLAPP-94A is implemented locally and ready for hosted release gating. Cevanta now has a full-app foundation for operating beyond the first pilot: `tenants.account_type` distinguishes Cevanta internal workspaces from client workspaces, and a new managed-client RPC lets verified owner/admin members of an internal workspace create separate HVAC client workspaces with idempotent request handling, audit records, and owner access for the creating Cevanta operator.
+
+The dashboard now shows a `Client workspaces` navigation item only for internal workspaces and adds `/workspaces/[tenantId]/clients`. The page lists managed clients, creates a new client workspace, and then sends the operator to the new client's Setup page. The copy explicitly states that creation does not invite the client, connect Retell, enable Make, send messages, start billing, book appointments, quote, collect payment or dispatch technicians.
+
+Verification passed locally: `pnpm check` completed typecheck, lint, 25 Vitest files / 779 tests, all embedded database suites, the new managed-client database suite, Retell lead-ingestion database checks, and production build. Hosted migration/deploy has not been performed yet. Production release requires applying `202610020009_managed_client_workspaces.sql`, marking workspace `1cb2a226-84ef-4dcd-9976-5ce87dd3e449` as `account_type='internal'`, deploying the app, and creating one fictional managed client workspace as smoke proof.

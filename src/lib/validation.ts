@@ -18,6 +18,7 @@ export const workspaceProvisionSchema = z.object({
   trade: required(80),
   timezone: required(80).refine(value => { try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; } catch { return false; } }, "Enter a valid IANA time zone."),
 });
+export const managedClientWorkspaceSchema = workspaceProvisionSchema.extend({ operator_tenant_id: z.uuid() });
 export const tenantSettingsSchema = z.object({ name: required(160), trade: required(80), timezone: required(80).refine(value => { try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; } catch { return false; } }, "Enter a valid IANA time zone.") });
 export const customerSchema = z.object({ name: required(160), email, phone: optional(40), notes: optional(4000) });
 export const contactSchema = z.object({ name: required(160), email, phone: optional(40), job_title: optional(100) });

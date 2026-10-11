@@ -18,12 +18,13 @@
     "test:appointments:db": "node scripts/test-appointments-embedded.mjs",
     "test:onboarding:db": "node scripts/test-onboarding-embedded.mjs",
     "test:provisioning:db": "node scripts/test-workspace-provisioning-embedded.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:db:embedded && pnpm test:intake:db && pnpm test:jobs:db && pnpm test:appointments:db && pnpm test:onboarding:db && pnpm test:onboarding:commands:db && pnpm test:provisioning:db && pnpm test:retell:lead:db && pnpm build",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:db:embedded && pnpm test:intake:db && pnpm test:jobs:db && pnpm test:appointments:db && pnpm test:onboarding:db && pnpm test:onboarding:commands:db && pnpm test:provisioning:db && pnpm test:managed-clients:db && pnpm test:retell:lead:db && pnpm build",
     "agents:validate": "node scripts/validate-agents.mjs",
     "agents:validate:native": "node scripts/validate-agents.mjs --native",
     "agent": "node scripts/run-agent.mjs",
     "test:onboarding:commands:db": "node scripts/test-onboarding-commands-embedded.mjs",
-    "test:retell:lead:db": "node scripts/test-retell-lead-ingestion-embedded.mjs"
+    "test:retell:lead:db": "node scripts/test-retell-lead-ingestion-embedded.mjs",
+    "test:managed-clients:db": "node scripts/test-managed-client-workspaces-embedded.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
