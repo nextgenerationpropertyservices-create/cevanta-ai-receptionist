@@ -9,3 +9,5 @@
 - Risks: The new team-management RPC is a signed-in callable SECURITY DEFINER function; it has internal membership checks and pinned search path, but it should still receive independent Architect and Quality review before hosted release acceptance.
 - Rollback notes: Revert this task's commit or remove the new topbar/team/calendar changes. If hosted migration is later applied and needs rollback, drop `public.manage_tenant_member(jsonb)` and `public.get_tenant_team(uuid)` after confirming no dependent deployed app uses them.
 - Exact next action: Obtain owner approval for hosted release; apply the migration to Supabase; run hosted advisors; deploy; smoke test topbar, Technicians, and calendar views in production with fictional data.
+
+- Production release update: Owner approved release on 2026-10-11. Commit fe152e7 was pushed, hosted Supabase migration team_management applied successfully, Supabase security advisors checked, and signed-in production browser smoke proof passed for topbar, Technicians, and Calendar Year/Month/Week/Day/Hour navigation.
