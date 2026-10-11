@@ -629,3 +629,11 @@ Supabase security advisors were checked after migration. They reported existing 
 CEV-DASHBOARD-95A is implemented locally with limitations. The workspace overview now acts as a trade-services front office command center for HVAC, plumbing, electrical, roofing, and similar businesses. It highlights new AI receptionist leads, urgent lead pressure, unassigned jobs, today's schedule, field team workload, upcoming scheduled jobs, and a recovered-loss ROI snapshot using existing persisted data only.
 
 Evidence on 2026-10-11: `pnpm lint` PASS; `pnpm typecheck` PASS; `pnpm test -- tests/dashboard-ui.test.ts` PASS with 25 files and 780 tests because the configured runner executed the full suite; `pnpm build` PASS. No database, API contract, provider, SMS, email, payment, calendar-write, auto-booking, or credential changes were made. Editable skills, availability windows, smarter assignment suggestions, notification delivery, and a configurable ROI calculator remain future work. Production deployment still requires explicit owner approval.
+
+## Topbar, technicians, and full calendar — 2026-10-11
+
+CEV-DASHBOARD-96A is implemented locally with limitations. The workspace dashboard now uses a top navigation bar instead of a sidebar. Owner/admin users get a Technicians tab where they can add a confirmed Cevanta account as a technician, see field-team workload, and edit non-owner workspace roles. The calendar now has a top menu for Year, Month, Week, Day, and Hour views and shows linked job and technician assignment context.
+
+A new Supabase migration adds guarded team-management RPC functions. The functions check the verified signed-in user, require owner/admin membership in the target workspace, limit edits to dispatcher/technician/viewer roles, protect owners, and write audit events. No Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch writes were added.
+
+Evidence on 2026-10-11: `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test` PASS with 27 files / 793 tests; `pnpm test:db:embedded` PASS including `202610110001_team_management.sql`; `pnpm test:jobs:db` PASS; `pnpm test:appointments:db` PASS; `pnpm build` PASS. Hosted Supabase migration, hosted advisors, browser smoke proof, and production deployment remain pending explicit owner release approval.

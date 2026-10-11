@@ -1,7 +1,7 @@
 import "server-only";
-import { OFFICE_ROLES } from "@/lib/contracts";
+import { OFFICE_ROLES,SETTINGS_ROLES } from "@/lib/contracts";
 import type { ServiceLocation } from "@/lib/contracts";
-import type { Job, Technician } from "@/lib/jobs-contracts";
+import type { Job, Technician, TeamMember } from "@/lib/jobs-contracts";
 import { requireMembership, uuidSchema } from "./authorization";
 const missing = (code?: string) => code === "42P01" || code === "PGRST205" || code === "PGRST202";
 export async function getJobs(tenantId: string): Promise<{ready: boolean; jobs: Job[]}> {
@@ -29,6 +29,13 @@ export async function getTechnicians(tenantId:string): Promise<{ready:boolean;te
  if(missing(result.error?.code) || result.error?.code === "42883") return {ready:false,technicians:[]};
  if(result.error) throw new Error("Could not load technician directory.");
  return {ready:true,technicians:(result.data??[]) as Technician[]};
+}
+export async function getTeamMembers(tenantId:string): Promise<{ready:boolean;members:TeamMember[]}> {
+ const {client}=await requireMembership(tenantId,SETTINGS_ROLES);
+ const result=await client.rpc("get_tenant_team",{target:tenantId});
+ if(missing(result.error?.code) || result.error?.code === "42883") return {ready:false,members:[]};
+ if(result.error) throw new Error("Could not load team directory.");
+ return {ready:true,members:(result.data??[]) as TeamMember[]};
 }
 export async function getJobLocations(tenantId:string): Promise<{ready:boolean;locations:ServiceLocation[]}> {
  const {client}=await requireMembership(tenantId,OFFICE_ROLES);

@@ -5,4 +5,5 @@ export interface Job {
  title: string; description: string; status: typeof JOB_STATUSES[number]; priority: typeof JOB_PRIORITIES[number];
  scheduled_date: string | null; assigned_user_id: string | null; created_at: string; updated_at: string;
 }
-export interface Technician { user_id: string; display_name: string }
+export interface Technician { user_id: string; display_name: string; email?: string }
+export interface TeamMember { user_id: string; email: string; display_name: string; role: "owner"|"admin"|"dispatcher"|"technician"|"viewer" }
