@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DASHBOARD-99A
+- Work completed: Added workspace-level attention counts to the topbar. The shell now shows a `need attention` pill plus badges on Leads and Jobs when new AI receptionist leads or unassigned jobs exist. The workspace layout computes these counts from existing tenant-scoped queries.
+- Files changed: `src/app/workspaces/[tenantId]/layout.tsx`; `src/components/workspace-shell.tsx`; `src/app/globals.css`; `tests/workspace-shell-ui.test.ts`; `docs/project/tasks/CEV-DASHBOARD-99A.md`; `docs/project/handoffs/CEV-DASHBOARD-99A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- API or contract changes: No external provider contract changed. `WorkspaceShell` accepts an optional `attention` prop for UI counts.
+- Verification commands and results: `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm test -- tests/workspace-shell-ui.test.ts tests/dashboard-ui.test.ts tests/jobs-ui.test.ts` PASS with the configured runner executing 30 files / 799 tests. `pnpm build` PASS.
+- Known limitations: These are in-app visual badges only. They do not send push notifications, SMS, email, browser notifications, or mobile alerts. Counts refresh with normal server-rendered page navigation/refresh.
+- Risks: Extra lead/job reads now happen in the workspace layout. If a migration is missing, the existing query readiness handling suppresses badges rather than blocking the page.
+- Rollback notes: Revert this change set. No database rollback is needed.
+- Exact next action: After owner approval and the prior technician-profile migration release plan, deploy together or keep this UI-only improvement for the next production release.
