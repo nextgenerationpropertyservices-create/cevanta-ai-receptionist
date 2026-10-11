@@ -657,3 +657,9 @@ Evidence on 2026-10-11: `pnpm typecheck` PASS; `pnpm lint` PASS; focused `pnpm t
 CEV-DISPATCH-97A was released to production after owner approval. Commit `7570738` was pushed to GitHub `main`. Production browser smoke proof on `https://cevanta-ai-receptionist.vercel.app/workspaces/10000000-0000-4000-8000-000000000001/jobs` confirmed the live Jobs page shows the topbar, `3 jobs need technician assignment` alert, `Needs Tech` flags, and `Assign technician` controls on active unassigned job cards.
 
 This release did not add a database migration and did not enable Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation. It only makes manual technician assignment faster through the existing secured job update path.
+
+## Technician skills and dispatch suggestions — 2026-10-11
+
+CEV-DISPATCH-98A is implemented locally with limitations. The Technicians tab now supports per-technician skills and availability notes, backed by a new tenant-scoped `technician_profiles` table. Owner/admin users can edit these profiles for active technicians only. The dispatch board now suggests a technician on unassigned active job cards when the job title or description matches that technician's skills, while preserving manual assignment through the existing secured job update path.
+
+Evidence on 2026-10-11: `pnpm test -- tests/jobs-ui.test.ts tests/technician-profiles.test.ts` PASS with the configured runner executing 29 files / 797 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test:db:embedded` PASS including migration `202610110002_technician_profiles.sql`; `pnpm build` PASS. Hosted Supabase migration, hosted security advisor review, browser smoke proof, and production deployment remain pending explicit owner release approval. This change does not enable Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation.

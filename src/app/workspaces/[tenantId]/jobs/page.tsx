@@ -2,6 +2,7 @@ import {randomUUID} from 'node:crypto';
 import Link from 'next/link';
 import {getWorkspace,getCustomers} from '@/lib/server/queries';
 import {getJobs,getTechnicians,getJobLocations} from '@/lib/server/jobs-queries';
+import {getTechnicianProfiles} from '@/lib/server/technician-profile-queries';
 import {canManageCustomers} from '@/lib/contracts';
 import {JOB_STATUSES} from '@/lib/jobs-contracts';
 import {createJob} from '@/app/actions/jobs';
@@ -16,8 +17,8 @@ export default async function Jobs({params,searchParams}:{params:Promise<{tenant
  const writable=canManageCustomers(workspace.role);
  const technicianView=workspace.role==='technician';
  if(!inbox.ready) return <JobsSetupNotice/>;
- const [roster,locationOptions,customers]=writable ? await Promise.all([getTechnicians(tenantId),getJobLocations(tenantId),getCustomers(tenantId)]) : [{ready:true,technicians:[]},{ready:true,locations:[]},[]];
- if(!roster.ready || !locationOptions.ready) return <JobsSetupNotice/>;
+ const [roster,locationOptions,customers,profiles]=writable ? await Promise.all([getTechnicians(tenantId),getJobLocations(tenantId),getCustomers(tenantId),getTechnicianProfiles(tenantId)]) : [{ready:true,technicians:[]},{ready:true,locations:[]},[],{ready:true,profiles:[]}];
+ if(!roster.ready || !locationOptions.ready || !profiles.ready) return <JobsSetupNotice/>;
  const status=JOB_STATUSES.find(value=>value===filters.status) ?? '';
  const date=typeof filters.date==='string' && /^\d{4}-\d{2}-\d{2}$/.test(filters.date) && !Number.isNaN(Date.parse(filters.date)) && new Date(filters.date).toISOString().slice(0,10)===filters.date ? filters.date : '';
  const filtered=inbox.jobs.filter(job=>(!status || job.status===status) && (!date || job.scheduled_date===date));
@@ -29,7 +30,8 @@ export default async function Jobs({params,searchParams}:{params:Promise<{tenant
   <form className="dispatch-filter" method="get"><label className="field"><span>Job status</span><select name="status" defaultValue={status}><option value="">All statuses</option><option value="new">New</option><option value="scheduled">Scheduled</option><option value="in_progress">In progress</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></label><label className="field"><span>Scheduled date</span><input name="date" type="date" defaultValue={date}/></label><button className="button" type="submit">Apply filters</button><Link className="button secondary" href={`/workspaces/${tenantId}/jobs`}>Clear</Link></form>
   {writable && !technicianView && unassigned.length>0 && <section className="front-office-alert dispatch-unassigned-alert"><div><h2>{unassigned.length} job{unassigned.length===1?'':'s'} need technician assignment</h2><p>Assign these before the day gets busy. Unassigned active jobs are the fastest place for revenue to slip.</p></div><Link className="button" href={`/workspaces/${tenantId}/jobs?status=new`}>Review unassigned work</Link></section>}
   <div className="section-heading"><h2>{technicianView ? 'Assigned jobs' : 'Dispatch board'}</h2><p className="small">{filtered.length} {filtered.length===1 ? 'job' : 'jobs'} shown</p></div>
-  {filtered.length ? <DispatchBoard jobs={filtered} technicians={roster.technicians} tenantId={tenantId} technicianView={technicianView} writable={writable}/> : <section className="panel"><Empty title={inbox.jobs.length ? 'No jobs match these filters' : technicianView ? 'No assigned jobs yet' : 'A clear board. A fresh start.'}>{inbox.jobs.length ? 'Clear the filters to see the rest of your work.' : technicianView ? 'Your office team will assign jobs here when they are ready.' : writable ? 'Create a job below, or convert an enquiry from the lead inbox.' : 'Your office team can create jobs and assign service work.'}</Empty></section>}
+  {filtered.length ? <DispatchBoard jobs={filtered} technicians={roster.technicians} technicianProfiles={profiles.profiles} tenantId={tenantId} technicianView={technicianView} writable={writable}/> : <section className="panel"><Empty title={inbox.jobs.length ? 'No jobs match these filters' : technicianView ? 'No assigned jobs yet' : 'A clear board. A fresh start.'}>{inbox.jobs.length ? 'Clear the filters to see the rest of your work.' : technicianView ? 'Your office team will assign jobs here when they are ready.' : writable ? 'Create a job below, or convert an enquiry from the lead inbox.' : 'Your office team can create jobs and assign service work.'}</Empty></section>}
   {writable ? <details className="panel dispatch-create"><summary>Create a job</summary><p>Plan the work now. You can set a date and assign a technician whenever you are ready.</p><ActionForm action={createJob} submitLabel="Create job" hidden={{tenantId,submissionId:randomUUID()}}><JobFields customers={customers} locations={locationOptions.locations} technicians={roster.technicians}/></ActionForm></details> : <p className="notice">{technicianView ? 'You can view your assigned jobs. Contact your office team for scheduling or status changes.' : 'Your viewer role can read jobs. An owner, admin or dispatcher manages scheduling and assignments.'}</p>}
  </>;
 }
+
