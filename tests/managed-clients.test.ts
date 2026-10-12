@@ -65,14 +65,20 @@ describe("managed client workspace dashboard", () => {
 
     expect(harness.list).toHaveBeenCalledWith(operatorTenant);
     expect(harness.snapshot).toHaveBeenCalledWith(clientTenant);
-    expect(html).toContain("Internal operations dashboard");
-    expect(html).toContain("Paperwork and onboarding monitor");
+    expect(html).toContain("Internal owner operations dashboard");
+    expect(html).toContain("OWNER PRIORITY QUEUE");
+    expect(html).toContain("Paperwork, launch, payment, and support monitor");
     expect(html).toContain("Northstar HVAC");
-    expect(html).toContain("Core intake saved");
-    expect(html).toContain("3/5 sections saved");
+    expect(html).toContain("60%");
+    expect(html).toContain("3/5 setup gates complete");
+    expect(html).toContain("Manual invoice/payment check required");
+    expect(html).toContain("Keep provider writes off");
     expect(html).toContain(`/workspaces/${clientTenant}/onboarding`);
-    expect(html).toContain("does not invite the client, connect Retell, enable Make, send messages, write calendars, dispatch technicians or start billing");
+    expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
+    expect(html).toContain("does not invite the client, connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
     expect(html).toContain("Create client workspace");
+    expect(html).toContain("LAUNCH CONTROL");
+    expect(html).toContain("Keep booking, SMS/email, calendar writes and dispatch automation off unless separately approved.");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|billing started|booking confirmed/i);
   });
 
@@ -121,3 +127,5 @@ describe("managed client workspace action", () => {
     expect(result.message).toContain("temporarily unavailable");
   });
 });
+
+

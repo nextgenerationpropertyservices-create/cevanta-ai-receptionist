@@ -684,3 +684,12 @@ This release does not enable Retell, Make, SMS, email, external calendar, billin
 ## CEV-DISPATCH-100A local dashboard slice — 2026-10-12
 
 Technician service areas, weekly availability windows, safer dispatch suggestions, internal back-office client monitoring and approval-gated automation-control visibility are implemented locally. Architecture and Quality re-reviews approved the repaired local scope after database validation was tightened for malformed and JSON-null availability windows. Local verification passed: focused Vitest run reported 30 files/802 tests, embedded database migration/regression suite passed, typecheck passed, lint passed and production build passed. Production release remains gated: hosted Supabase migration, deployment and live JWT/PostgREST/browser verification have not been run for this slice. Automatic booking, messages, external calendar writes and dispatch automation remain off and approval-gated.
+
+## Internal owner operations dashboard — 2026-10-12
+
+CEV-INTERNAL-OPS-101A is implemented locally with limitations. The internal Cevanta Back Office page now acts as an owner operations dashboard instead of a basic client list. It summarizes managed client workspaces, flags which clients are ready for a test call, shows which still need setup work, provides an owner priority queue, and tracks each client across setup progress, paperwork, launch readiness, manual payment check, integration gates, and support next action.
+
+The page keeps the safety boundary clear: creating or monitoring a client workspace does not invite the client, connect Retell, enable Make, send SMS/email, write calendars, book appointments, quote work, collect payments, start billing, or dispatch technicians. Those actions remain separate approval-gated work.
+
+Evidence: focused `pnpm test -- tests/managed-clients.test.ts` passed with the configured runner executing 30 files / 802 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed.
+
