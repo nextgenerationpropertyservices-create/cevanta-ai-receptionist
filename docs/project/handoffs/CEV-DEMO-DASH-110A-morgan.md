@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DEMO-DASH-110A
+- Work completed: Rebuilt the standalone `/demo-dashboard` page for a cleaner Google Meet sales demo. The page now tells a simple fictional HVAC story: missed calls, impossible-to-miss lead alert, AI receptionist lead inbox, office-review workflow, jobs/calendar preview, onboarding snapshot, ROI snapshot, pilot offer, and closing talk track.
+- Files changed: `src/app/demo-dashboard/page.tsx`; `src/app/globals.css`; `tests/demo-dashboard-ui.test.ts`; `docs/project/tasks/CEV-DEMO-DASH-110A.md`; `docs/project/handoffs/CEV-DEMO-DASH-110A-morgan.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/demo-dashboard-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests. `pnpm typecheck` passed. `pnpm lint` passed. `pnpm build` passed and includes `/demo-dashboard` as a static route.
+- Known limitations: Local only until released. This route is a fictional sales demo and does not use live customer data or live provider state.
+- Risks: ROI examples are illustrative, not guaranteed. Keep the demo framed as a managed pilot with office review.
+- Rollback notes: Revert the demo dashboard page, demo CSS additions, test update, and project documentation entries. No data or provider rollback is needed.
+- Exact next action: Owner approval is required before production release. After release, open `/demo-dashboard` during Google Meet and use the talk track built into the page.

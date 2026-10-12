@@ -819,3 +819,14 @@ Owner approved release. GitHub `main` was pushed at commit `29932b0` with the st
 Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with `databaseConfigured: true`. Logged-in production browser verification confirmed `/workspaces/1cb2a226-84ef-4dcd-9976-5ce87dd3e449/launch` shows the new Provisioning Readiness section, Client go-live checklist, trusted tenant route gate, test call and recovery proof gate, blocked client activation gate, and the self-service client path/Make-Retell-Cevanta boundary copy.
 
 This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects. Those remain gated by separate approval, test evidence, rollback plan, and provider setup.
+
+## CEV-DEMO-DASH-110A Google Meet demo dashboard polish
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-DEMO-DASH-110A is implemented locally. The standalone `/demo-dashboard` page is now designed for a clean Google Meet sales demo. It shows a fictional HVAC owner story: missed calls becoming office-ready AI receptionist leads, an impossible-to-miss lead alert, lead inbox cards, office-review workflow, jobs/calendar preview, onboarding snapshot, ROI example, pilot offer, and closing talk track.
+
+The route uses fictional data only. It does not connect live providers, send SMS/email, write calendars, book appointments, collect payments, dispatch technicians, expose provider secrets, or use real customer records.
+
+Evidence: `pnpm test -- tests/demo-dashboard-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed and includes `/demo-dashboard` as a static route. Remaining gate: owner approval before production release.
