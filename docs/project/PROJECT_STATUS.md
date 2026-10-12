@@ -777,3 +777,12 @@ CEV-NOTIFY-107A is implemented locally and approved for preparation-only release
 Evidence: `pnpm test:retell:lead:db` PASS; `pnpm check` PASS with typecheck, lint, 34 files / 813 Vitest tests, all embedded database suites, Retell lead ingestion, and production build. Atlas approved the migration and contract after the composite tenant/lead foreign-key fix. Quinn approved the local no-send security scope after tests covered missing gates, testing state, same-call replay, cross-tenant outbox rejection, and atomic rollback on outbox failure.
 
 Limitations: no live email is sent; no SMS, customer email, external calendar write, automatic booking, payment, subscription billing, or dispatch side effect is enabled. Hosted Supabase JWT/PostgREST behavior, hosted concurrency, live Retell delivery, worker authorization, and live email provider delivery remain unverified.
+
+## CEV-NOTIFY-107A release record
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `6974ecd` with the office email notification outbox migration, tests, task record, handoff, and project status. The live Supabase project `rafiksklbrfgefkypvkn` successfully applied migration `office_email_notification_outbox` as version `20261012165604`. Post-migration verification confirmed the private outbox table exists, RLS is enabled, `anon` and `authenticated` have no outbox table privileges, `service_role` can execute `public.ingest_retell_call_lead(jsonb)`, and `authenticated` cannot execute that ingestion RPC.
+
+Production Vercel source deployment remains blocked from this agent: the Vercel connector can read the project and deployments, but returned 403 when asked to create a production deployment for project `prj_hjBpUp2pojkzvoA4kcn6niKGEXIj`, and no automatic production deployment appeared for commit `6974ecd`. The latest Vercel production deployment remains `dpl_HnmdY1iaWinDQiez9D9KVwfBVKQq` at commit `5c77a80`. Because this task changes the live database and project records only, the runtime app remains healthy while the Vercel deployment record is behind the repository commit. Smoke checks: production health endpoint returned 200 with database configured; demo dashboard returned 200.
