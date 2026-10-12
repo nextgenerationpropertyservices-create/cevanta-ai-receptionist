@@ -841,3 +841,14 @@ Owner approved release. GitHub `main` was pushed at commit `4893c08` with the Go
 Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with `databaseConfigured: true`. The live `/demo-dashboard` page contains the Google Meet sales demo label, the missed-calls-to-office-ready-leads hero, the high-visibility AI receptionist lead alert, the `$497 setup + $297/month` offer, the ROI snapshot, and the onboarding snapshot.
 
 This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects.
+
+## CEV-CLIENT-COPY-111A client-facing workspace homepage and editable ROI
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-CLIENT-COPY-111A is implemented locally and ready for owner release approval. The workspace homepage no longer uses internal "next dashboard upgrades" or "worth the money" language. The closing section now reads as a client-facing front-office operations area with actions for managing the field team, viewing the schedule, and reviewing communication settings.
+
+The recovered-loss snapshot is now an editable on-page ROI estimator. Clients can adjust average job value, close rate, and monthly cost, and the estimate updates immediately on the screen. It is labeled as an estimate only and does not create billing, booking, messaging, calendar, dispatch, provider, or automation side effects.
+
+Evidence: `pnpm test -- tests/dashboard-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed and includes `/workspaces/[tenantId]`. Remaining gate: owner approval before production release.

@@ -53,10 +53,22 @@ describe("workspace overview front office dashboard", () => {
     const output = await html();
     expect(output).toContain("RECOVERED LOSS SNAPSHOT");
     expect(output).toContain("Estimated recovered revenue");
+    expect(output).toContain("Adjust the numbers below to match your business.");
+    expect(output).toContain("Average job value");
+    expect(output).toContain("Close rate %");
+    expect(output).toContain("Monthly cost");
+    expect(output).toContain("This is an estimator only.");
     expect(output).toContain("Field team");
     expect(output).toContain("Casey Field Tech");
     expect(output).toContain("Water heater diagnostic");
     expect(output).toContain("Open full calendar");
+    expect(output).toContain("RUN YOUR FRONT OFFICE");
+    expect(output).toContain("Everything your team needs to respond faster and stay organized");
+    expect(output).toContain("Manage field team");
+    expect(output).toContain("View schedule");
+    expect(output).toContain("Review communication settings");
+    expect(output).not.toContain("NEXT DASHBOARD UPGRADES");
+    expect(output).not.toContain("worth the money");
     expect(output).not.toMatch(/service-role|secret|webhook|api key/i);
   });
 
@@ -66,6 +78,8 @@ describe("workspace overview front office dashboard", () => {
     expect(output).not.toContain("Review newest lead");
   });
 });
+
+
 
 
 
