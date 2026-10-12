@@ -669,3 +669,13 @@ Evidence on 2026-10-11: `pnpm test -- tests/jobs-ui.test.ts tests/technician-pro
 CEV-DASHBOARD-99A is implemented locally with limitations. The workspace topbar now shows a clear `need attention` pill when new AI receptionist leads or unassigned jobs exist, and the Leads and Jobs menu items show count badges for their own attention items. Technician users do not receive unassigned-job counts that are outside their management view.
 
 Evidence on 2026-10-11: `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test -- tests/workspace-shell-ui.test.ts tests/dashboard-ui.test.ts tests/jobs-ui.test.ts` PASS with the configured runner executing 30 files / 799 tests; `pnpm build` PASS. This is an in-app visual notification only. It does not send push notifications, SMS, email, browser notifications, external calendar writes, quotes, payments, booking confirmations, Retell changes, Make changes, or dispatch automation. Production deployment remains pending explicit owner release approval.
+
+## Technician profile and attention badge production release — 2026-10-11
+
+CEV-DISPATCH-98A and CEV-DASHBOARD-99A were released to production after owner approval. Commits `ff0f294` and `d437c5c` were pushed to GitHub `main`. Hosted Supabase project `rafiksklbrfgefkypvkn` applied migration `technician_profiles`, adding tenant-scoped technician skill and availability profiles with RLS, three policies, validation/timestamp/audit triggers, and authenticated role grants.
+
+Hosted SQL verification confirmed `public.technician_profiles` exists, RLS is enabled, three policies exist, and three triggers exist. Supabase security advisors after migration reported existing project-wide notices already tracked: private/onboarding RLS-without-policy tables, intentional signed-in callable security-definer RPCs, and leaked-password protection disabled. No new advisor finding was reported for `public.validate_technician_profile()` as a callable authenticated security-definer function.
+
+Production browser smoke proof passed on `https://cevanta-ai-receptionist.vercel.app`. The Overview page showed the new `3 items need attention` topbar pill and Jobs badge. The Technicians page loaded against the hosted migration and showed the skills/availability-ready roster shell, profiles-complete count, and add-technician section. The Jobs page showed `3 jobs need technician assignment`, `Needs Tech` flags, and `Assign technician` controls. Screenshot proof: `demo-video-output/live-release-dispatch-jobs-smoke-2026-10-11.png`.
+
+This release does not enable Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation. Dispatch remains manual office review.

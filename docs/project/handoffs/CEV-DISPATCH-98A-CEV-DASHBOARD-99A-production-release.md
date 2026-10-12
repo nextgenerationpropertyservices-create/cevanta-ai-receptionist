@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DISPATCH-98A / CEV-DASHBOARD-99A production release
+- Work completed: Released technician skills/availability profiles, dispatch suggestions, and topbar attention badges to production after owner approval.
+- Files changed: `docs/project/PROJECT_STATUS.md`; `docs/project/handoffs/CEV-DISPATCH-98A-CEV-DASHBOARD-99A-production-release.md`; `demo-video-output/live-release-dispatch-jobs-smoke-2026-10-11.png`.
+- Database changes: Hosted Supabase project `rafiksklbrfgefkypvkn` applied migration `technician_profiles`.
+- API or contract changes: Production app now reads/writes `technician_profiles` through authenticated, tenant-scoped Supabase access. No external provider contract changed.
+- Verification commands and results: Hosted SQL verification confirmed table exists, RLS enabled, three policies, and three triggers. Supabase security advisors were reviewed. Production browser smoke showed Overview attention pill, Technicians migration-backed page, and Jobs attention badge plus assignment controls.
+- Known limitations: No technician existed in the smoke workspace, so live skill suggestion display was not observable there. Local UI tests covered skill suggestion rendering. Attention badges are in-app visual notifications only and do not send push/SMS/email/browser notifications.
+- Risks: Production Vercel deployment was verified by live route behavior rather than a Vercel deployment API result because the connected Vercel MCP deployment-card tool was unavailable and local Vercel CLI was not installed.
+- Rollback notes: Revert commits `ff0f294` and `d437c5c` and deploy. If database rollback is required, drop `public.technician_profiles` and `public.validate_technician_profile()` after confirming no production technician profile data needs preservation.
+- Exact next action: Build the next dashboard slice: richer job/technician matching using availability windows, capacity, and trade/service tags, or add a notification routing settings page for owner/admin users.
