@@ -852,3 +852,14 @@ CEV-CLIENT-COPY-111A is implemented locally and ready for owner release approval
 The recovered-loss snapshot is now an editable on-page ROI estimator. Clients can adjust average job value, close rate, and monthly cost, and the estimate updates immediately on the screen. It is labeled as an estimate only and does not create billing, booking, messaging, calendar, dispatch, provider, or automation side effects.
 
 Evidence: `pnpm test -- tests/dashboard-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed and includes `/workspaces/[tenantId]`. Remaining gate: owner approval before production release.
+
+## CEV-CLIENT-COPY-111A production release
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `ad6dbfa` with the client-facing workspace homepage copy and editable ROI estimator. Vercel listed production deployment `cevanta-ai-receptionist-3xfois0yd.vercel.app` for commit `ad6dbfa`.
+
+Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with `databaseConfigured: true`. Logged-in production browser verification confirmed `/workspaces/b5943d94-d6c4-4b15-bd41-5cedffc42708` shows the editable ROI fields for average job value, close rate, and monthly cost, plus the client-facing `RUN YOUR FRONT OFFICE` section with Manage field team, View schedule, and Review communication settings links.
+
+This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects.
