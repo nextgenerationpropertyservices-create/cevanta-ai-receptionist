@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-NOTIFY-106A
+- Work completed: Added a persistent high-visibility in-app workspace-shell alert for new AI receptionist leads. The alert appears below the top navigation on every workspace page when unreviewed AI leads exist, links directly to the newest lead, calls out urgent/high-priority lead count, and states that the alert is in-app only with no SMS, email, booking, payment, calendar write, or dispatch effect.
+- Files changed: `src/app/workspaces/[tenantId]/layout.tsx`, `src/components/workspace-shell.tsx`, `src/app/globals.css`, `tests/workspace-shell-ui.test.ts`, `docs/project/tasks/CEV-NOTIFY-106A.md`, `docs/project/handoffs/CEV-NOTIFY-106A-morgan.md`, `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- API or contract changes: Extended the internal `WorkspaceAttention` UI prop with optional `urgentAiLeads` and `newestAiLeadId`. No public API or database contract changed.
+- Verification commands and results: `pnpm test -- tests/workspace-shell-ui.test.ts` PASS; because of the configured Vitest runner this executed 34 files / 813 tests. `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. `pnpm check` PASS with typecheck, lint, 34 files / 813 tests, all embedded database suites, Retell lead ingestion embedded suite, and production build.
+- Known limitations: This is an in-app visual alert only. It does not create browser push, sound, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, or dispatch automation. Hosted browser smoke and production deployment are not run in this task.
+- Risks: The alert is intentionally prominent and sticky within the top navigation; if many users find it too visually strong, styling can be tuned without changing data behavior.
+- Rollback notes: Revert the changes to `WorkspaceAttention`, the workspace layout attention object, `.workspace-lead-alert` CSS, and the shell UI test expectations. No migration rollback is needed.
+- Exact next action: If the owner approves a release, commit and deploy this small UI-only dashboard alert. After that, build optional office email notifications behind the automation controls.

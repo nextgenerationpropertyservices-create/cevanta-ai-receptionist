@@ -757,3 +757,12 @@ Release evidence: `pnpm check` passed locally with typecheck, lint, 813 Vitest t
 Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app`, `/demo-dashboard`, `/sign-in`, and `/workspaces/10000000-0000-4000-8000-000000000001/integrations` returned HTTP 200. Logged-in production browser verification confirmed the Integrations page shows the optional controls for SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, and dispatch automation, all gated and off by default. Vercel connector project lookup was blocked by an account-scope mismatch: the connector saw team `nextgenerationpropertyservices-1486s-projects` but did not list or retrieve the project, so Vercel runtime-error aggregation and deployment-card evidence were unavailable from the connector.
 
 Remaining gates: live provider implementations, SMS/email/calendar provider registration and consent handling, automatic booking logic, payment/subscription billing flows, dispatch automation, and external provider side effects each require separate implementation, test evidence, rollback plan, and release approval before they affect real customers.
+
+## CEV-NOTIFY-106A persistent new-lead top alert
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-NOTIFY-106A is implemented locally with limitations. The workspace shell now shows a persistent, high-visibility in-app alert under the top navigation whenever new AI receptionist leads need office review. The alert links straight to the newest unreviewed AI lead, includes the urgent/high-priority count when present, and states clearly that it is in-app only with no SMS, email, booking, payment, external calendar write, or dispatch effect. Top navigation badges still show total attention, lead count, and job count.
+
+Evidence: `pnpm test -- tests/workspace-shell-ui.test.ts` PASS and, because of the configured runner, executed the full 34-file / 813-test Vitest suite; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS; `pnpm check` PASS with typecheck, lint, 34 files / 813 tests, embedded database suites, Retell lead ingestion embedded suite, and production build. No database changes and no provider side effects were introduced. Remaining gates: commit/release approval, hosted browser smoke, and later optional office email/SMS/browser notification implementation behind the automation controls.

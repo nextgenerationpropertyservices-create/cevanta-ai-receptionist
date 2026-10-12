@@ -10,7 +10,7 @@ const tenant = { id: "11111111-1111-4111-8111-111111111111", name: "Fictional HV
 
 describe("workspace shell attention badges", () => {
   it("shows lead and job attention counts in the top navigation", () => {
-    const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "owner", attention: { aiLeads: 2, unassignedJobs: 3 } }, createElement("div", null, "Dashboard body")));
+    const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "owner", attention: { aiLeads: 2, urgentAiLeads: 1, unassignedJobs: 3, newestAiLeadId: "33333333-3333-4333-8333-333333333333" } }, createElement("div", null, "Dashboard body")));
     expect(html).toContain("5</strong> need attention");
     expect(html).toContain("Notifications");
     expect(html).toContain(`/workspaces/${tenant.id}/notifications`);
@@ -18,6 +18,11 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain("Jobs");
     expect(html).toContain("Billing");
     expect(html).toContain("2</span>");
+    expect(html).toContain("NEW AI RECEPTIONIST LEAD");
+    expect(html).toContain("2 new leads need office review, including 1 urgent or high-priority");
+    expect(html).toContain(`/workspaces/${tenant.id}/leads/33333333-3333-4333-8333-333333333333`);
+    expect(html).toContain("in-app alert only");
+    expect(html).toContain("does not send SMS, email, book appointments, charge money, write calendars, or dispatch technicians");
     expect(html).toContain("3</span>");
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });
@@ -25,11 +30,6 @@ describe("workspace shell attention badges", () => {
   it("does not show an attention pill when there is nothing urgent", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "viewer" }, createElement("div", null, "Dashboard body")));
     expect(html).not.toContain("need attention");
+    expect(html).not.toContain("NEW AI RECEPTIONIST LEAD");
   });
 });
-
-
-
-
-
-

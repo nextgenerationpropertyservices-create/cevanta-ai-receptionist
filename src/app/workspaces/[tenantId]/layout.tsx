@@ -9,7 +9,10 @@ export default async function Layout({children,params}: {children:React.ReactNod
  const {tenantId} = await params;
  const [workspace,leads,jobs] = await Promise.all([getWorkspace(tenantId),getLeads(tenantId),getJobs(tenantId)]);
  const officeView=canManageCustomers(workspace.role);
- const aiLeads=leads.ready ? leads.leads.filter(isNewAiReceptionistLead).length : 0;
+ const aiLeadItems=leads.ready ? leads.leads.filter(isNewAiReceptionistLead) : [];
+ const aiLeads=aiLeadItems.length;
+ const urgentAiLeads=aiLeadItems.filter(lead=>lead.priority==='urgent' || lead.priority==='high').length;
+ const newestAiLeadId=aiLeadItems[0]?.id ?? null;
  const unassignedJobs=officeView && jobs.ready ? jobs.jobs.filter(job=>job.status!=='completed' && job.status!=='cancelled' && !job.assigned_user_id).length : 0;
- return <WorkspaceShell {...workspace} attention={{aiLeads,unassignedJobs}}>{children}</WorkspaceShell>;
+ return <WorkspaceShell {...workspace} attention={{aiLeads,urgentAiLeads,unassignedJobs,newestAiLeadId}}>{children}</WorkspaceShell>;
 }
