@@ -719,3 +719,12 @@ Coordinator: Morgan — Product Manager and Orchestrator
 CEV-FULLAPP-103A is implemented locally with limitations. The client Setup page now explains what trade owners should fill out: business details, services and service area, weekly/date-specific hours, emergency/call rules, escalation contacts, and never-promise rules. It also clearly states that SMS/email/external calendar writes stay off until approved and tested, while automatic booking, payment collection, and dispatch automation remain disabled. The internal Back Office clients dashboard now includes Client Intake Details cards that summarize saved onboarding answers for each managed client, including business contact, services, hours, call rules, escalation, service area note status, and never-promise rule status.
 
 Evidence on 2026-10-11: `pnpm test -- tests/managed-clients.test.ts tests/onboarding-ui.test.ts` PASS with 31 test files and 803 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test` PASS with 31 test files and 803 tests; `pnpm build` PASS. Remaining gates: hosted browser smoke, dedicated service-area/never-promise fields, billing/payment tracking implementation, live provider behavior, SMS/email/calendar writer implementation, automatic booking/payment/dispatch approvals, production release approval, and deployment.
+
+## CEV-FULLAPP-104A manual pilot billing page
+
+Date: 2026-10-11 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-FULLAPP-104A is implemented locally with limitations. Workspace top navigation now includes Billing. The new `/workspaces/[tenantId]/billing` page shows the first managed pilot offer, `$497 setup + $297/month`, and gives a manual workflow for Stripe payment links or invoices. It explicitly does not collect card details, create subscriptions, automate receipts/taxes/refunds, trigger SMS/email, write external calendars, book appointments, collect payments, or dispatch technicians.
+
+Evidence on 2026-10-11: `pnpm test -- tests/billing-ui.test.ts tests/workspace-shell-ui.test.ts` PASS with 32 test files and 804 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test` PASS with 32 test files and 804 tests; `pnpm build` PASS and includes `/workspaces/[tenantId]/billing` in the production route list. Remaining gates: persisted billing/payment status, Stripe subscription design, hosted browser smoke, live provider behavior, SMS/email/calendar writer implementation, automatic booking/payment/dispatch approvals, production release approval, and deployment.

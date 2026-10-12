@@ -16,6 +16,7 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain(`/workspaces/${tenant.id}/notifications`);
     expect(html).toContain("Leads");
     expect(html).toContain("Jobs");
+    expect(html).toContain("Billing");
     expect(html).toContain("2</span>");
     expect(html).toContain("3</span>");
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
@@ -26,6 +27,8 @@ describe("workspace shell attention badges", () => {
     expect(html).not.toContain("need attention");
   });
 });
+
+
 
 
 

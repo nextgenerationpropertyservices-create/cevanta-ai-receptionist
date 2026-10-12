@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-FULLAPP-104A
+- Work completed: Added a Billing page for manual first-pilot billing and added Billing to workspace top navigation. The page shows the first offer, `$497 setup + $297/month`, and gives a Stripe payment link/manual invoice workflow without collecting payment data in Cevanta.
+- Files changed: `docs/project/tasks/CEV-FULLAPP-104A.md`; `src/app/workspaces/[tenantId]/billing/page.tsx`; `src/components/workspace-shell.tsx`; `tests/billing-ui.test.ts`; `tests/workspace-shell-ui.test.ts`; `docs/project/handoffs/CEV-FULLAPP-104A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- API or contract changes: None. No payment provider, subscription, card collection, invoice API, refund API or billing webhooks were added.
+- Verification commands and results: `pnpm test -- tests/billing-ui.test.ts tests/workspace-shell-ui.test.ts` PASS with 32 test files and 804 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test` PASS with 32 test files and 804 tests; `pnpm build` PASS and includes `/workspaces/[tenantId]/billing` in the production route list.
+- Known limitations: Payment status is not persisted in the app yet. Owner must manually confirm payment outside Cevanta and record it in internal notes until a reviewed billing model exists.
+- Risks: The manual page could be mistaken for automated billing if the sales process is unclear; the page explicitly states no in-app collection or subscription automation exists.
+- Rollback notes: Revert the Billing route, top-nav link, tests, and task/status docs. No database rollback required.
+- Exact next action: Prepare controlled SMS/email/calendar writer planning and UI gates, then wait for explicit provider and release approval before any live external write implementation.
