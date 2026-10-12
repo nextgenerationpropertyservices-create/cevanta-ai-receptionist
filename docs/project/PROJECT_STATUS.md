@@ -808,3 +808,14 @@ CEV-ONBOARD-AUTO-109A is implemented locally. Launch now includes a provisioning
 This slice is preparation-only. It does not create or configure Retell agents, Make scenarios, phone routing, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, provider account authorizations, webhook URLs, API keys, provider secrets, provider identifiers, or real customer records.
 
 Evidence: focused provisioning/Launch tests passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm check` passed with typecheck, lint, 36 files / 817 Vitest tests, embedded database suites, Retell lead ingestion embedded suite, and production build. Remaining gates: persistent provisioning state, secure provider connection flow, trusted tenant mapping, retry/recovery state tracking, hosted browser smoke, production release approval, and deployment.
+
+## CEV-ONBOARD-AUTO-108A/109A production release
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `29932b0` with the standard onboarding blueprint and provisioning readiness gates. Vercel production deployment `cevanta-ai-receptionist-lnetgx1ae.vercel.app` for commit `29932b0` reached Ready at 2026-10-12 17:14 EDT.
+
+Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with `databaseConfigured: true`. Logged-in production browser verification confirmed `/workspaces/1cb2a226-84ef-4dcd-9976-5ce87dd3e449/launch` shows the new Provisioning Readiness section, Client go-live checklist, trusted tenant route gate, test call and recovery proof gate, blocked client activation gate, and the self-service client path/Make-Retell-Cevanta boundary copy.
+
+This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects. Those remain gated by separate approval, test evidence, rollback plan, and provider setup.
