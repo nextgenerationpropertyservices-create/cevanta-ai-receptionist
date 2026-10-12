@@ -25,7 +25,7 @@ describe('pilot runbook page', () => {
     expect(output).toContain('After each AI lead');
     expect(output).toContain('STOP RULES');
     expect(output).toContain('The AI promises a confirmed appointment without verified office approval.');
-    expect(output).toContain('external sends, automatic booking, provider writes and production deployment stay off');
+    expect(output).toContain('external sends, automatic booking and provider writes stay off');
   });
 
   it('links to the workspace pilot tools', async () => {
@@ -38,3 +38,4 @@ describe('pilot runbook page', () => {
     expect(output).toContain(`/workspaces/${tenant}/calendar`);
   });
 });
+

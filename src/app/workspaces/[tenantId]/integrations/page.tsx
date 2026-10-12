@@ -16,9 +16,9 @@ const integrations = [
   },
   {
     name: 'Cevanta lead intake',
-    status: 'Local contract ready',
+    status: 'Hosted intake ready',
     safeState: 'The app has a reviewed Retell lead-ingestion path and in-app AI lead notices.',
-    nextStep: 'Add server-only production configuration and run a controlled hosted test before live provider writes.',
+    nextStep: 'Keep office-review mode on. Run each new client through a controlled test call before enabling live provider writes.',
   },
   {
     name: 'Twilio and SMS',
@@ -34,9 +34,9 @@ const integrations = [
   },
   {
     name: 'Billing and production',
-    status: 'Not live',
-    safeState: 'No production deployment, subscription billing, or automatic client onboarding claim is approved yet.',
-    nextStep: 'Finish release gates, domain/email setup, backups, monitoring, and owner approval before selling as self-service production.',
+    status: 'Dashboard live; billing gated',
+    safeState: 'The production dashboard is live. Subscription billing and automatic self-service onboarding remain approval-gated until payment, support, backup and monitoring steps are finished.',
+    nextStep: 'Use the managed pilot offer first. Add subscription billing and fully self-service onboarding after the first client flow is proven.',
   },
 ];
 
@@ -50,7 +50,7 @@ const automationControls = [
 const safetyRules = [
   'Do not paste API keys, webhook URLs, private phone numbers, transcripts, recordings or real customer data into setup notes.',
   'Do not tell callers an appointment is booked until Cevanta has a confirmed office-reviewed booking result.',
-  'Do not enable SMS, email, calendar writers, always-on Make activation or production deploys without explicit approval.',
+  'Do not enable SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval.',
   'Use fictional records for demos unless a client has approved a live pilot test.',
 ];
 
@@ -189,4 +189,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
     </>
   );
 }
+
+
+
 

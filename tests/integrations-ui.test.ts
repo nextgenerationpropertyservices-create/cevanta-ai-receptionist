@@ -28,7 +28,7 @@ describe('integrations readiness page', () => {
     expect(output).toContain('Deferred');
     expect(output).toContain('Provider writes');
     expect(output).toContain('Off');
-    expect(output).toContain('Do not enable SMS, email, calendar writers, always-on Make activation or production deploys without explicit approval.');
+    expect(output).toContain('Do not enable SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval.');
     expect(output).toContain('AUTOMATION CONTROLS');
     expect(output).toContain('Automatic booking');
     expect(output).toContain('SMS or email messages');
@@ -46,4 +46,5 @@ describe('integrations readiness page', () => {
     expect(output).toContain(`/workspaces/${tenant}/settings`);
   });
 });
+
 

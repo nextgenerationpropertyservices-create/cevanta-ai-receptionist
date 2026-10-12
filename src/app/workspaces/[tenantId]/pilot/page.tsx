@@ -9,7 +9,7 @@ const phases = [
       'Complete Setup: business details, services, weekly hours, date exceptions, request rules and escalation contacts.',
       'Review Launch and Integrations so everyone understands what is proven and what remains gated.',
       'Confirm the AI may answer calls only as a managed pilot with office review.',
-      'Keep SMS, email, external calendar writes and production deployment off unless separately approved.',
+      'Keep SMS, email and external calendar writes off unless separately approved.',
     ],
   },
   {
@@ -71,7 +71,7 @@ export default async function PilotRunbook({ params }: { params: Promise<{ tenan
         <h2 id="pilot-posture">Pilot posture</h2>
         <p>
           {tenant.name} can run a managed voice pilot when the owner approves the live call window. Your {role} access can review this runbook, but external sends,
-          automatic booking, provider writes and production deployment stay off until separately approved.
+          automatic booking and provider writes stay off until separately approved.
         </p>
       </section>
 
@@ -143,3 +143,4 @@ export default async function PilotRunbook({ params }: { params: Promise<{ tenan
     </>
   );
 }
+

@@ -37,7 +37,7 @@ const readinessRows = [
 const ownerItems = [
   'Keep Retell credits funded before demos or live calls.',
   'Decide when to connect Retell webhooks to Make or directly to Cevanta.',
-  'Approve any always-on Make activation, production deployment, SMS, email or calendar-writing workflow before it goes live.',
+  'Approve any always-on Make activation, future production release, SMS, email or calendar-writing workflow before it goes live.',
   'Complete Twilio business/SMS registration later if SMS follow-up becomes part of the paid package.',
 ];
 
@@ -67,7 +67,7 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
         <h2 id="launch-current-position">Current position</h2>
         <p>
           {tenant.name} is ready to show as a managed pilot with office review. Retell phone answering and Make safe intake have been tested, but automatic live booking,
-          SMS, email, billing and production deployment are still gated.
+          SMS, email, billing and future production releases are still gated.
         </p>
       </section>
 
@@ -155,5 +155,6 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
     </>
   );
 }
+
 
 
