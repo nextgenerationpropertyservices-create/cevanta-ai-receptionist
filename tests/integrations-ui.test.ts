@@ -25,16 +25,17 @@ describe('integrations readiness page', () => {
     expect(output).toContain('Make intake scenario');
     expect(output).toContain('Safe receiver tested');
     expect(output).toContain('Twilio and SMS');
-    expect(output).toContain('Deferred');
+    expect(output).toContain('Controlled option');
     expect(output).toContain('Provider writes');
-    expect(output).toContain('Off');
-    expect(output).toContain('Do not enable SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval.');
+    expect(output).toContain('Controlled');
+    expect(output).toContain('Do not enable live SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval, test evidence and rollback notes.');
     expect(output).toContain('AUTOMATION CONTROLS');
     expect(output).toContain('Automatic booking');
     expect(output).toContain('SMS or email messages');
     expect(output).toContain('External calendar writes');
     expect(output).toContain('Dispatch automation');
-    expect(output).toContain('They do not send messages, confirm bookings, write calendars or dispatch technicians from this page.');
+    expect(output).toContain('Payment collection');
+    expect(output).toContain('They do not send messages, confirm bookings, write external calendars, collect payments or dispatch technicians from this page.');
   });
 
   it('links to the workspace launch and setup paths', async () => {
@@ -46,5 +47,6 @@ describe('integrations readiness page', () => {
     expect(output).toContain(`/workspaces/${tenant}/settings`);
   });
 });
+
 
 

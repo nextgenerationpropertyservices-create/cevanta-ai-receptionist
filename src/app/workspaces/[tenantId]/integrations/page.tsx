@@ -22,15 +22,15 @@ const integrations = [
   },
   {
     name: 'Twilio and SMS',
-    status: 'Deferred',
-    safeState: 'Twilio business/SMS registration is not ready for client messaging.',
-    nextStep: 'Use Retell voice first. Add SMS only after registration, consent language, opt-out handling and owner approval.',
+    status: 'Controlled option',
+    safeState: 'SMS stays off by default until provider registration, consent language, opt-out handling, test evidence and owner approval are complete.',
+    nextStep: 'Prepare SMS as an optional client-by-client write path; do not send automatically from the dashboard yet.',
   },
   {
     name: 'Google Calendar writers',
-    status: 'Manual review only',
-    safeState: 'Cevanta can track appointments in the workspace calendar, but live external calendar writes are not enabled.',
-    nextStep: 'Keep office review as the first offer. Add calendar writes after availability, conflict and rollback rules are approved.',
+    status: 'Controlled option',
+    safeState: 'Cevanta can track appointments in the workspace calendar now. External calendar writes stay off until conflict checks, test calls and rollback rules are approved.',
+    nextStep: 'Prepare calendar writes as an optional controlled action; do not auto-book or promise availability.',
   },
   {
     name: 'Billing and production',
@@ -42,15 +42,16 @@ const integrations = [
 
 
 const automationControls = [
-  { name: 'Automatic booking', state: 'Off until approved', meaning: 'Cevanta can collect preferred appointment windows, but the office confirms the final booking until availability, conflict checks and rollback are proven.' },
-  { name: 'SMS or email messages', state: 'Off until approved', meaning: 'Follow-up messages need client approval, consent language, opt-out handling and provider readiness before any live send.' },
-  { name: 'External calendar writes', state: 'Off until approved', meaning: 'The dashboard calendar can track appointments now. Google or other external calendar writes need a tested writer and recovery plan.' },
-  { name: 'Dispatch automation', state: 'Off until approved', meaning: 'Cevanta can suggest technicians by skills, service area and availability. Automatic assignment waits for client rules and manual acceptance evidence.' },
+  { name: 'SMS or email messages', state: 'Controlled option — off until approved', meaning: 'Follow-up writes can be built client-by-client after consent language, opt-out handling, provider readiness, test evidence and owner approval.' },
+  { name: 'External calendar writes', state: 'Controlled option — off until approved', meaning: 'The dashboard calendar can track appointments now. Google or other external calendar writes need conflict checks, a test call and a rollback plan.' },
+  { name: 'Automatic booking', state: 'Disabled', meaning: 'Cevanta can collect preferred appointment windows, but the office confirms the final booking until availability and confirmation logic are separately approved.' },
+  { name: 'Payment collection', state: 'Disabled', meaning: 'Use manual invoices or payment links for pilots. Do not collect payments inside this app yet.' },
+  { name: 'Dispatch automation', state: 'Disabled', meaning: 'Cevanta can suggest technicians by skills, service area and availability. Automatic assignment waits for client rules and manual acceptance evidence.' },
 ];
 const safetyRules = [
   'Do not paste API keys, webhook URLs, private phone numbers, transcripts, recordings or real customer data into setup notes.',
   'Do not tell callers an appointment is booked until Cevanta has a confirmed office-reviewed booking result.',
-  'Do not enable SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval.',
+  'Do not enable live SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval, test evidence and rollback notes.',
   'Use fictional records for demos unless a client has approved a live pilot test.',
 ];
 
@@ -72,7 +73,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
       <section className="notice" role="status" aria-labelledby="integration-summary">
         <h2 id="integration-summary">Safe integration posture</h2>
         <p>
-          {tenant.name} can be shown as a managed AI receptionist pilot. Retell voice and Make safe intake have evidence; SMS, external calendar writes, billing and production release remain off.
+          {tenant.name} can be shown as a managed AI receptionist pilot. Retell voice and Make safe intake have evidence; SMS, email and external calendar writes can be prepared as controlled options. Automatic booking, payment collection and dispatch automation remain off.
         </p>
       </section>
 
@@ -84,8 +85,8 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         </div>
         <div className="panel stat">
           <span>Provider writes</span>
-          <strong className="role-value">Off</strong>
-          <p>Live writes stay gated until approved and verified.</p>
+          <strong className="role-value">Controlled</strong>
+          <p>SMS, email and calendar writes require approval, testing and rollback evidence.</p>
         </div>
         <div className="panel stat">
           <span>First package</span>
@@ -154,7 +155,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
             </tbody>
           </table>
         </div>
-        <p className="notice">These controls are planned as client-by-client options. They do not send messages, confirm bookings, write calendars or dispatch technicians from this page.</p>
+        <p className="notice">These controls are planned as client-by-client options. They do not send messages, confirm bookings, write external calendars, collect payments or dispatch technicians from this page.</p>
       </section>
       <div className="split-layout">
         <section className="panel">
@@ -189,6 +190,8 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
     </>
   );
 }
+
+
 
 
 

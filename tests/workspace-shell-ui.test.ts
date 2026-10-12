@@ -12,6 +12,8 @@ describe("workspace shell attention badges", () => {
   it("shows lead and job attention counts in the top navigation", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "owner", attention: { aiLeads: 2, unassignedJobs: 3 } }, createElement("div", null, "Dashboard body")));
     expect(html).toContain("5</strong> need attention");
+    expect(html).toContain("Notifications");
+    expect(html).toContain(`/workspaces/${tenant.id}/notifications`);
     expect(html).toContain("Leads");
     expect(html).toContain("Jobs");
     expect(html).toContain("2</span>");
@@ -24,5 +26,7 @@ describe("workspace shell attention badges", () => {
     expect(html).not.toContain("need attention");
   });
 });
+
+
 
 

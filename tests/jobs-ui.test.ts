@@ -14,6 +14,8 @@ describe("dispatch board quick assignment", () => {
     const html = renderToStaticMarkup(createElement(DispatchBoard, { jobs: [job], technicians: [tech], technicianProfiles: [technicianProfile], tenantId: tenant, technicianView: false, writable: true }));
     expect(html).toContain("Needs tech");
     expect(html).toContain("Assign technician");
+    expect(html).toContain("Assignment workflow");
+    expect(html).toContain("Use manual dispatch until automation is separately approved.");
     expect(html).toContain("Casey Field Tech");
     expect(html).toContain("Suggested tech: Casey Field Tech");
     expect(html).toContain("skill: no heat");
@@ -31,3 +33,5 @@ describe("dispatch board quick assignment", () => {
     expect(html).not.toContain("Save assignment");
   });
 });
+
+
