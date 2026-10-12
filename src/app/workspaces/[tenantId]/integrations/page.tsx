@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { AutomationControlForm } from './automation-control-form';
+import { getAutomationControls } from '@/lib/server/automation-control-queries';
 import { getWorkspace } from '@/lib/server/queries';
 
 const integrations = [
@@ -22,58 +24,57 @@ const integrations = [
   },
   {
     name: 'Twilio and SMS',
-    status: 'Controlled option',
+    status: 'Optional controlled write',
     safeState: 'SMS stays off by default until provider registration, consent language, opt-out handling, test evidence and owner approval are complete.',
-    nextStep: 'Prepare SMS as an optional client-by-client write path; do not send automatically from the dashboard yet.',
+    nextStep: 'Use the client automation controls below to track readiness before any SMS can be treated as active.',
+  },
+  {
+    name: 'Email follow-up',
+    status: 'Optional controlled write',
+    safeState: 'Email stays off by default until sender, template, delivery and approval checks are complete.',
+    nextStep: 'Track provider notes and test evidence before enabling client follow-up email.',
   },
   {
     name: 'Google Calendar writers',
-    status: 'Controlled option',
+    status: 'Optional controlled write',
     safeState: 'Cevanta can track appointments in the workspace calendar now. External calendar writes stay off until conflict checks, test calls and rollback rules are approved.',
-    nextStep: 'Prepare calendar writes as an optional controlled action; do not auto-book or promise availability.',
+    nextStep: 'Prepare calendar writes as an optional controlled action; do not auto-book or promise availability until the booking gate is separately active.',
   },
   {
-    name: 'Billing and production',
-    status: 'Dashboard live; billing gated',
-    safeState: 'The production dashboard is live. Subscription billing and automatic self-service onboarding remain approval-gated until payment, support, backup and monitoring steps are finished.',
-    nextStep: 'Use the managed pilot offer first. Add subscription billing and fully self-service onboarding after the first client flow is proven.',
+    name: 'Billing, booking and dispatch',
+    status: 'Optional, high-control gates',
+    safeState: 'Payment collection, subscription billing, automatic booking and dispatch automation can be tracked as options, but no live charges, confirmed bookings or dispatches happen from this page.',
+    nextStep: 'Keep each high-risk feature in requested/testing/ready until the owner signs off and a rollback plan exists.',
   },
 ];
 
-
-const automationControls = [
-  { name: 'SMS or email messages', state: 'Controlled option — off until approved', meaning: 'Follow-up writes can be built client-by-client after consent language, opt-out handling, provider readiness, test evidence and owner approval.' },
-  { name: 'External calendar writes', state: 'Controlled option — off until approved', meaning: 'The dashboard calendar can track appointments now. Google or other external calendar writes need conflict checks, a test call and a rollback plan.' },
-  { name: 'Automatic booking', state: 'Disabled', meaning: 'Cevanta can collect preferred appointment windows, but the office confirms the final booking until availability and confirmation logic are separately approved.' },
-  { name: 'Payment collection', state: 'Disabled', meaning: 'Use manual invoices or payment links for pilots. Do not collect payments inside this app yet.' },
-  { name: 'Dispatch automation', state: 'Disabled', meaning: 'Cevanta can suggest technicians by skills, service area and availability. Automatic assignment waits for client rules and manual acceptance evidence.' },
-];
 const safetyRules = [
   'Do not paste API keys, webhook URLs, private phone numbers, transcripts, recordings or real customer data into setup notes.',
   'Do not tell callers an appointment is booked until Cevanta has a confirmed office-reviewed booking result.',
-  'Do not enable live SMS, email, calendar writers, always-on Make activation or future production releases without explicit approval, test evidence and rollback notes.',
+  'Do not mark SMS, email, external calendar writes, booking, payments, subscription billing or dispatch active without explicit owner approval, test evidence and rollback notes.',
   'Use fictional records for demos unless a client has approved a live pilot test.',
 ];
 
 export default async function IntegrationsReadiness({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await params;
   const { tenant, role } = await getWorkspace(tenantId);
+  const { ready, controls, canManage } = await getAutomationControls(tenantId);
   const base = `/workspaces/${tenant.id}`;
 
   return (
     <>
       <div className="page-heading">
         <span className="eyebrow">INTEGRATIONS</span>
-        <h1>Connect calls without overpromising.</h1>
+        <h1>Control every automation client by client.</h1>
         <p>
-          Review which outside services are proven, which are waiting, and which actions need owner approval before this workspace handles client calls automatically.
+          Turn SMS, email, external calendar writes, booking, payments, subscriptions and dispatch into optional client features without allowing untested live actions.
         </p>
       </div>
 
       <section className="notice" role="status" aria-labelledby="integration-summary">
         <h2 id="integration-summary">Safe integration posture</h2>
         <p>
-          {tenant.name} can be shown as a managed AI receptionist pilot. Retell voice and Make safe intake have evidence; SMS, email and external calendar writes can be prepared as controlled options. Automatic booking, payment collection and dispatch automation remain off.
+          {tenant.name} can use Cevanta in office-review mode while each automation option moves through its own approval path. This page records readiness; it does not send messages, write external calendars, charge cards, create subscriptions, confirm bookings or dispatch technicians by itself.
         </p>
       </section>
 
@@ -81,17 +82,17 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         <div className="panel stat">
           <span>Your access</span>
           <strong className="role-value">{role}</strong>
-          <p>Only approved workspace roles should manage setup and provider decisions.</p>
+          <p>Only owners and admins can change automation controls.</p>
         </div>
         <div className="panel stat">
           <span>Provider writes</span>
-          <strong className="role-value">Controlled</strong>
+          <strong className="role-value">Optional</strong>
           <p>SMS, email and calendar writes require approval, testing and rollback evidence.</p>
         </div>
         <div className="panel stat">
-          <span>First package</span>
-          <strong className="role-value">Voice pilot</strong>
-          <p>Retell answers, office staff reviews, Cevanta tracks.</p>
+          <span>High-risk actions</span>
+          <strong className="role-value">Gated</strong>
+          <p>Booking, payments, subscriptions and dispatch need separate proof before active status.</p>
         </div>
       </div>
 
@@ -131,32 +132,19 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         <div className="section-heading">
           <div>
             <span className="eyebrow">AUTOMATION CONTROLS</span>
-            <h2>Options that can be turned on later</h2>
+            <h2>Optional features for this client</h2>
+            <p>Each option has its own visibility, approval, test evidence, rollback plan and activation state.</p>
           </div>
           <span className="pill">Approval gated</span>
         </div>
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Automation</th>
-                <th>Current state</th>
-                <th>What this means</th>
-              </tr>
-            </thead>
-            <tbody>
-              {automationControls.map(item => (
-                <tr key={item.name}>
-                  <td><strong>{item.name}</strong></td>
-                  <td>{item.state}</td>
-                  <td>{item.meaning}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {!ready && <p className="notice">Automation controls need the database migration before saved changes will work. The defaults below show the intended options.</p>}
+        {ready && !canManage && <p className="notice">You are viewing the automation catalog only. Current status, approvals, test evidence and rollback notes are restricted to owners and admins.</p>}
+        <div className="automation-control-grid">
+          {controls.map(control => <AutomationControlForm key={control.capability} control={control} canManage={canManage} />)}
         </div>
-        <p className="notice">These controls are planned as client-by-client options. They do not send messages, confirm bookings, write external calendars, collect payments or dispatch technicians from this page.</p>
+        <p className="notice">These controls store decisions and readiness. The live provider paths still need their own integration work, test call proof and release approval before they affect customers.</p>
       </section>
+
       <div className="split-layout">
         <section className="panel">
           <span className="eyebrow">SAFETY RULES</span>
@@ -172,7 +160,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
             <li>Business name, service area, hours, emergency policy and escalation contact.</li>
             <li>Services offered and request types the AI receptionist may recognize.</li>
             <li>Office-review rules for when staff should call back, create a job or schedule manually.</li>
-            <li>Written approval before any live external message, calendar write or production launch.</li>
+            <li>Written approval before any live external message, calendar write, booking promise, payment, subscription or dispatch automation.</li>
           </ol>
         </section>
       </div>
@@ -190,9 +178,3 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
     </>
   );
 }
-
-
-
-
-
-
