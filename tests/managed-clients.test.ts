@@ -3,12 +3,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 const harness = vi.hoisted(() => ({
   list: vi.fn(),
+  snapshot: vi.fn(),
   rpc: vi.fn(),
   redirect: vi.fn((path: string) => { throw new Error(`NEXT_REDIRECT:${path}`); }),
   configured: true,
 }));
 
 vi.mock("@/lib/server/queries", () => ({ getManagedClientWorkspaces: harness.list }));
+vi.mock("@/lib/server/onboarding-rpc", () => ({ getOnboardingSnapshot: harness.snapshot }));
 vi.mock("@/lib/supabase/config", () => ({ isSupabaseConfigured: () => harness.configured }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ rpc: harness.rpc }) }));
 vi.mock("next/navigation", () => ({ redirect: harness.redirect }));
@@ -48,11 +50,12 @@ async function renderClients(payload: unknown) {
 beforeEach(() => {
   vi.clearAllMocks();
   harness.configured = true;
+  harness.snapshot.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York" }, flow_version: "onboarding-v1", config_revision: 3, profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ id: "30000000-0000-4000-8000-000000000001", name: "Heating", description: "Fictional service", enabled: true, position: 0, version: 1 }], weekly_hours: [], exceptions: [], booking: { mode: "request_only", lead_time_minutes: null, buffer_before_minutes: null, buffer_after_minutes: null, horizon_days: null, notes: "Office review", acknowledged: true }, escalation: [], resume_step: "booking", resume_version: 1, readiness: { configuration_state: "not_evaluated", manual_workspace_state: "not_evaluated", reason: "setup_policy_pending", next_action: "platform_operator", booking_state: "blocked", release_state: "not_evaluated", hostedReady: false, providerConnectionAuthorized: false } } });
   harness.rpc.mockResolvedValue({ data: { status: "saved", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", status: "onboarding" } }, error: null });
 });
 
 describe("managed client workspace dashboard", () => {
-  it("renders the internal owner workspace list and safe creation boundary", async () => {
+  it("renders the internal owner operations monitor and safe creation boundary", async () => {
     const html = await renderClients({
       operator,
       role: "owner",
@@ -61,10 +64,14 @@ describe("managed client workspace dashboard", () => {
     });
 
     expect(harness.list).toHaveBeenCalledWith(operatorTenant);
-    expect(html).toContain("Client workspaces");
+    expect(harness.snapshot).toHaveBeenCalledWith(clientTenant);
+    expect(html).toContain("Internal operations dashboard");
+    expect(html).toContain("Paperwork and onboarding monitor");
     expect(html).toContain("Northstar HVAC");
+    expect(html).toContain("Core intake saved");
+    expect(html).toContain("3/5 sections saved");
     expect(html).toContain(`/workspaces/${clientTenant}/onboarding`);
-    expect(html).toContain("does not invite the client, connect Retell, enable Make, send messages or start billing");
+    expect(html).toContain("does not invite the client, connect Retell, enable Make, send messages, write calendars, dispatch technicians or start billing");
     expect(html).toContain("Create client workspace");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|billing started|booking confirmed/i);
   });
@@ -73,6 +80,7 @@ describe("managed client workspace dashboard", () => {
     const html = await renderClients({ operator: { ...operator, account_type: "client" }, role: "admin", allowed: false, clients: [] });
     expect(html).toContain("Internal access required");
     expect(html).toContain("Return to dashboard");
+    expect(harness.snapshot).not.toHaveBeenCalled();
     expect(html).not.toMatch(/Create client workspace|name="name"|operator_tenant_id|request_id/);
   });
 });

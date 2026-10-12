@@ -29,6 +29,12 @@ describe('integrations readiness page', () => {
     expect(output).toContain('Provider writes');
     expect(output).toContain('Off');
     expect(output).toContain('Do not enable SMS, email, calendar writers, always-on Make activation or production deploys without explicit approval.');
+    expect(output).toContain('AUTOMATION CONTROLS');
+    expect(output).toContain('Automatic booking');
+    expect(output).toContain('SMS or email messages');
+    expect(output).toContain('External calendar writes');
+    expect(output).toContain('Dispatch automation');
+    expect(output).toContain('They do not send messages, confirm bookings, write calendars or dispatch technicians from this page.');
   });
 
   it('links to the workspace launch and setup paths', async () => {
@@ -40,3 +46,4 @@ describe('integrations readiness page', () => {
     expect(output).toContain(`/workspaces/${tenant}/settings`);
   });
 });
+

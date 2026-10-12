@@ -40,6 +40,13 @@ const integrations = [
   },
 ];
 
+
+const automationControls = [
+  { name: 'Automatic booking', state: 'Off until approved', meaning: 'Cevanta can collect preferred appointment windows, but the office confirms the final booking until availability, conflict checks and rollback are proven.' },
+  { name: 'SMS or email messages', state: 'Off until approved', meaning: 'Follow-up messages need client approval, consent language, opt-out handling and provider readiness before any live send.' },
+  { name: 'External calendar writes', state: 'Off until approved', meaning: 'The dashboard calendar can track appointments now. Google or other external calendar writes need a tested writer and recovery plan.' },
+  { name: 'Dispatch automation', state: 'Off until approved', meaning: 'Cevanta can suggest technicians by skills, service area and availability. Automatic assignment waits for client rules and manual acceptance evidence.' },
+];
 const safetyRules = [
   'Do not paste API keys, webhook URLs, private phone numbers, transcripts, recordings or real customer data into setup notes.',
   'Do not tell callers an appointment is booked until Cevanta has a confirmed office-reviewed booking result.',
@@ -119,6 +126,36 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         </div>
       </section>
 
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">AUTOMATION CONTROLS</span>
+            <h2>Options that can be turned on later</h2>
+          </div>
+          <span className="pill">Approval gated</span>
+        </div>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Automation</th>
+                <th>Current state</th>
+                <th>What this means</th>
+              </tr>
+            </thead>
+            <tbody>
+              {automationControls.map(item => (
+                <tr key={item.name}>
+                  <td><strong>{item.name}</strong></td>
+                  <td>{item.state}</td>
+                  <td>{item.meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="notice">These controls are planned as client-by-client options. They do not send messages, confirm bookings, write calendars or dispatch technicians from this page.</p>
+      </section>
       <div className="split-layout">
         <section className="panel">
           <span className="eyebrow">SAFETY RULES</span>
@@ -152,3 +189,4 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
     </>
   );
 }
+

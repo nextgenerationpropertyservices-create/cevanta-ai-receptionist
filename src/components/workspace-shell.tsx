@@ -10,7 +10,7 @@ export function WorkspaceShell({tenant,role,children,attention={aiLeads:0,unassi
  const totalAttention=attention.aiLeads+attention.unassignedJobs;
  const links=[
   {href:base,label:'Overview'},
-  ...(tenant.account_type === 'internal' ? [{href:`${base}/clients`,label:'Clients'}] : []),
+  ...(tenant.account_type === 'internal' ? [{href:`${base}/clients`,label:'Back office'}] : []),
   {href:`${base}/customers`,label:'Customers'},
   {href:`${base}/leads`,label:'Leads',count:attention.aiLeads},
   {href:`${base}/jobs`,label:role === 'technician' ? 'My jobs' : 'Jobs',count:attention.unassignedJobs},
@@ -23,4 +23,7 @@ export function WorkspaceShell({tenant,role,children,attention={aiLeads:0,unassi
  ];
  return <div className="app-shell topnav-shell"><header className="workspace-topnav"><div className="workspace-topnav-main"><Brand/><div className="workspace-topnav-label"><span className="avatar">{tenant.name.slice(0,1)}</span><div><strong>{tenant.name}</strong><span>{tenant.trade} · {role} access</span></div></div><div className="workspace-topnav-actions">{totalAttention>0 && <Link className="workspace-attention-link" href={attention.aiLeads>0 ? `${base}/leads` : `${base}/jobs`} aria-label={`${totalAttention} items need attention`}><strong>{totalAttention}</strong> need attention</Link>}<Link className="card-link" href="/workspaces">Switch workspace ↗</Link><form action={signOut}><button className="text-button" type="submit">Sign out</button></form></div></div><nav className="workspace-topnav-menu" aria-label="Workspace">{links.map(link=><Link key={link.href} href={link.href}>{link.label}{!!link.count && <span className="workspace-nav-badge" aria-label={`${link.count} need attention`}>{link.count}</span>}</Link>)}</nav></header><div className="workspace-content"><main id="main">{children}</main><footer className="app-footer">Cevanta · Your service business, connected.</footer></div></div>;
 }
+
+
+
 

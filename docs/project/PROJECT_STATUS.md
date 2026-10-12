@@ -679,3 +679,8 @@ Hosted SQL verification confirmed `public.technician_profiles` exists, RLS is en
 Production browser smoke proof passed on `https://cevanta-ai-receptionist.vercel.app`. The Overview page showed the new `3 items need attention` topbar pill and Jobs badge. The Technicians page loaded against the hosted migration and showed the skills/availability-ready roster shell, profiles-complete count, and add-technician section. The Jobs page showed `3 jobs need technician assignment`, `Needs Tech` flags, and `Assign technician` controls. Screenshot proof: `demo-video-output/live-release-dispatch-jobs-smoke-2026-10-11.png`.
 
 This release does not enable Retell, Make, SMS, email, external calendar, billing, quote, payment, automatic booking, or dispatch automation. Dispatch remains manual office review.
+
+
+## CEV-DISPATCH-100A local dashboard slice — 2026-10-12
+
+Technician service areas, weekly availability windows, safer dispatch suggestions, internal back-office client monitoring and approval-gated automation-control visibility are implemented locally. Architecture and Quality re-reviews approved the repaired local scope after database validation was tightened for malformed and JSON-null availability windows. Local verification passed: focused Vitest run reported 30 files/802 tests, embedded database migration/regression suite passed, typecheck passed, lint passed and production build passed. Production release remains gated: hosted Supabase migration, deployment and live JWT/PostgREST/browser verification have not been run for this slice. Automatic booking, messages, external calendar writes and dispatch automation remain off and approval-gated.

@@ -21,7 +21,8 @@ try {
   await database.exec(readFileSync("supabase/seed.sql", "utf8"));
   console.log("PASS fictional seed");
   await database.exec(readFileSync("supabase/tests/tenant_isolation.sql", "utf8"));
-  console.log("PASS embedded PostgreSQL RLS, role, parent, identity and atomic audit assertions.");
+  await database.exec(readFileSync("supabase/tests/technician_profiles.sql", "utf8"));
+  console.log("PASS embedded PostgreSQL RLS, technician profile, role, parent, identity and atomic audit assertions.");
   console.log("Auth is a compatibility fixture. Live Supabase JWT/PostgREST/browser verification remains required.");
 } catch (error) {
   console.error("FAIL embedded SQL assertions: " + (error instanceof Error ? error.message : "unknown database error"));
@@ -29,4 +30,5 @@ try {
 } finally {
   await database.close();
 }
+
 
