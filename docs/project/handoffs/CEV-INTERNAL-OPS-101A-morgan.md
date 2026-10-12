@@ -10,3 +10,9 @@
 - Rollback notes: Revert the clients page and test changes. No database rollback is needed.
 - Exact next action: Add persisted client onboarding tasks/payment/support records, or release this UI slice after owner approval and live smoke testing.
 
+
+## Production release evidence
+- Commit `0113b5e` was pushed to GitHub `main` after owner approval.
+- No hosted Supabase migration was required for this slice.
+- Production smoke proof on `https://cevanta-ai-receptionist.vercel.app/workspaces/10000000-0000-4000-8000-000000000001/clients` showed the new `Internal owner operations dashboard` heading and the correct `Internal access required` boundary for a non-internal client workspace.
+- Direct internal workspace smoke at `/workspaces/1cb2a226-84ef-4dcd-9976-5ce87dd3e449/clients` could not be completed in the current browser session because the session did not have usable access to that internal workspace route. This does not show data exposure; it showed the app's safe error/sign-in recovery page.

@@ -693,3 +693,11 @@ The page keeps the safety boundary clear: creating or monitoring a client worksp
 
 Evidence: focused `pnpm test -- tests/managed-clients.test.ts` passed with the configured runner executing 30 files / 802 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed.
 
+
+## Internal owner operations dashboard production release — 2026-10-12
+
+CEV-INTERNAL-OPS-101A was released to production after owner approval. Commit `0113b5e` was pushed to GitHub `main`. No hosted Supabase migration was required.
+
+Production smoke proof on `https://cevanta-ai-receptionist.vercel.app/workspaces/10000000-0000-4000-8000-000000000001/clients` confirmed the deployed route shows the new `Internal owner operations dashboard` heading and enforces the correct boundary for a non-internal client workspace with `Internal access required`. The current browser session could not complete the internal workspace route smoke for `1cb2a226-84ef-4dcd-9976-5ce87dd3e449/clients`; it returned the app's safe error/sign-in recovery page rather than exposing internal data.
+
+This release does not enable client invites, Retell provisioning, Make activation, SMS/email, external calendar writes, automatic booking, dispatch automation, quotes, payments, or subscription billing.
