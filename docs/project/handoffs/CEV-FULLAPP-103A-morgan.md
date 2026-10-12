@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-FULLAPP-103A
+- Work completed: Improved the client onboarding flow and internal owner visibility. The client Setup page now tells trade owners exactly what to fill out: business details, services/service area, hours/emergency rules, escalation contacts, never-promise rules, and controlled-write boundaries. The internal Back Office client dashboard now shows a Client Intake Details section for each managed client using saved onboarding data, including business contact, services, hours, call rules, escalation, service area note status, and never-promise rule status.
+- Files changed: `docs/project/tasks/CEV-FULLAPP-103A.md`; `src/app/workspaces/[tenantId]/clients/page.tsx`; `src/app/workspaces/[tenantId]/onboarding/page.tsx`; `src/app/globals.css`; `tests/managed-clients.test.ts`; `tests/onboarding-ui.test.ts`; `docs/project/handoffs/CEV-FULLAPP-103A-morgan.md`; `docs/project/PROJECT_STATUS.md`.
+- Database changes: None.
+- API or contract changes: None. This uses the existing onboarding snapshot read path and does not add new writes or provider actions.
+- Verification commands and results: `pnpm test -- tests/managed-clients.test.ts tests/onboarding-ui.test.ts` PASS, 31 test files and 803 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test` PASS, 31 test files and 803 tests; `pnpm build` PASS.
+- Known limitations: Service area and never-promise rules currently live in request preference notes until dedicated fields are added. This is visible as a setup prompt rather than invented data.
+- Risks: Internal dashboard readability depends on saved onboarding notes being clear. A future dedicated service-area/rule editor would be cleaner than parsing note text.
+- Rollback notes: Revert the files listed above to remove the extra Setup guidance and internal intake detail cards. No database rollback required.
+- Exact next action: Build the next full-app slice: lightweight billing/payment tracking for managed pilots without in-app payment collection, then controlled automation implementation planning for SMS/email/calendar writers.

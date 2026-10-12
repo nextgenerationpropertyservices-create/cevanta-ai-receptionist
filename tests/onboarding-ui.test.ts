@@ -81,9 +81,9 @@ describe('storage summary without readiness completion', () => {
     expect(html).toContain('All seven days have stored entries');
     expect(html).toContain('1 services saved; 0 enabled'); expect(html).toContain('1 contacts saved; 0 enabled');
     expect(html).toContain('0 optional timing preferences not set');
-    expect(html).toContain('Readiness review is pending'); expect(html).toContain('Connection and verification are blocked through Setup');
-    expect(html).toContain('Booking remains request-only'); expect(html).toContain('Production release:');
-    expect(html).toContain('Separate verification and owner approval are required');
+    expect(html).toContain('Readiness review is pending'); expect(html).toContain('Services and service area');
+    expect(html).toContain('Booking remains request-only'); expect(html).toContain('Controlled writes:');
+    expect(html).toContain('SMS, email, and external calendar writes stay off until approved and tested.');
     expect(html).not.toMatch(/Setup complete|Ready to launch|Provider connected|Production ready|Live booking enabled|100%/i);
   });
   it.each(['technician', 'viewer'] as const)('keeps owner status and editor links private for %s', async role => {
@@ -388,5 +388,8 @@ describe('request preferences and owner-only escalation contacts', () => {
     expect(harness.save).toHaveBeenCalledTimes(3);
   });
 });
+
+
+
 
 

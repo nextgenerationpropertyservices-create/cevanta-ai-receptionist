@@ -8,6 +8,7 @@ import { getOnboardingSnapshot } from "@/lib/server/onboarding-rpc";
 import type { OwnerOnboardingSnapshot } from "@/lib/onboarding-contracts";
 
 type SetupGate = { label: string; ready: boolean; openHref: string };
+type IntakeDetail = { label: string; value: string; ready: boolean };
 type ClientOps = ManagedClientWorkspace & {
   readinessScore: number;
   setupStatus: string;
@@ -25,6 +26,7 @@ type ClientOps = ManagedClientWorkspace & {
   jobsHref: string;
   calendarHref: string;
   gates: SetupGate[];
+  intakeDetails: IntakeDetail[];
 };
 
 function ownerSnapshot(value: unknown): value is OwnerOnboardingSnapshot {
@@ -44,6 +46,24 @@ function clientLinks(clientId: string) {
   };
 }
 
+function describeHours(hours: OwnerOnboardingSnapshot["weekly_hours"]) {
+  const openDays = hours.filter(day => !day.closed && day.intervals.length).length;
+  if (!hours.length) return "Weekly hours not saved";
+  return openDays ? `${openDays} open day${openDays===1?"":"s"} saved` : "All saved days are closed";
+}
+
+function describeServices(snapshot: OwnerOnboardingSnapshot) {
+  const enabled = snapshot.services.filter(service => service.enabled);
+  if (!enabled.length) return "Services not saved";
+  return enabled.slice(0, 3).map(service => service.name || "Unnamed service").join(", ") + (enabled.length > 3 ? ` +${enabled.length - 3} more` : "");
+}
+
+function describeEscalation(snapshot: OwnerOnboardingSnapshot) {
+  const enabled = snapshot.escalation.filter(contact => contact.enabled);
+  if (!enabled.length) return "Escalation contacts not saved";
+  return enabled.slice(0, 2).map(contact => `${contact.label || "Contact"}: ${contact.contact_name || "name missing"}`).join("; ") + (enabled.length > 2 ? ` +${enabled.length - 2} more` : "");
+}
+
 function gateSummary(gates: SetupGate[]) {
   const completed = gates.filter(gate => gate.ready).length;
   const score = Math.round((completed / gates.length) * 100);
@@ -61,10 +81,20 @@ async function clientOps(client: ManagedClientWorkspace): Promise<ClientOps> {
       { label: "Call rules", ready: false, openHref: links.setupHref },
       { label: "Escalation contacts", ready: false, openHref: links.setupHref },
     ];
+    const intakeDetails = [
+      { label: "Business contact", value: "Setup unavailable", ready: false },
+      { label: "Services", value: "Setup unavailable", ready: false },
+      { label: "Hours", value: "Setup unavailable", ready: false },
+      { label: "Call rules", value: "Setup unavailable", ready: false },
+      { label: "Escalation", value: "Setup unavailable", ready: false },
+      { label: "Service area", value: "Needs owner note", ready: false },
+      { label: "Never promise rules", value: "Needs owner note", ready: false },
+    ];
     return {
       ...client,
       ...links,
       gates,
+      intakeDetails,
       readinessScore: 0,
       setupStatus: "Setup unavailable",
       paperworkStatus: "Needs intake review",
@@ -88,11 +118,22 @@ async function clientOps(client: ManagedClientWorkspace): Promise<ClientOps> {
   const missing = gates.filter(gate => !gate.ready).map(gate => gate.label.toLowerCase());
   const setupComplete = completed === gates.length;
   const intakeMostlyReady = completed >= 3;
+  const notes = snapshot.booking?.notes?.trim() ?? "";
+  const intakeDetails = [
+    { label: "Business contact", value: snapshot.profile ? `${snapshot.profile.business_contact_name || "Contact name missing"} · ${snapshot.profile.business_email || snapshot.profile.business_phone || "email/phone missing"}` : "Business contact not saved", ready: !!snapshot.profile },
+    { label: "Services", value: describeServices(snapshot), ready: snapshot.services.some(service => service.enabled && service.name.trim()) },
+    { label: "Hours", value: describeHours(snapshot.weekly_hours), ready: snapshot.weekly_hours.length > 0 },
+    { label: "Call rules", value: snapshot.booking?.acknowledged ? (notes || "Request-only office review acknowledged") : "Call rules not acknowledged", ready: !!snapshot.booking?.acknowledged },
+    { label: "Escalation", value: describeEscalation(snapshot), ready: snapshot.escalation.some(contact => contact.enabled && contact.contact_name.trim() && (contact.email || contact.phone)) },
+    { label: "Service area", value: notes.toLowerCase().includes("service area") ? notes : "Add service area to request/call rules notes", ready: notes.toLowerCase().includes("service area") },
+    { label: "Never promise rules", value: notes.toLowerCase().includes("never") ? notes : "Add never-promise rules to request/call rules notes", ready: notes.toLowerCase().includes("never") },
+  ];
 
   return {
     ...client,
     ...links,
     gates,
+    intakeDetails,
     readinessScore: score,
     setupStatus: `${completed}/${gates.length} setup gates complete`,
     paperworkStatus: setupComplete ? "Client intake ready for review" : intakeMostlyReady ? "Partial paperwork saved" : "Missing core intake",
@@ -127,6 +168,8 @@ export default async function ClientWorkspaces({ params }: { params: Promise<{ t
 
       <section className="panel"><div className="section-heading"><div><span className="eyebrow">OWNER PRIORITY QUEUE</span><h2>What needs your attention first</h2></div><span className="pill">{activeClients} active or pilot</span></div>{priorityClients.length ? <div className="table-scroll"><table><thead><tr><th>Client</th><th>Readiness</th><th>Next action</th><th>Open</th></tr></thead><tbody>{priorityClients.map(client => <tr key={client.id}><td><strong>{client.name}</strong><p className="small muted">{client.trade} · {client.status}</p></td><td><strong>{client.readinessScore}%</strong><p className="small muted">{client.setupStatus}</p></td><td>{client.nextAction}</td><td><div className="button-row"><Link className="card-link" href={client.setupHref}>Setup ↗</Link><Link className="card-link" href={client.launchHref}>Launch ↗</Link></div></td></tr>)}</tbody></table></div> : <Empty title="No client workspaces yet">Create the first trade-service client workspace when a prospect says yes to the managed pilot.</Empty>}</section>
 
+<section className="panel"><div className="section-heading"><div><span className="eyebrow">CLIENT INTAKE DETAILS</span><h2>What each client has filled out</h2></div><span className="pill">Internal review</span></div>{opsClients.length ? <div className="client-intake-grid">{opsClients.map(client => <article key={client.id} className="client-intake-card"><div><strong>{client.name}</strong><span>{client.readinessScore}% ready · {client.status}</span></div><dl>{client.intakeDetails.map(detail => <div key={detail.label} className={detail.ready ? "intake-ready" : "intake-missing"}><dt>{detail.label}</dt><dd>{detail.value}</dd></div>)}</dl><div className="button-row"><Link className="card-link" href={client.setupHref}>Open setup ↗</Link><Link className="card-link" href={client.workspaceHref}>Open workspace ↗</Link></div></article>)}</div> : <Empty title="No intake files yet">When a client fills out Setup, their saved answers will summarize here for your review.</Empty>}<p className="small muted">This section reads saved onboarding information only. It does not send SMS or email, write calendars, collect payments, auto-book, or dispatch technicians.</p></section>
+
       <div className="split-layout">
         <section className="panel"><div className="section-heading"><div><span className="eyebrow">CLIENT OPERATIONS</span><h2>Paperwork, launch, payment, and support monitor</h2></div><span className="pill">{opsClients.length} total</span></div>{opsClients.length ? <div className="table-scroll"><table><thead><tr><th>Client</th><th>Setup</th><th>Paperwork</th><th>Launch</th><th>Payment</th><th>Integrations</th><th>Support</th><th>Open</th></tr></thead><tbody>{opsClients.map(client => <tr key={client.id}><td><strong>{client.name}</strong><p className="small muted">{client.trade} · {client.timezone}</p><p className="small muted">Status: {client.status}</p></td><td><strong>{client.readinessScore}%</strong><p className="small muted">{client.setupStatus}</p></td><td><span className="pill">{statusTone(client.paperworkStatus)}</span><p className="small muted">{client.paperworkStatus}</p></td><td><span className="pill">{statusTone(client.launchStatus)}</span><p className="small muted">{client.launchStatus}</p></td><td><span className="pill">Review</span><p className="small muted">{client.paymentStatus}</p></td><td><span className="pill">Gated</span><p className="small muted">{client.integrationStatus}</p></td><td>{client.supportStatus}</td><td><div className="button-row"><Link className="card-link" href={client.workspaceHref}>Workspace ↗</Link><Link className="card-link" href={client.setupHref}>Setup ↗</Link><Link className="card-link" href={client.leadsHref}>Leads ↗</Link><Link className="card-link" href={client.jobsHref}>Jobs ↗</Link><Link className="card-link" href={client.calendarHref}>Calendar ↗</Link><Link className="card-link" href={client.integrationsHref}>Integrations ↗</Link></div></td></tr>)}</tbody></table></div> : <Empty title="No client workspaces yet">Create the first trade-service client workspace when a prospect says yes to the managed pilot.</Empty>}</section>
         <section className="panel"><span className="eyebrow">NEW CLIENT</span><h2>Create a client workspace</h2><p>This creates a separate workspace and gives your Cevanta account owner access so you can review onboarding, leads, jobs and support. It does not invite the client, connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing.</p><ActionForm action={provisionManagedClientWorkspace} submitLabel="Create client workspace" hidden={{ request_id: randomUUID(), operator_tenant_id: tenantId }}><Field label="Client business name" name="name" required maxLength={160} autoComplete="organization"/><Field label="Trade" name="trade" required maxLength={80} defaultValue="HVAC"/><Field label="Timezone" name="timezone" required maxLength={80} defaultValue="America/New_York"/></ActionForm><p className="small muted">After creation, complete Setup with the client and use this dashboard to track payment, test call, launch, and support readiness.</p></section>
@@ -136,4 +179,7 @@ export default async function ClientWorkspaces({ params }: { params: Promise<{ t
     </>}
   </>;
 }
+
+
+
 

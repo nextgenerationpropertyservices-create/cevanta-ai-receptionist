@@ -50,7 +50,7 @@ async function renderClients(payload: unknown) {
 beforeEach(() => {
   vi.clearAllMocks();
   harness.configured = true;
-  harness.snapshot.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York" }, flow_version: "onboarding-v1", config_revision: 3, profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ id: "30000000-0000-4000-8000-000000000001", name: "Heating", description: "Fictional service", enabled: true, position: 0, version: 1 }], weekly_hours: [], exceptions: [], booking: { mode: "request_only", lead_time_minutes: null, buffer_before_minutes: null, buffer_after_minutes: null, horizon_days: null, notes: "Office review", acknowledged: true }, escalation: [], resume_step: "booking", resume_version: 1, readiness: { configuration_state: "not_evaluated", manual_workspace_state: "not_evaluated", reason: "setup_policy_pending", next_action: "platform_operator", booking_state: "blocked", release_state: "not_evaluated", hostedReady: false, providerConnectionAuthorized: false } } });
+  harness.snapshot.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York" }, flow_version: "onboarding-v1", config_revision: 3, profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ id: "30000000-0000-4000-8000-000000000001", name: "Heating", description: "Fictional service", enabled: true, position: 0, version: 1 }], weekly_hours: [], exceptions: [], booking: { mode: "request_only", lead_time_minutes: null, buffer_before_minutes: null, buffer_after_minutes: null, horizon_days: null, notes: "Office review. Service area: Lewiston and Auburn. Never promise confirmed appointments or exact pricing.", acknowledged: true }, escalation: [], resume_step: "booking", resume_version: 1, readiness: { configuration_state: "not_evaluated", manual_workspace_state: "not_evaluated", reason: "setup_policy_pending", next_action: "platform_operator", booking_state: "blocked", release_state: "not_evaluated", hostedReady: false, providerConnectionAuthorized: false } } });
   harness.rpc.mockResolvedValue({ data: { status: "saved", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", status: "onboarding" } }, error: null });
 });
 
@@ -68,10 +68,19 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain("Internal owner operations dashboard");
     expect(html).toContain("OWNER PRIORITY QUEUE");
     expect(html).toContain("Paperwork, launch, payment, and support monitor");
+    expect(html).toContain("CLIENT INTAKE DETAILS");
+    expect(html).toContain("What each client has filled out");
     expect(html).toContain("Northstar HVAC");
     expect(html).toContain("60%");
     expect(html).toContain("3/5 setup gates complete");
     expect(html).toContain("Manual invoice/payment check required");
+    expect(html).toContain("Business contact");
+    expect(html).toContain("Fictional Owner");
+    expect(html).toContain("Services");
+    expect(html).toContain("Heating");
+    expect(html).toContain("Service area");
+    expect(html).toContain("Never promise rules");
+    expect(html).toContain("Lewiston and Auburn");
     expect(html).toContain("Keep provider writes off");
     expect(html).toContain(`/workspaces/${clientTenant}/onboarding`);
     expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
@@ -127,5 +136,7 @@ describe("managed client workspace action", () => {
     expect(result.message).toContain("temporarily unavailable");
   });
 });
+
+
 
 
