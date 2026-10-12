@@ -786,3 +786,25 @@ Coordinator: Morgan — Product Manager and Orchestrator
 Owner approved release. GitHub `main` was pushed at commit `6974ecd` with the office email notification outbox migration, tests, task record, handoff, and project status. The live Supabase project `rafiksklbrfgefkypvkn` successfully applied migration `office_email_notification_outbox` as version `20261012165604`. Post-migration verification confirmed the private outbox table exists, RLS is enabled, `anon` and `authenticated` have no outbox table privileges, `service_role` can execute `public.ingest_retell_call_lead(jsonb)`, and `authenticated` cannot execute that ingestion RPC.
 
 Production Vercel source deployment remains blocked from this agent: the Vercel connector can read the project and deployments, but returned 403 when asked to create a production deployment for project `prj_hjBpUp2pojkzvoA4kcn6niKGEXIj`, and no automatic production deployment appeared for commit `6974ecd`. The latest Vercel production deployment remains `dpl_HnmdY1iaWinDQiez9D9KVwfBVKQq` at commit `5c77a80`. Because this task changes the live database and project records only, the runtime app remains healthy while the Vercel deployment record is behind the repository commit. Smoke checks: production health endpoint returned 200 with database configured; demo dashboard returned 200.
+
+## CEV-ONBOARD-AUTO-108A standard client onboarding blueprint
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-ONBOARD-AUTO-108A is implemented locally. Setup and Launch now share a reusable onboarding blueprint for trade-service clients. The blueprint standardizes industry template guidance, required AI receptionist intake fields, self-service setup steps, and Make/Retell/Cevanta boundaries. The Setup page shows the selected trade template, standard fields, setup path, and pilot-safe limits. The Launch page now explains the same client path from account/workspace setup through readiness review, test call, and eligible activation.
+
+This slice does not create or configure live Retell agents, Make scenarios, phone routing, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, provider account authorizations, webhook URLs, API keys, provider secrets, or real customer records.
+
+Evidence: focused onboarding/launch UI coverage passed as part of the configured Vitest run with 35 files / 814 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm check` passed with typecheck, lint, 35 files / 814 Vitest tests, embedded database suites, Retell lead ingestion embedded suite, and production build. Remaining gates: server-side provisioning implementation, secure provider connection flow, trusted tenant mapping, retry/recovery states, readiness gates, hosted browser smoke, production release approval, and deployment.
+
+## CEV-ONBOARD-AUTO-109A provisioning readiness gate
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-ONBOARD-AUTO-109A is implemented locally. Launch now includes a provisioning readiness checklist derived from saved onboarding setup and automation-control data. The checklist separates client setup readiness, receptionist draft readiness, trusted tenant routing, provider connection/manual review state, fictional test-call recovery proof, and blocked activation gates.
+
+This slice is preparation-only. It does not create or configure Retell agents, Make scenarios, phone routing, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, provider account authorizations, webhook URLs, API keys, provider secrets, provider identifiers, or real customer records.
+
+Evidence: focused provisioning/Launch tests passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm check` passed with typecheck, lint, 36 files / 817 Vitest tests, embedded database suites, Retell lead ingestion embedded suite, and production build. Remaining gates: persistent provisioning state, secure provider connection flow, trusted tenant mapping, retry/recovery state tracking, hosted browser smoke, production release approval, and deployment.

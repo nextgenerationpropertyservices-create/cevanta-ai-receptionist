@@ -113,6 +113,15 @@ describe('role-safe rendered setup', () => {
     expect(html).toContain('Business name');
     expect(html).toContain('Readiness review is pending');
     expect(html).toContain('Provider verification is pending');
+    expect(html).toContain('CLIENT ONBOARDING BLUEPRINT');
+    expect(html).toContain('Template and intake plan');
+    expect(html).toContain('HVAC and mechanical service');
+    expect(html).toContain('Caller name');
+    expect(html).toContain('Service address');
+    expect(html).toContain('Preferred appointment window');
+    expect(html).toContain('Account and workspace');
+    expect(html).toContain('Secure connections');
+    expect(html).toContain('Activation approval');
     expect(html).toContain('0 of 7 days saved');
     expect(html).toContain('Return to dashboard');
     expect(html).not.toMatch(/Go live|Send invitation|Create account|Booking confirmed|Setup complete/);

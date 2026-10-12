@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-AUTO-108A
+- Work completed: Added the first standard onboarding blueprint slice for simplified per-client setup. Setup now shows the selected trade template, standard intake fields, self-service onboarding path, and safe pilot boundaries. Launch now shows the same shared self-service path and Make/Retell/Cevanta routing boundaries from a reusable source of truth.
+- Files changed: `src/lib/client-onboarding-blueprint.ts`; `src/app/workspaces/[tenantId]/onboarding/page.tsx`; `src/app/workspaces/[tenantId]/launch/page.tsx`; `tests/onboarding-ui.test.ts`; `tests/launch-ui.test.ts`; `docs/project/tasks/CEV-ONBOARD-AUTO-108A.md`; `docs/project/handoffs/CEV-ONBOARD-AUTO-108A-morgan.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: Added a shared UI blueprint module for trade templates, standard intake fields, self-service setup steps, and provider boundary rules. No live provider API, webhook, secret, or database contract was changed.
+- Verification commands and results: `pnpm test -- tests/onboarding-ui.test.ts tests/launch-ui.test.ts` passed as part of the configured Vitest run with 35 files / 814 tests. `pnpm typecheck` passed. `pnpm lint` passed. `pnpm check` passed with typecheck, lint, 35 files / 814 Vitest tests, embedded database suites, Retell lead ingestion embedded suite, and production build.
+- Known limitations: This slice is setup guidance only. It does not create Retell agents, configure Make, authorize provider accounts, publish phone routing, send SMS/email, write calendars, book appointments, collect payments, create subscriptions, dispatch technicians, or activate external side effects.
+- Risks: The future provisioning phase must keep trusted server-side tenant mapping and distinguish received, pending, failed, and delivered records so Make retries are not suppressed after a dashboard failure.
+- Rollback notes: Revert the blueprint module, the Setup/Launch page additions, and their UI tests. No data migration or provider rollback is needed.
+- Exact next action: Build the server-side provisioning plan and implementation behind readiness gates: saved config to client Retell draft, trusted Make/Cevanta mapping, resumable progress/errors, reconnect/disconnect, and no external side effects until approved and tested.

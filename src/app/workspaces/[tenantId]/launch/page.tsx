@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import { SELF_SERVICE_ONBOARDING_STEPS, STANDARD_PROVIDER_BOUNDARIES, templateForTrade } from '@/lib/client-onboarding-blueprint';
+import { buildProvisioningReadiness, provisioningStateLabel } from '@/lib/provisioning-readiness';
+import { getAutomationControls } from '@/lib/server/automation-control-queries';
+import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
 import { getWorkspace } from '@/lib/server/queries';
 
 const readinessRows = [
@@ -52,6 +56,10 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
   const { tenantId } = await params;
   const { tenant, role } = await getWorkspace(tenantId);
   const base = `/workspaces/${tenant.id}`;
+  const template = templateForTrade(tenant.trade);
+  const [onboarding, automation] = await Promise.all([getOnboardingSnapshot(tenant.id), getAutomationControls(tenant.id)]);
+  const ownerSnapshot = onboarding.status === 'available' && onboarding.snapshot.projection === 'owner_setup' ? onboarding.snapshot : null;
+  const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls);
 
   return (
     <>
@@ -117,6 +125,53 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">PROVISIONING READINESS</span>
+            <h2>Client go-live checklist</h2>
+          </div>
+          <span className="pill">{provisioning.readyCount} of {provisioning.totalCount} ready</span>
+        </div>
+        <p>{provisioning.safeSummary}</p>
+        <div className="table-scroll">
+          <table>
+            <thead><tr><th>Gate</th><th>Status</th><th>Meaning</th><th>Next action</th></tr></thead>
+            <tbody>{provisioning.gates.map(gate => <tr key={gate.key}><td><strong>{gate.label}</strong></td><td>{provisioningStateLabel(gate.state)}</td><td>{gate.summary}</td><td>{gate.nextAction}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p className="small muted">This checklist distinguishes saved setup, manual provider work and blocked activation. It does not reveal provider identifiers, webhook URLs, API keys, private Retell IDs or real customer data.</p>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">SELF-SERVICE CLIENT PATH</span>
+            <h2>Use one controlled path for every client</h2>
+          </div>
+          <span className="pill">{template.label}</span>
+        </div>
+        <p>The dashboard should be the control center: the client fills out setup, authorizes supported tools, reviews the generated receptionist, completes a fictional test call, then approves only eligible activation gates.</p>
+        <div className="table-scroll">
+          <table>
+            <thead><tr><th>Step</th><th>Client action</th><th>Gate before moving on</th></tr></thead>
+            <tbody>{SELF_SERVICE_ONBOARDING_STEPS.map(step => <tr key={step.title}><td><strong>{step.title}</strong><p className="small muted">{step.systemUse}</p></td><td>{step.ownerAction}</td><td>{step.gate}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">MAKE / RETELL / CEVANTA BOUNDARY</span>
+            <h2>Standard intake workflow rules</h2>
+          </div>
+          <span className="pill">Office review first</span>
+        </div>
+        <ul className="setup-readiness-list">{STANDARD_PROVIDER_BOUNDARIES.map(item => <li key={item}>{item}</li>)}</ul>
+        <p className="small muted">This page does not expose webhook URLs, API keys, provider secrets, private Retell IDs, or real customer data. Provider activation still needs separate test evidence and rollback notes.</p>
       </section>
 
       <div className="split-layout">

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-AUTO-109A
+- Work completed: Added a provisioning readiness engine and Launch checklist that derive client go-live gates from saved onboarding setup and automation-control data. Launch now shows saved setup readiness, receptionist draft readiness, trusted route requirements, provider connection/manual review state, test-call recovery proof, and blocked activation gates.
+- Files changed: `src/lib/provisioning-readiness.ts`; `src/app/workspaces/[tenantId]/launch/page.tsx`; `tests/provisioning-readiness.test.ts`; `tests/launch-ui.test.ts`; `docs/project/tasks/CEV-ONBOARD-AUTO-109A.md`; `docs/project/handoffs/CEV-ONBOARD-AUTO-109A-morgan.md`; `docs/project/PROJECT_STATUS.md`; `MEMORY.md`.
+- Database changes: None.
+- API or contract changes: Added a pure readiness summary contract for Launch UI only. It does not create a live provisioning API, provider adapter, webhook, mapping table, secret store or external writer.
+- Verification commands and results: `pnpm test -- tests/provisioning-readiness.test.ts tests/launch-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests. `pnpm typecheck` passed. `pnpm lint` passed. `pnpm check` passed with typecheck, lint, 36 files / 817 Vitest tests, embedded database suites, Retell lead ingestion embedded suite, and production build.
+- Known limitations: This is a readiness checklist only. It does not create Retell agents, configure Make, authorize accounts, publish phone routing, send SMS/email, write calendars, book appointments, collect payments, create subscriptions, dispatch technicians, or activate external side effects.
+- Risks: Future live provisioning must persist resumable progress and failure states, use trusted server-side tenant mapping, and keep received/pending/failed/delivered delivery states separate so retries are not suppressed after dashboard failures.
+- Rollback notes: Revert the provisioning readiness module, Launch checklist, focused tests, and documentation records. No database or provider rollback is required.
+- Exact next action: Implement persistent provisioning job/state storage and controlled server actions only after Architect and Quality review, with no live provider activation until owner approval and test evidence are recorded.

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SELF_SERVICE_ONBOARDING_STEPS, STANDARD_INTAKE_FIELDS, templateForTrade } from '@/lib/client-onboarding-blueprint';
 import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
 import type { OwnerOnboardingSnapshot } from '@/lib/onboarding-contracts';
 import { BusinessProfileForm, RefreshSetupButton, ServicesForm, WeeklyHoursForm, HoursExceptionsForm, BookingPreferencesForm, EscalationContactsForm, ResumeStepForm } from './onboarding-form';
@@ -31,6 +32,27 @@ function SetupProgress({ snapshot }: { snapshot: OwnerOnboardingSnapshot }) {
   </section>;
 }
 
+function OnboardingBlueprint({ snapshot }: { snapshot: OwnerOnboardingSnapshot }) {
+  const template = templateForTrade(snapshot.workspace.trade);
+  return <section className="panel setup-readiness" aria-labelledby="onboarding-blueprint-title">
+    <div className="section-heading">
+      <div><span className="eyebrow">CLIENT ONBOARDING BLUEPRINT</span><h2 id="onboarding-blueprint-title">Template and intake plan</h2></div>
+      <span className="pill">{template.label}</span>
+    </div>
+    <p>Cevanta will use this saved setup to draft the AI receptionist and route office-review leads. This is a control plan only; it does not create provider accounts, publish a Retell agent, activate Make, send messages, write calendars, collect payment, or dispatch technicians.</p>
+    <div className="dispatch-summary">
+      <article><span>Starter services</span><strong>{template.defaultServices.slice(0, 3).join(', ')}</strong><p className="small muted">Edit the saved services below so the client’s actual work wins over defaults.</p></article>
+      <article><span>Ask during calls</span><strong>{template.intakeFocus.slice(0, 3).join(', ')}</strong><p className="small muted">The receptionist should collect only enough detail for office review.</p></article>
+      <article><span>Escalate for review</span><strong>{template.escalationFocus.slice(0, 2).join(', ')}</strong><p className="small muted">Urgent issues are flagged for humans; dispatch is not promised.</p></article>
+      <article><span>Never promise</span><strong>{template.neverPromise.slice(0, 3).join(', ')}</strong><p className="small muted">Add client-specific never-promise rules in request preferences.</p></article>
+    </div>
+    <h3>Standard intake fields</h3>
+    <ul className="setup-readiness-list">{STANDARD_INTAKE_FIELDS.map(field => <li key={field.label}><strong>{field.label}{field.required ? ' — required' : ' — optional'}:</strong> {field.officeUse}</li>)}</ul>
+    <h3>Self-service setup path</h3>
+    <ol className="setup-readiness-list">{SELF_SERVICE_ONBOARDING_STEPS.map(step => <li key={step.title}><strong>{step.title}:</strong> {step.ownerAction} <span className="small muted">{step.gate}</span></li>)}</ol>
+  </section>;
+}
+
 export default async function OnboardingPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await params;
   const response = await getOnboardingSnapshot(tenantId);
@@ -44,6 +66,7 @@ export default async function OnboardingPage({ params }: { params: Promise<{ ten
     <div className="page-heading"><span className="eyebrow">WORKSPACE SETUP</span><h1>Set up your business.</h1><p>Fill this out like your front-office intake file. Cevanta uses it to understand your services, hours, emergency rules, service area, escalation contacts, call rules, and things the AI should never promise.</p><Link className="back-link" href={`/workspaces/${tenantId}`}>← Return to dashboard</Link></div>
     {snapshot.projection === 'owner_setup' ? <>
       <section className="panel setup-readiness" aria-labelledby="readiness-title"><h2 id="readiness-title">Readiness review is pending</h2><p>Setup requirements are awaiting review by the Cevanta team. Saving your details does not enable AI calls or live bookings.</p><p className="notice">Requests need office review. Provider verification is pending.</p><ul className="setup-readiness-list"><li><strong>Business details:</strong> Add the public name, trade, timezone, and the best office contact.</li><li><strong>Services and service area:</strong> List the work you want Cevanta to recognize. Put service area details in request preferences until a dedicated service-area editor is added.</li><li><strong>Hours and emergency rules:</strong> Save normal hours, date exceptions, urgent-call handling, and when a human should review first.</li><li><strong>Escalation contacts:</strong> Add who the office should contact for urgent or uncertain requests.</li><li><strong>Never-promise rules:</strong> Put anything the AI must not promise in request preferences, such as prices, appointment confirmations, parts availability, financing, warranties, or emergency dispatch.</li><li><strong>Controlled writes:</strong> SMS, email, and external calendar writes stay off until approved and tested. Automatic booking, payment collection, and dispatch automation remain disabled.</li></ul><p>The Cevanta team can see these saved answers in the internal owner dashboard. These editors do not send messages, write calendars, collect payment, dispatch technicians, or release production changes.</p></section>
+      <OnboardingBlueprint snapshot={snapshot}/>
       <section className="panel setup-editor-panel" aria-labelledby="setup-resume-title"><h2 id="setup-resume-title">Resume setup later</h2><ResumeStepForm tenantId={snapshot.workspace.id} version={snapshot.resume_version} step={snapshot.resume_step}/></section>
       <div className="setup-workspace-grid"><SetupProgress snapshot={snapshot}/><section className="panel" id="business-details"><h2>Business details</h2><BusinessProfileForm tenantId={snapshot.workspace.id} revision={snapshot.config_revision} values={{ name: snapshot.workspace.name, trade: snapshot.workspace.trade, timezone: snapshot.workspace.timezone, business_contact_name: snapshot.profile?.business_contact_name ?? '', business_email: snapshot.profile?.business_email ?? null, business_phone: snapshot.profile?.business_phone ?? null }}/></section></div><section className="panel setup-editor-panel" id="setup-services" aria-labelledby="setup-services-title"><h2 id="setup-services-title">Services</h2><ServicesForm tenantId={snapshot.workspace.id} revision={snapshot.config_revision} values={{ items: snapshot.services.map(item => ({ id: item.id, name: item.name, description: item.description, enabled: item.enabled, position: item.position })) }}/></section><section className="panel setup-editor-panel" id="setup-hours" aria-labelledby="setup-hours-title"><h2 id="setup-hours-title">Weekly hours</h2><WeeklyHoursForm tenantId={snapshot.workspace.id} revision={snapshot.config_revision} timezone={snapshot.workspace.timezone} values={{ days: snapshot.weekly_hours.map(day => ({ weekday: day.weekday, closed: day.closed, intervals: day.intervals.map(interval => ({ start_minute: interval.start_minute, end_minute: interval.end_minute })) })) }}/></section>
       <section className="panel setup-editor-panel" id="setup-exceptions" aria-labelledby="setup-exceptions-title"><h2 id="setup-exceptions-title">Date-specific hours</h2><HoursExceptionsForm tenantId={snapshot.workspace.id} revision={snapshot.config_revision} timezone={snapshot.workspace.timezone} values={{ items: snapshot.exceptions.map(item => ({ id: item.id, date: item.date, closed: item.closed, intervals: item.intervals.map(interval => ({ start_minute: interval.start_minute, end_minute: interval.end_minute })), active: item.active, version: item.version })) }}/></section>

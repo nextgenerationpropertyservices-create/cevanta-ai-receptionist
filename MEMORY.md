@@ -170,3 +170,7 @@ Do not enable Retell/Make production writers, SMS/email/calendar external writes
 Current recommended launch path: managed pilot with office review. Use `docs/business/PILOT_LAUNCH_WALKTHROUGH.md`, `docs/business/FIRST_CLIENT_SALES_PACKET.md`, `docs/business/FIRST_CLIENT_INTAKE.md` and the in-app Launch/Integrations/Pilot pages.
 
 
+
+- 2026-10-12: CEV-ONBOARD-AUTO-108A implemented the first standard client onboarding blueprint slice. Setup and Launch now share trade templates, standard Retell/Make/Cevanta intake fields, self-service setup steps, and safe provider boundaries. This is guidance only; no live provider activation, messaging, calendar writes, booking, payments, subscriptions, dispatch automation, secrets, or customer data were added. `pnpm check` passed with 35 files / 814 tests, embedded database suites, Retell lead ingestion suite, and production build.
+
+- 2026-10-12: CEV-ONBOARD-AUTO-109A added a Launch provisioning readiness checklist derived from saved onboarding setup and automation-control data. It distinguishes saved setup, receptionist draft readiness, trusted routing/manual provider work, fictional test-call recovery proof, and blocked activation. Preparation only; no live provider activation or external side effects. `pnpm check` passed with 36 files / 817 tests, embedded database suites, Retell lead ingestion suite, and production build.
