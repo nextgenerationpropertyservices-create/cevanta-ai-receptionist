@@ -830,3 +830,14 @@ CEV-DEMO-DASH-110A is implemented locally. The standalone `/demo-dashboard` page
 The route uses fictional data only. It does not connect live providers, send SMS/email, write calendars, book appointments, collect payments, dispatch technicians, expose provider secrets, or use real customer records.
 
 Evidence: `pnpm test -- tests/demo-dashboard-ui.test.ts` passed as part of the configured Vitest run with 36 files / 817 tests; `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` passed and includes `/demo-dashboard` as a static route. Remaining gate: owner approval before production release.
+
+## CEV-DEMO-DASH-110A production release
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `4893c08` with the Google Meet demo dashboard polish. Vercel production deployment `cevanta-ai-receptionist-8slyi7wcu.vercel.app` for commit `4893c08` reached Ready at 2026-10-12 17:28 EDT.
+
+Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app/api/health` returned status ok with `databaseConfigured: true`. The live `/demo-dashboard` page contains the Google Meet sales demo label, the missed-calls-to-office-ready-leads hero, the high-visibility AI receptionist lead alert, the `$497 setup + $297/month` offer, the ROI snapshot, and the onboarding snapshot.
+
+This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects.
