@@ -766,3 +766,14 @@ Coordinator: Morgan — Product Manager and Orchestrator
 CEV-NOTIFY-106A is implemented locally with limitations. The workspace shell now shows a persistent, high-visibility in-app alert under the top navigation whenever new AI receptionist leads need office review. The alert links straight to the newest unreviewed AI lead, includes the urgent/high-priority count when present, and states clearly that it is in-app only with no SMS, email, booking, payment, external calendar write, or dispatch effect. Top navigation badges still show total attention, lead count, and job count.
 
 Evidence: `pnpm test -- tests/workspace-shell-ui.test.ts` PASS and, because of the configured runner, executed the full 34-file / 813-test Vitest suite; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS; `pnpm check` PASS with typecheck, lint, 34 files / 813 tests, embedded database suites, Retell lead ingestion embedded suite, and production build. No database changes and no provider side effects were introduced. Remaining gates: commit/release approval, hosted browser smoke, and later optional office email/SMS/browser notification implementation behind the automation controls.
+
+## CEV-NOTIFY-107A office email notification outbox preparation
+
+Date: 2026-10-12 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+CEV-NOTIFY-107A is implemented locally and approved for preparation-only release readiness. The Retell/Make lead writer now prepares a private office-email notification outbox record when a new AI receptionist lead is created and the workspace email automation control is requested, owner-approved, and ready/active with test evidence and rollback notes. The outbox is private, tenant-bound to the lead through a composite foreign key, and stores only office notification metadata: channel, reason, status, subject, tenant, lead, and timestamp. It stores no transcript, recording URL, webhook URL, API key, provider secret, or customer email body.
+
+Evidence: `pnpm test:retell:lead:db` PASS; `pnpm check` PASS with typecheck, lint, 34 files / 813 Vitest tests, all embedded database suites, Retell lead ingestion, and production build. Atlas approved the migration and contract after the composite tenant/lead foreign-key fix. Quinn approved the local no-send security scope after tests covered missing gates, testing state, same-call replay, cross-tenant outbox rejection, and atomic rollback on outbox failure.
+
+Limitations: no live email is sent; no SMS, customer email, external calendar write, automatic booking, payment, subscription billing, or dispatch side effect is enabled. Hosted Supabase JWT/PostgREST behavior, hosted concurrency, live Retell delivery, worker authorization, and live email provider delivery remain unverified.
