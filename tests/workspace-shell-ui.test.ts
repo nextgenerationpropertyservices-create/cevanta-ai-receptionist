@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 vi.mock("@/app/actions/auth", () => ({ signOut: vi.fn() }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/workspaces/11111111-1111-4111-8111-111111111111/jobs" }));
 
 import { WorkspaceShell } from "@/components/workspace-shell";
 
@@ -16,6 +17,8 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain(`/workspaces/${tenant.id}/notifications`);
     expect(html).toContain("Leads");
     expect(html).toContain("Jobs");
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain('class="active"');
     expect(html).toContain("Billing");
     expect(html).toContain("Manual");
     expect(html).toContain("Go Live");

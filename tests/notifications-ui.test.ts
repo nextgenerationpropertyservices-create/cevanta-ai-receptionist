@@ -28,16 +28,23 @@ describe("notification center", () => {
   it("shows in-app lead, job, and schedule attention without external writes", async () => {
     const html = renderToStaticMarkup(await Notifications({ params: Promise.resolve({ tenantId: tenant }) }));
     expect(html).toContain("NOTIFICATION CENTER");
+    expect(html).toContain("Notification shortcuts");
     expect(html).toContain("New AI leads");
+    expect(html).toContain("Open the newest lead for office review.");
+    expect(html).toContain(`/workspaces/${tenant}/leads/${lead.id}`);
     expect(html).toContain("Urgent AI lead");
+    expect(html).toContain("Open the highest-priority job.");
+    expect(html).toContain("Assign a technician now.");
+    expect(html).toContain(`/workspaces/${tenant}/jobs/${job.id}`);
     expect(html).toContain("Fictional Prospect");
     expect(html).toContain("Unassigned job");
     expect(html).toContain("Fictional no heat job");
     expect(html).toContain("Visits today");
+    expect(html).toContain("Open the next visit.");
+    expect(html).toContain("Click any item to open the exact lead, job, or visit record.");
     expect(html).toContain("SMS, email and external calendar writes are controlled options");
     expect(html).toContain("Automatic booking remains off");
     expect(html).toContain(`/workspaces/${tenant}/integrations`);
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });
 });
-
