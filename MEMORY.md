@@ -184,3 +184,5 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 - 2026-10-12: CEV-CLIENT-COPY-111A prepared a client-facing workspace homepage update. The bottom card now says Run Your Front Office instead of internal upgrade wording, and the ROI snapshot is editable on screen for average job value, close rate, and monthly cost. Tests, typecheck, lint, and build passed. No database, provider, billing, booking, messaging, calendar, dispatch, or automation side effects were added. Awaiting owner approval before production release.
 
 - 2026-10-12: CEV-CLIENT-COPY-111A production release completed. Commit d6dbfa deployed through Vercel as cevanta-ai-receptionist-3xfois0yd.vercel.app. Production smoke confirmed health endpoint ok/database configured and the live workspace dashboard shows editable ROI fields plus the client-facing Run Your Front Office section. No live provider side effects were enabled.
+
+- 2026-10-12: CEV-OWNER-MANUAL-112A added a protected workspace Manual tab and client-facing Billing page copy. Local focused tests, typecheck, lint, and build passed. Awaiting owner release approval.

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-OWNER-MANUAL-112A
+- Work completed: Added a protected Dashboard Operating Manual tab for HVAC/trade owners and rewrote the workspace Billing page into client-facing pilot billing language. The manual covers daily operation, section-by-section usage, weekly owner review, AI receptionist boundaries, and stop rules. Billing now explains the $497 setup + $297/month managed pilot, manual payment confirmation, automation-gated payment options, and future billing features without exposing internal setup language.
+- Files changed: src/components/workspace-shell.tsx; src/app/workspaces/[tenantId]/manual/page.tsx; src/app/workspaces/[tenantId]/manual/loading.tsx; src/app/workspaces/[tenantId]/manual/error.tsx; src/app/workspaces/[tenantId]/billing/page.tsx; tests/manual-ui.test.ts; tests/billing-ui.test.ts; tests/workspace-shell-ui.test.ts; docs/project/tasks/CEV-OWNER-MANUAL-112A.md; docs/project/handoffs/CEV-OWNER-MANUAL-112A-morgan.md; docs/project/PROJECT_STATUS.md; MEMORY.md.
+- Database changes: None.
+- API or contract changes: None. Workspace navigation now includes a Manual tab at /workspaces/[tenantId]/manual. Billing includes a link to the manual.
+- Verification commands and results: `pnpm test -- tests/manual-ui.test.ts tests/billing-ui.test.ts tests/workspace-shell-ui.test.ts` PASS, 37 files / 819 tests; `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS and build output includes /workspaces/[tenantId]/manual and /workspaces/[tenantId]/billing.
+- Known limitations: Manual content is static guidance rendered from app code. It does not persist owner notes, collect signatures, activate providers, send SMS/email, write external calendars, book jobs, collect payment, create subscriptions, or dispatch technicians.
+- Risks: Client-facing wording must stay aligned with the current managed-pilot offer and automation boundaries as the product changes.
+- Rollback notes: Revert this task commit to remove the Manual tab/page and restore the prior Billing wording.
+- Exact next action: Owner approval is required before pushing and deploying this candidate to production.

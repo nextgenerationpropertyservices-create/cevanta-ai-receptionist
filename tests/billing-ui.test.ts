@@ -35,14 +35,22 @@ describe("manual billing page", () => {
   it("shows pilot pricing and controlled payment boundaries", async () => {
     const html = renderToStaticMarkup(await BillingPage({ params: Promise.resolve({ tenantId: tenant }) }));
     expect(html).toContain("BILLING");
+    expect(html).toContain("Your Cevanta pilot billing.");
+    expect(html).toContain("CURRENT PILOT PLAN");
     expect(html).toContain("$497 setup + $297/month");
-    expect(html).toContain("Stripe payment link or invoice");
+    expect(html).toContain("PAYMENT STATUS");
+    expect(html).toContain("Manual confirmation");
+    expect(html).toContain("approved payment link or invoice outside this dashboard");
     expect(html).toContain("No credit card form is shown in Cevanta until payment collection is approved, tested and released.");
     expect(html).toContain("No automatic subscriptions");
     expect(html).toContain("Payment collection");
     expect(html).toContain("Subscription billing");
     expect(html).toContain("PAYMENT AUTOMATION OPTIONS");
+    expect(html).toContain("FUTURE BILLING OPTIONS");
+    expect(html).toContain(`/workspaces/${tenant}/manual`);
     expect(html).toContain(`/workspaces/${tenant}/integrations`);
+    expect(html).not.toContain("Back office");
+    expect(html).not.toContain("DO THIS FOR EACH CLIENT");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|card number|cvv/i);
   });
 });
