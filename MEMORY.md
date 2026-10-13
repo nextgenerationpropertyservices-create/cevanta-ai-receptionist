@@ -186,3 +186,6 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 - 2026-10-12: CEV-CLIENT-COPY-111A production release completed. Commit d6dbfa deployed through Vercel as cevanta-ai-receptionist-3xfois0yd.vercel.app. Production smoke confirmed health endpoint ok/database configured and the live workspace dashboard shows editable ROI fields plus the client-facing Run Your Front Office section. No live provider side effects were enabled.
 
 - 2026-10-12: CEV-OWNER-MANUAL-112A added a protected workspace Manual tab and client-facing Billing page copy. Local focused tests, typecheck, lint, and build passed. Awaiting owner release approval.
+
+- 2026-10-13: CEV-OWNER-MANUAL-112A production release completed. Vercel deployment cevanta-ai-receptionist-2e113rlyb.vercel.app Ready; production health OK. Signed-in protected page visual check still needs owner session.
+
