@@ -18,6 +18,8 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain("Jobs");
     expect(html).toContain("Billing");
     expect(html).toContain("Manual");
+    expect(html).toContain("Go Live");
+    expect(html).toContain(`/workspaces/${tenant.id}/go-live`);
     expect(html).toContain(`/workspaces/${tenant.id}/manual`);
     expect(html).toContain("2</span>");
     expect(html).toContain("NEW AI RECEPTIONIST LEAD");

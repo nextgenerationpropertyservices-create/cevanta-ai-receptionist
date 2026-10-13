@@ -61,8 +61,8 @@ describe('launch readiness page', () => {
     expect(output).toContain('trusted server-side mapping');
     expect(output).toContain('received, pending, failed, and delivered');
     expect(output).toContain('Office review first');
+    expect(output).toContain(`/workspaces/${tenant}/go-live`);
     expect(output).toContain('does not expose webhook URLs, API keys, provider secrets');
     expect(output).not.toMatch(/booking confirmed|payment collected|dispatch confirmed|sk_live_|Bearer /i);
   });
 });
-

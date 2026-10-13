@@ -189,3 +189,5 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 
 - 2026-10-13: CEV-OWNER-MANUAL-112A production release completed. Vercel deployment cevanta-ai-receptionist-2e113rlyb.vercel.app Ready; production health OK. Signed-in protected page visual check still needs owner session.
 
+
+- 2026-10-13: CEV-LIVE-FEATURES-113A added a protected Go Live activation center and shared feature catalog for booking, SMS, email, calendar writes, billing, subscriptions, and dispatch. Local focused tests, typecheck, lint, and build passed. Awaiting owner release approval.

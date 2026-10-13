@@ -83,6 +83,15 @@ const operatingSections = [
     ],
   },
   {
+    title: 'Go Live',
+    href: '/go-live',
+    purpose: 'Use Go Live to prepare SMS, email, external calendar writes, live booking, billing, subscriptions, and dispatch automation without turning them on too early.',
+    actions: [
+      'Review each feature track before moving a client past office-review mode.',
+      'Confirm provider setup, owner approval, test evidence, and rollback notes before any feature becomes active.',
+      'Keep the first safe mode in place until live behavior is proven with fictional tests.',
+    ],
+  },  {
     title: 'Billing',
     href: '/billing',
     purpose: 'Use Billing to understand pilot cost, payment status, and which payment features are still approval-gated.',
@@ -202,7 +211,7 @@ export default async function OwnerManual({ params }: { params: Promise<{ tenant
           </p>
           <div className="button-row">
             <Link className="button secondary" href={`${base}/launch`}>Launch gates ↗</Link>
-            <Link className="button secondary" href={`${base}/integrations`}>Automation controls ↗</Link>
+            <Link className="button secondary" href={`${base}/integrations`}>Automation controls ↗</Link><Link className="button secondary" href={`${base}/go-live`}>Go Live center ↗</Link>
           </div>
         </section>
       </div>

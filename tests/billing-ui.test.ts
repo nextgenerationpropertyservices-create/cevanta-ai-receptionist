@@ -49,6 +49,7 @@ describe("manual billing page", () => {
     expect(html).toContain("FUTURE BILLING OPTIONS");
     expect(html).toContain(`/workspaces/${tenant}/manual`);
     expect(html).toContain(`/workspaces/${tenant}/integrations`);
+    expect(html).toContain(`/workspaces/${tenant}/go-live`);
     expect(html).not.toContain("Back office");
     expect(html).not.toContain("DO THIS FOR EACH CLIENT");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|card number|cvv/i);

@@ -24,6 +24,7 @@ describe('dashboard operating manual', () => {
     expect(output).toContain('The daily office routine');
     expect(output).toContain('What each dashboard section is for');
     expect(output).toContain('AI RECEPTIONIST BOUNDARIES');
+    expect(output).toContain('Go Live');
     expect(output).toContain('STOP RULES');
     expect(output).toContain('This page does not turn on SMS, email, external calendar writes, automatic booking, payments, or dispatch automation.');
     expect(output).not.toMatch(/service-role|secret|webhook|api key|private key/i);
@@ -31,7 +32,7 @@ describe('dashboard operating manual', () => {
 
   it('links to every major workspace section for the owner', async () => {
     const output = await html();
-    for (const path of ['', '/notifications', '/leads', '/jobs', '/technicians', '/calendar', '/onboarding', '/launch', '/billing', '/integrations']) {
+    for (const path of ['', '/notifications', '/leads', '/jobs', '/technicians', '/calendar', '/onboarding', '/launch', '/go-live', '/billing', '/integrations']) {
       expect(output).toContain(`/workspaces/${tenant}${path}`);
     }
   });

@@ -45,7 +45,8 @@ describe('integrations readiness page', () => {
     expect(output).toContain('Subscription billing');
     expect(output).toContain('Dispatch automation');
     expect(output).toContain('Owner approved after reviewing scope, risk, and provider requirements');
-    expect(output).toContain('These controls store decisions and readiness.');
+    expect(output).toContain('Open Go Live to see the complete setup, test, approval and rollback path');
+    expect(output).toContain(`/workspaces/${tenant}/go-live`);
   });
 
   it('shows catalog-only messaging for non-manager roles', async () => {
@@ -71,5 +72,3 @@ describe('integrations readiness page', () => {
     expect(output).toContain(`/workspaces/${tenant}/settings`);
   });
 });
-
-

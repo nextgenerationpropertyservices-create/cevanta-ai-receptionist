@@ -102,7 +102,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
             <span className="eyebrow">SERVICE MAP</span>
             <h2>Provider readiness</h2>
           </div>
-          <Link className="button secondary" href={`${base}/launch`}>Open launch plan ↗</Link>
+          <div className="button-row"><Link className="button secondary" href={`${base}/launch`}>Open launch plan ↗</Link><Link className="button secondary" href={`${base}/go-live`}>Open Go Live center ↗</Link></div>
         </div>
         <div className="table-scroll">
           <table>
@@ -142,7 +142,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         <div className="automation-control-grid">
           {controls.map(control => <AutomationControlForm key={control.capability} control={control} canManage={canManage} />)}
         </div>
-        <p className="notice">These controls store decisions and readiness. The live provider paths still need their own integration work, test call proof and release approval before they affect customers.</p>
+        <p className="notice">These controls store decisions and readiness. Open Go Live to see the complete setup, test, approval and rollback path before these features affect customers.</p>
       </section>
 
       <div className="split-layout">
@@ -172,7 +172,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
           <Link className="button secondary" href={`${base}/onboarding`}>Setup business ↗</Link>
           <Link className="button secondary" href={`${base}/leads`}>Review leads ↗</Link>
           <Link className="button secondary" href={`${base}/calendar`}>Check calendar ↗</Link>
-          <Link className="button secondary" href={`${base}/settings`}>Settings ↗</Link>
+          <Link className="button secondary" href={`${base}/settings`}>Settings ↗</Link><Link className="button secondary" href={`${base}/go-live`}>Go Live ↗</Link>
         </div>
       </section>
     </>

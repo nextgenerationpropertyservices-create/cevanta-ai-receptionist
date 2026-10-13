@@ -204,12 +204,9 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
           <Link className="button secondary" href={`${base}/leads`}>Open leads ↗</Link>
           <Link className="button secondary" href={`${base}/jobs`}>Open jobs ↗</Link>
           <Link className="button secondary" href={`${base}/calendar`}>Open calendar ↗</Link>
-          <Link className="button secondary" href={`${base}/pilot`}>Open pilot runbook ↗</Link><Link className="button secondary" href={`${base}/integrations`}>Open integrations ↗</Link><Link className="button secondary" href={`${base}/settings`}>Open settings ↗</Link>
+          <Link className="button secondary" href={`${base}/pilot`}>Open pilot runbook ↗</Link><Link className="button secondary" href={`${base}/integrations`}>Open integrations ↗</Link><Link className="button secondary" href={`${base}/go-live`}>Open Go Live ↗</Link><Link className="button secondary" href={`${base}/settings`}>Open settings ↗</Link>
         </div>
       </section>
     </>
   );
 }
-
-
-
