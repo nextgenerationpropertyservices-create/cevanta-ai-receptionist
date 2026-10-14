@@ -195,3 +195,5 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 - 2026-10-13: CEV-LEAD-NOTIFY-114A prepared lead detail and notification UX fixes. AI lead text can populate missing enquiry contact fields and clean service summaries for job creation; Notifications stays as an actionable tab; top navigation shows the current section. All live provider side effects remain off.
 
 - 2026-10-14: CEV-LEAD-NOTIFY-114A was released to GitHub main at dceeab6 after owner approval. Production health returned ok/databaseConfigured true; protected Notifications and Lead Detail routes returned HTTP 200. Signed-in visual verification remains owner/browser-session based.
+
+2026-10-14: Released CEV-CLIENTS-TAB-115A and CEV-DELETE-LEADS-JOBS-116A to GitHub main at 82e77fd. Internal workspaces now show Clients; owner/admin/dispatcher users can delete lead/job records from detail pages. Production smoke checks returned 200 for home, health, workspaces and protected leads route. No live provider side effects were enabled.

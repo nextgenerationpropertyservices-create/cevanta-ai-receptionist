@@ -883,3 +883,14 @@ Owner approved release. GitHub `main` was pushed at commit `dceeab6` with lead d
 Because the automated HTTP check does not carry the owner browser session, it verified route availability and health but did not independently verify the signed-in visual state. Owner should refresh the live Notifications and Lead Detail pages in the browser to confirm the UI copy and form defaults.
 
 This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects.
+
+## CEV-CLIENTS-TAB-115A and CEV-DELETE-LEADS-JOBS-116A production release
+
+Date: 2026-10-14 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `82e77fd`, including the internal Clients-tab discoverability update and owner/admin/dispatcher delete controls for lead and job detail pages. The release also includes commit `b84139a` for the workspace picker/internal Clients label.
+
+Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app` returned HTTP 200, `/api/health` returned HTTP 200 with `{"status":"ok","databaseConfigured":true}`, `/workspaces` returned HTTP 200, and the protected leads route returned HTTP 200. Automated smoke checks verify route availability and health; signed-in visual confirmation still depends on the owner browser session.
+
+The release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or provider side effects. Lead/job deletion is a tenant-scoped destructive action limited to existing office-write roles.
