@@ -193,3 +193,5 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 - 2026-10-13: CEV-LIVE-FEATURES-113A added a protected Go Live activation center and shared feature catalog for booking, SMS, email, calendar writes, billing, subscriptions, and dispatch. Local focused tests, typecheck, lint, and build passed. Awaiting owner release approval.
 
 - 2026-10-13: CEV-LEAD-NOTIFY-114A prepared lead detail and notification UX fixes. AI lead text can populate missing enquiry contact fields and clean service summaries for job creation; Notifications stays as an actionable tab; top navigation shows the current section. All live provider side effects remain off.
+
+- 2026-10-14: CEV-LEAD-NOTIFY-114A was released to GitHub main at dceeab6 after owner approval. Production health returned ok/databaseConfigured true; protected Notifications and Lead Detail routes returned HTTP 200. Signed-in visual verification remains owner/browser-session based.

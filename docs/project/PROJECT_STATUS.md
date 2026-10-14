@@ -872,3 +872,14 @@ This release does not enable Retell publishing, Make activation, SMS, email, ext
 - 2026-10-13: CEV-LIVE-FEATURES-113A implemented locally. Added protected Go Live activation center for live booking, SMS, email, external calendar writes, payment collection, subscription billing and dispatch automation. Each feature now has provider setup, approval, test evidence, rollback and first-safe-mode guidance tied to existing automation controls, while all live side effects remain off. Focused tests passed with 38 files / 822 tests; typecheck, lint and production build passed. No database, provider, SMS/email, calendar, booking, payment, subscription or dispatch side effects were added. Awaiting owner approval before production release.
 
 - 2026-10-13: CEV-LEAD-NOTIFY-114A implemented locally. Lead detail now extracts and displays missing enquiry name, email and phone from labelled AI receptionist text, keeps the service request default to the cleaned summary, and defaults job title from the service need/summary. Notifications remains in the dashboard and now has clickable shortcuts for new leads, urgent jobs, unassigned jobs and today's visits. Top navigation now marks the active section. Focused tests passed with 39 files / 824 tests; typecheck, lint and production build passed. No database, provider, SMS/email, calendar, booking, payment, subscription or dispatch side effects were added. Awaiting owner approval before production release.
+
+## CEV-LEAD-NOTIFY-114A production release
+
+Date: 2026-10-14 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `dceeab6` with lead detail display defaults, actionable notification shortcuts, and active top navigation. Production smoke checks on `https://cevanta-ai-receptionist.vercel.app` returned HTTP 200 for the home page, `/api/health`, the protected Notifications route, and the protected Lead Detail route. `/api/health` returned `{"status":"ok","databaseConfigured":true}`.
+
+Because the automated HTTP check does not carry the owner browser session, it verified route availability and health but did not independently verify the signed-in visual state. Owner should refresh the live Notifications and Lead Detail pages in the browser to confirm the UI copy and form defaults.
+
+This release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or other live provider side effects.
