@@ -34,6 +34,13 @@ describe("workspace shell attention badges", () => {
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });
 
+  it("labels the internal owner dashboard tab as Clients", () => {
+    const internalTenant = { ...tenant, account_type: "internal", name: "Cevanta Internal Operations", trade: "AI Receptionist Operations" } as const;
+    const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant: internalTenant, role: "owner" }, createElement("div", null, "Dashboard body")));
+    expect(html).toContain("Clients");
+    expect(html).toContain(`/workspaces/${tenant.id}/clients`);
+    expect(html).not.toContain("Back office");
+  });
   it("does not show an attention pill when there is nothing urgent", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "viewer" }, createElement("div", null, "Dashboard body")));
     expect(html).not.toContain("need attention");

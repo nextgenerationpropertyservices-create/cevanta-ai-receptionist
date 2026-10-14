@@ -15,7 +15,7 @@ export function WorkspaceShell({tenant,role,children,attention={aiLeads:0,unassi
  const links: WorkspaceNavLink[]=[
   {href:base,label:'Overview'},
   {href:`${base}/notifications`,label:'Notifications',count:totalAttention},
-  ...(tenant.account_type === 'internal' ? [{href:`${base}/clients`,label:'Back office'}] : []),
+  ...(tenant.account_type === 'internal' ? [{href:`${base}/clients`,label:'Clients'}] : []),
   {href:`${base}/customers`,label:'Customers'},
   {href:`${base}/leads`,label:'Leads',count:attention.aiLeads},
   {href:`${base}/jobs`,label:role === 'technician' ? 'My jobs' : 'Jobs',count:attention.unassignedJobs},
