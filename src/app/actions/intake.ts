@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { unstable_rethrow } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { OFFICE_ROLES } from "@/lib/contracts";
 import { leadSchema } from "@/lib/intake-validation";
 import { requireMembership, uuidSchema } from "@/lib/server/authorization";
@@ -50,5 +50,19 @@ async function saveLead(form: FormData, editing: boolean): Promise<ActionState> 
 }
 export async function createLead(_previous: ActionState, form: FormData): Promise<ActionState> { return saveLead(form, false); }
 export async function updateLead(_previous: ActionState, form: FormData): Promise<ActionState> { return saveLead(form, true); }
-
-
+export async function deleteLead(_previous: ActionState, form: FormData): Promise<ActionState> {
+  try {
+    const tenantId = recordId(form, "tenantId");
+    const { client } = await requireMembership(tenantId, OFFICE_ROLES);
+    const leadId = recordId(form, "leadId");
+    const result = await client.from("leads").delete().eq("tenant_id", tenantId).eq("id", leadId).select("id").single();
+    if (result.error?.code === "42P01" || result.error?.code === "PGRST205") return { status: "error", message: "Lead intake needs its database migration before deleting." };
+    if (result.error || !result.data) return { status: "error", message: "Unable to delete this lead. It may already be removed or linked to records that must be handled first." };
+    revalidatePath(`/workspaces/${tenantId}/leads`);
+    revalidatePath(`/workspaces/${tenantId}/notifications`);
+    redirect(`/workspaces/${tenantId}/leads`);
+  } catch (error) {
+    unstable_rethrow(error);
+    return { status: "error", message: "Unable to delete this lead. Check your permissions, then try again." };
+  }
+}

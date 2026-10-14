@@ -3,12 +3,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AI_RECEPTIONIST_MARKER } from "@/lib/ai-lead-notifications";
 
 const harness = vi.hoisted(() => ({
-  workspace: vi.fn(), lead: vi.fn(), customers: vi.fn(), jobs: vi.fn(), technicians: vi.fn(), locations: vi.fn(), updateLead: vi.fn(), createJob: vi.fn(),
+  workspace: vi.fn(), lead: vi.fn(), customers: vi.fn(), jobs: vi.fn(), technicians: vi.fn(), locations: vi.fn(), updateLead: vi.fn(), deleteLead: vi.fn(), createJob: vi.fn(),
 }));
 vi.mock("@/lib/server/queries", () => ({ getWorkspace: harness.workspace, getCustomers: harness.customers }));
 vi.mock("@/lib/server/intake-queries", () => ({ getLead: harness.lead }));
 vi.mock("@/lib/server/jobs-queries", () => ({ getJobs: harness.jobs, getTechnicians: harness.technicians, getJobLocations: harness.locations }));
-vi.mock("@/app/actions/intake", () => ({ updateLead: harness.updateLead }));
+vi.mock("@/app/actions/intake", () => ({ updateLead: harness.updateLead, deleteLead: harness.deleteLead }));
 vi.mock("@/app/actions/jobs", () => ({ createJob: harness.createJob }));
 
 import LeadDetail from "@/app/workspaces/[tenantId]/leads/[leadId]/page";
@@ -52,5 +52,16 @@ describe("lead detail defaults", () => {
     expect(html).not.toContain(AI_RECEPTIONIST_MARKER);
     expect(html).toContain('value="No heat"');
     expect(html).toContain("Create job from enquiry");
+    expect(html).toContain("Delete this lead");
+    expect(html).toContain("Delete lead");
+    expect(html).toContain("does not send messages, cancel jobs, write calendars, collect payment, or dispatch technicians");
+  });
+
+  it("hides delete controls from read-only lead users", async () => {
+    harness.workspace.mockResolvedValueOnce({ tenant: { id: tenant, name: "Fictional HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client" }, role: "viewer" });
+    const html = renderToStaticMarkup(await LeadDetail({ params: Promise.resolve({ tenantId: tenant, leadId }) }));
+    expect(html).toContain("read-only access");
+    expect(html).not.toContain("Delete lead");
+    expect(html).not.toContain("Create job from enquiry");
   });
 });

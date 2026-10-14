@@ -11,13 +11,13 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
   rpc: async (name: string, args: unknown) => { harness.calls.push({ table: name, method: "rpc", args: [args] }); return reply(); },
   from: (table: string) => {
     const response = reply();
-    const chain = Object.fromEntries(["select", "eq", "order", "insert", "update", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => { harness.calls.push({ table, method, args }); return chain; }])) as Record<string, unknown>;
+    const chain = Object.fromEntries(["select", "eq", "order", "insert", "update", "delete", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => { harness.calls.push({ table, method, args }); return chain; }])) as Record<string, unknown>;
     chain.then = (resolve: (value: unknown) => unknown) => Promise.resolve(response).then(resolve); return chain;
   },
 }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); }, unstable_rethrow: (error: unknown) => { if (error instanceof Error && error.message.startsWith("REDIRECT:")) throw error; } }));
 vi.mock("next/cache", () => ({ revalidatePath: harness.revalidate }));
-import { createJob, updateJob } from "@/app/actions/jobs";
+import { createJob, deleteJob, updateJob } from "@/app/actions/jobs";
 import { getJob, getJobs, getTechnicians, getJobLocations } from "@/lib/server/jobs-queries";
 
 const tenant = "11111111-1111-4111-8111-111111111111";
@@ -34,17 +34,17 @@ const writes = () => harness.calls.filter(call => ["insert", "update"].includes(
 beforeEach(() => { harness.configured = true; harness.user = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }; harness.authError = null; harness.responses = []; harness.calls = []; harness.revalidate.mockClear(); });
 
 describe("job action authentication/permissions/validation", () => {
-  it.each([createJob,updateJob])("preserves unconfigured setup redirects", async action => { harness.configured=false; await expect(action(idle,form())).rejects.toThrow("REDIRECT:/setup"); expect(harness.calls).toEqual([]); });
+  it.each([createJob,updateJob,deleteJob])("preserves unconfigured setup redirects", async action => { harness.configured=false; await expect(action(idle,form())).rejects.toThrow("REDIRECT:/setup"); expect(harness.calls).toEqual([]); });
   it("fails closed on membership lookup errors and uses verified subject",async()=>{
     harness.responses=[{data:{role:"owner"},error:{message:"synthetic-provider-detail"}}];
     expect((await createJob(idle,form({user_id:technician,role:"owner"}))).status).toBe("error");expect(writes()).toEqual([]);
     expect(harness.calls).toContainEqual({table:"memberships",method:"eq",args:["user_id",harness.user!.id]});
     expect(harness.calls).toContainEqual({table:"memberships",method:"eq",args:["tenant_id",tenant]});
   });
-  it.each([createJob,updateJob])("preserves anonymous redirects", async action => { harness.user = null; await expect(action(idle,form())).rejects.toThrow("REDIRECT:/sign-in"); expect(harness.calls).toEqual([]); });
+  it.each([createJob,updateJob,deleteJob])("preserves anonymous redirects", async action => { harness.user = null; await expect(action(idle,form())).rejects.toThrow("REDIRECT:/sign-in"); expect(harness.calls).toEqual([]); });
   it("fails closed on verified-user failure", async () => { harness.authError = { message: "synthetic-auth-error" }; await expect(createJob(idle,form())).rejects.toThrow("REDIRECT:/sign-in"); expect(harness.calls).toEqual([]); });
   it.each(["technician","viewer","root",null])("blocks %s writes before jobs reads", async role => {
-    for (const action of [createJob,updateJob]) { respond(role ? { role } : null); harness.calls=[]; expect((await action(idle,form())).status).toBe("error"); expect(writes()).toEqual([]); expect(harness.calls.every(call => call.table === "memberships")).toBe(true); expect(harness.revalidate).not.toHaveBeenCalled(); }
+    for (const action of [createJob,updateJob,deleteJob]) { respond(role ? { role } : null); harness.calls=[]; expect((await action(idle,form())).status).toBe("error"); expect(writes()).toEqual([]); expect(harness.calls.every(call => call.table === "memberships")).toBe(true); expect(harness.revalidate).not.toHaveBeenCalled(); }
   });
   it.each(["tenantId","submissionId","jobId"])("rejects invalid/missing %s", async field => {
     const action = field === "jobId" ? updateJob : createJob;
@@ -119,6 +119,24 @@ describe("job update and member-scoped queries",()=>{
     expect(writes()).toEqual([{table:"jobs",method:"update",args:[{title:"Synthetic job",description:"Synthetic service description",status:"new",priority:"normal",scheduled_date:null,assigned_user_id:technician}]}]);
     expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["tenant_id",tenant]});expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["id",job]});
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs`);expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs/${job}`);
+  });
+  it.each(["owner","admin","dispatcher"])("allows %s tenant-scoped job deletion",async role=>{
+    respond({role},{id:job});
+    await expect(deleteJob(idle,form())).rejects.toThrow(`REDIRECT:/workspaces/${tenant}/jobs`);
+    expect(harness.calls).toContainEqual({table:"jobs",method:"delete",args:[]});
+    expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["tenant_id",tenant]});
+    expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["id",job]});
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs`);
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/calendar`);
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/notifications`);
+  });
+  it("returns a safe message when job deletion is blocked by linked records",async()=>{
+    harness.responses=[{data:{role:"owner"},error:null},{data:null,error:{code:"23503",message:"synthetic-provider-detail"}}];
+    const result=await deleteJob(idle,form());
+    expect(result.status).toBe("error");
+    expect(result.message).toContain("linked to records");
+    expect(result.message).not.toContain("synthetic-provider-detail");
+    expect(harness.revalidate).not.toHaveBeenCalled();
   });
   it("does not write when selected technician is absent from tenant roster",async()=>{respond({role:"owner"},[]);expect((await updateJob(idle,form({assigned_user_id:technician}))).status).toBe("error");expect(writes()).toEqual([]);expect(harness.revalidate).not.toHaveBeenCalled();});
   it.each([null,{message:"synthetic-provider-detail"}])("handles absent/error update safely %j",async error=>{harness.responses=[{data:{role:"owner"},error:null},{data:null,error}];const result=await updateJob(idle,form());expect(result.status).toBe("error");expect(result.message).not.toContain("synthetic-provider-detail");expect(harness.revalidate).not.toHaveBeenCalled();});

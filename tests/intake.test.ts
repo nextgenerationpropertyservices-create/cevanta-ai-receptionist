@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
   auth: { getUser: async () => ({ data: { user: harness.user }, error: harness.authError }) },
   from: (table: string) => {
     const response = harness.responses.shift() ?? { data: null, error: null };
-    const chain = Object.fromEntries(["select", "eq", "order", "insert", "update", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => {
+    const chain = Object.fromEntries(["select", "eq", "order", "insert", "update", "delete", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => {
       harness.calls.push({ table, method, args }); return chain;
     }])) as Record<string, unknown>;
     chain.then = (resolve: (value: unknown) => unknown) => Promise.resolve(response).then(resolve);
@@ -18,7 +18,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
 }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); }, unstable_rethrow: (error: unknown) => { if (error instanceof Error && error.message.startsWith("REDIRECT:")) throw error; } }));
 vi.mock("next/cache", () => ({ revalidatePath: harness.revalidate }));
-import { createLead, updateLead } from "@/app/actions/intake";
+import { createLead, deleteLead, updateLead } from "@/app/actions/intake";
 import { getLead, getLeads } from "@/lib/server/intake-queries";
 import { leadSchema } from "@/lib/intake-validation";
 
@@ -37,7 +37,7 @@ const writes = () => harness.calls.filter(call => ["insert", "update"].includes(
 beforeEach(() => { harness.configured = true; harness.user = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }; harness.authError = null; harness.calls = []; harness.responses = []; });
 
 describe("intake actual action authorization and validation", () => {
-  it.each([createLead, updateLead])("preserves unauthenticated redirect", async action => {
+  it.each([createLead, updateLead, deleteLead])("preserves unauthenticated redirect", async action => {
     harness.user = null; await expect(action(idle, form())).rejects.toThrow("REDIRECT:/sign-in");
     expect(harness.calls).toEqual([]); expect(harness.revalidate).not.toHaveBeenCalled();
   });
@@ -45,7 +45,7 @@ describe("intake actual action authorization and validation", () => {
     harness.authError = { message: "synthetic-auth-error" }; await expect(createLead(idle, form())).rejects.toThrow("REDIRECT:/sign-in"); expect(harness.calls).toEqual([]);
   });
   it.each(["technician", "viewer", "root", null])("denies role %s before intake reads/writes", async role => {
-    for (const action of [createLead, updateLead]) {
+    for (const action of [createLead, updateLead, deleteLead]) {
       respond(role ? { role } : null); harness.calls = [];
       expect((await action(idle, form())).status).toBe("error"); expect(writes()).toEqual([]);
       expect(harness.calls.every(call => call.table === "memberships")).toBe(true); expect(harness.revalidate).not.toHaveBeenCalled();
@@ -120,6 +120,23 @@ describe("intake update and queries", () => {
     expect(writes()).toEqual([{ table: "leads", method: "update", args: [{ name: "Fictional enquiry", description: "Synthetic request description", email: null, phone: null, priority: "normal", status: "contacted", follow_up_date: "2026-10-03" }] }]);
     expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["tenant_id", tenant] }); expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["id", lead] });
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads`); expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads/${lead}`);
+  });
+  it.each(["owner", "admin", "dispatcher"])("allows %s tenant-scoped lead deletion", async role => {
+    respond({ role }, { id: lead });
+    await expect(deleteLead(idle, form())).rejects.toThrow(`REDIRECT:/workspaces/${tenant}/leads`);
+    expect(harness.calls).toContainEqual({ table: "leads", method: "delete", args: [] });
+    expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["tenant_id", tenant] });
+    expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["id", lead] });
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads`);
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/notifications`);
+  });
+  it("returns a safe message when lead deletion is blocked by linked records", async () => {
+    harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error: { code: "23503", message: "synthetic-provider-detail" } }];
+    const result = await deleteLead(idle, form());
+    expect(result.status).toBe("error");
+    expect(result.message).toContain("linked to records");
+    expect(result.message).not.toContain("synthetic-provider-detail");
+    expect(harness.revalidate).not.toHaveBeenCalled();
   });
   it.each([null, { message: "synthetic-provider-detail" }])("handles absent/failed updates safely %j", async error => {
     harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error }];

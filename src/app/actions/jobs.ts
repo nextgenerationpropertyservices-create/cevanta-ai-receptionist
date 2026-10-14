@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { unstable_rethrow } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { OFFICE_ROLES } from "@/lib/contracts";
 import { jobSchema } from "@/lib/jobs-validation";
 import { requireMembership, uuidSchema } from "@/lib/server/authorization";
@@ -69,3 +69,20 @@ async function saveJob(form:FormData,editing:boolean):Promise<ActionState> {
 }
 export async function createJob(_previous:ActionState,form:FormData):Promise<ActionState>{return saveJob(form,false);}
 export async function updateJob(_previous:ActionState,form:FormData):Promise<ActionState>{return saveJob(form,true);}
+export async function deleteJob(_previous:ActionState,form:FormData):Promise<ActionState>{
+ try {
+  const tenantId=uuidSchema.parse(form.get("tenantId"));
+  const {client}=await requireMembership(tenantId,OFFICE_ROLES);
+  const jobId=uuidSchema.parse(form.get("jobId"));
+  const result=await client.from("jobs").delete().eq("tenant_id",tenantId).eq("id",jobId).select("id").single();
+  if(missing(result.error?.code)) return {status:"error",message:"Jobs need their database migration before deleting."};
+  if(result.error || !result.data) return {status:"error",message:"Unable to delete this job. It may already be removed or linked to records that must be handled first."};
+  revalidatePath(`/workspaces/${tenantId}/jobs`);
+  revalidatePath(`/workspaces/${tenantId}/calendar`);
+  revalidatePath(`/workspaces/${tenantId}/notifications`);
+  redirect(`/workspaces/${tenantId}/jobs`);
+ } catch(error) {
+  unstable_rethrow(error);
+  return {status:"error",message:"Unable to delete this job. Check your permissions, then try again."};
+ }
+}
