@@ -25,6 +25,14 @@ afterEach(() => vi.unstubAllEnvs());
 
 describe("trusted recovery origin", () => {
   it("fails closed in production without configuration", () => { vi.stubEnv("APP_ORIGIN", ""); expect(passwordRecoveryOrigin).toThrow(); });
+  it("uses the Vercel preview hostname when APP_ORIGIN is not configured", () => {
+    vi.stubEnv("APP_ORIGIN", ""); vi.stubEnv("VERCEL_ENV", "preview"); vi.stubEnv("VERCEL_URL", "cevanta-preview.example.test");
+    expect(passwordRecoveryOrigin()).toBe("https://cevanta-preview.example.test");
+  });
+  it("still requires APP_ORIGIN for production deployments", () => {
+    vi.stubEnv("APP_ORIGIN", ""); vi.stubEnv("VERCEL_ENV", "production"); vi.stubEnv("VERCEL_URL", "cevanta-production.example.test");
+    expect(passwordRecoveryOrigin).toThrow();
+  });
   it("uses fixed development loopback without configuration", () => { vi.stubEnv("NODE_ENV", "development"); vi.stubEnv("APP_ORIGIN", ""); expect(passwordRecoveryOrigin()).toBe("http://127.0.0.1:3000"); });
   it.each(["http://app.example.test", "https://user:pass@app.example.test", "https://app.example.test/other", "https://app.example.test?next=evil", "https://app.example.test#fragment", "javascript:alert(1)", "http://localhost:3000"])("rejects unsafe production origin %s", value => { vi.stubEnv("APP_ORIGIN", value); expect(passwordRecoveryOrigin).toThrow(); });
 });
