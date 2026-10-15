@@ -12,7 +12,7 @@ insert into public.memberships(tenant_id,user_id,role) values('46000000-0000-400
 do $$
 declare target uuid:='46000000-0000-4000-8000-000000000001'; request uuid:='46000000-0000-4000-8002-000000000001'; input jsonb; payload jsonb; result jsonb; snapshot jsonb; revision integer:=0; service_id uuid; active_service_id uuid; exception_id uuid; inactive_exception_id uuid; audit_count bigint; n integer; weekday integer;
 begin
- if (select count(*) from pg_proc p join pg_namespace s on s.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where s.nspname='public' and p.proname in ('onboarding_configure','onboarding_save_resume','onboarding_snapshot','onboarding_accept_invitation','onboarding_history_list','onboarding_history_reenable') and p.prosecdef and r.rolname='postgres' and 'search_path=""'=any(p.proconfig) and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'))<>6 then raise exception 'Guarded RPC ownership/search path/grants'; end if;
+ if (select count(*) from pg_proc p join pg_namespace s on s.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where s.nspname='public' and p.proname in ('onboarding_configure','onboarding_save_resume','onboarding_snapshot','onboarding_accept_invitation','onboarding_history_list','onboarding_history_reenable','issue_client_invitation') and p.prosecdef and r.rolname='postgres' and 'search_path=""'=any(p.proconfig) and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'))<>7 then raise exception 'Guarded RPC ownership/search path/grants'; end if;
  if exists(select 1 from pg_proc p join pg_namespace s on s.oid=p.pronamespace where s.nspname='onboarding_private' and has_function_privilege('authenticated',p.oid,'EXECUTE')) then raise exception 'Private helper execute grant'; end if;
  if onboarding_private.input_size('{"a":1.0,"b":[true,null,"😀"]}')<>octet_length(convert_to('{"a":1,"b":[true,null,"😀"]}','UTF8')) then raise exception 'Parsed compact body sizing parity'; end if;
  payload:='{"name":"Command demo A","trade":"HVAC","timezone":"America/New_York","business_contact_name":"","business_email":null,"business_phone":null}';
@@ -321,6 +321,28 @@ begin
  if result->>'status'<>'validation_error' then raise exception 'Contact active cap overflow accepted'; end if;
  result:=public.onboarding_snapshot(target);
  if exists(select 1 from jsonb_array_elements(result->'snapshot'->'services') item where item->>'id'=second_service::text or item->>'enabled'<>'true') then raise exception 'Normal snapshot leaked disabled history after history APIs'; end if;
+ reset role;
+end; $$;
+
+-- CEV-CLIENT-INVITE-124A: issuance is internal-owner scoped and never grants membership early.
+do $$
+declare operator_id uuid:='46000000-0000-0000-0000-000000000003'; client_id uuid:='46000000-0000-0000-0000-000000000004'; actor_id uuid:='46000000-0000-4000-8001-000000000001'; invitee uuid:='46000000-0000-4000-8001-000000000009'; req uuid:=gen_random_uuid(); result jsonb;
+begin
+ insert into public.tenants(id,name,trade,timezone,account_type) values(operator_id,'Cevanta Internal','Operations','UTC','internal'),(client_id,'Invite Client','HVAC','UTC','client');
+ insert into public.memberships(tenant_id,user_id,role) values(operator_id,actor_id,'owner');
+ insert into public.managed_client_workspaces(operator_tenant_id,client_tenant_id,created_by,status) values(operator_id,client_id,actor_id,'onboarding');
+ perform set_config('request.jwt.claim.sub',actor_id::text,true); set local role authenticated;
+ result:=public.issue_client_invitation(jsonb_build_object('request_id',req,'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','command-9@example.invalid','intended_role','owner','token_digest_hex',repeat('ab',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
+ if result->>'status'<>'created' or result->>'recipient_email'<>'command-9@example.invalid' then raise exception 'Invitation issuance failed: %',result; end if;
+ if exists(select 1 from public.memberships where tenant_id=client_id and user_id=invitee) then raise exception 'Invitation granted membership early'; end if;
+ result:=public.issue_client_invitation(jsonb_build_object('request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','command-9@example.invalid','intended_role','owner','token_digest_hex',repeat('cd',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
+ if result->>'status'<>'already_pending' then raise exception 'Pending invitation duplicate accepted: %',result; end if;
+ result:=public.issue_client_invitation(jsonb_build_object('request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','unknown@example.invalid','intended_role','owner','token_digest_hex',repeat('ef',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
+ if result->>'status'<>'not_found' then raise exception 'Unknown account invitation accepted: %',result; end if;
+ reset role;
+ perform set_config('request.jwt.claim.sub','46000000-0000-4000-8001-000000000002',true); set local role authenticated;
+ result:=public.issue_client_invitation(jsonb_build_object('request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','command-8@example.invalid','intended_role','owner','token_digest_hex',repeat('12',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
+ if result->>'status'<>'unavailable' then raise exception 'Non-member issuer accepted: %',result; end if;
  reset role;
 end; $$;
 
