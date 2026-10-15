@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-MAKE-CEVANTA-BRIDGE-85A
+- Work completed: Verified live Retell phone-number delivery into Make after assigning the number to the updated demo agent and publishing the Retell draft.
+- Files changed: `docs/project/PROJECT_STATUS.md`; `docs/project/handoffs/CEV-MAKE-CEVANTA-BRIDGE-85A-live-retell-delivery-2026-10-07.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Provider/config evidence: Retell phone-number test delivered analyzed-call data to Make scenario `6515719`. The event used agent `agent_b44c3917587cfd493655ff75b2`.
+- Verification commands and results: Make execution `eaf57de3f85748e2be0d0e69b450efe8` started at 2026-10-07T23:19:42Z, ran modules 1, 9, 3, 11 and 2 with zero module errors. HTTP module 11 reached `https://cevanta-ai-receptionist.vercel.app/api/integrations/make/retell-lead`; Cevanta returned HTTP400 `rejected`, `persisted:false`, `bookingCreated:false` because the call did not include complete fictional intake fields.
+- Known limitations: This proves live Retell-to-Make delivery but not successful Cevanta verifier acceptance for a complete real-call intake. Writer mode remains off. Make still labels the run `warning`; module drill-down shows the expected rejection from Cevanta rather than a Make module error.
+- Risks: Declined or incomplete calls currently still reach the Cevanta HTTP module and return rejection. Add/confirm a Make filter before pilot operations so only complete service-request calls are sent to Cevanta.
+- Rollback notes: Deactivate Make scenario `6515719` or remove the Retell agent-level webhook to stop live delivery. No source rollback required.
+- Exact next action: Run one complete fictional HVAC request through the live phone number, then inspect Make execution and Cevanta response. Add a filter for incomplete/declined calls if the next proof confirms field mapping.

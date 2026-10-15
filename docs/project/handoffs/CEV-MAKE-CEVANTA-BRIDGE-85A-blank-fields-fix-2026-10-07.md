@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-MAKE-CEVANTA-BRIDGE-85A
+- Work completed: Fixed the Cevanta Make bridge so blank optional Make fields from Retell are treated as missing rather than rejected in verifier-only mode.
+- Files changed: `src/app/api/integrations/make/retell-lead/route.ts`; `tests/make-retell-lead-ingress.test.ts`; `docs/project/PROJECT_STATUS.md`; `docs/project/handoffs/CEV-MAKE-CEVANTA-BRIDGE-85A-blank-fields-fix-2026-10-07.md`.
+- Database changes: None.
+- API or contract changes: Optional lead fields still accept the same names and validation limits. Empty strings and whitespace-only strings now normalize to missing for optional text/email/enum fields. Nonblank invalid values remain rejected.
+- Deployment changes: Commit `9e953e6` pushed to GitHub. Vercel production deployment `dpl_3TXe42MypnxxPacCsYUudqHbD8Hb` reached READY and carries the production alias.
+- Verification commands and results: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-proxy-path.test.ts` PASS with 23 files / 767 tests. `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. Fictional deployed Make webhook test `call_cevanta_blank_optional_test_20261007_01` reached Cevanta in execution `528bd1bbcf6047b5a88d4a30abe45b80` and returned HTTP200 `verified_not_persisted`, `persisted:false`, `bookingCreated:false`.
+- Known limitations: Live Retell structured extraction still produced blank custom fields for the complete fictional call; details were present in `call_summary`. Writer mode remains off, so no dashboard lead was created.
+- Risks: If writer mode is enabled before structured extraction is corrected, Cevanta may create less useful leads that rely mostly on summary text and caller phone. Keep writer disabled until the intended lead fields are populated or a summary-only fallback is explicitly approved.
+- Rollback notes: Revert commit `9e953e6` to restore strict rejection of blank optional fields. Deactivate Make scenario `6515719` to stop live bridge traffic.
+- Exact next action: Configure Retell post-call extraction fields to populate caller name, service type, service address, urgency and preferred time, then run one more live fictional call and inspect Cevanta verifier success before considering lead writer mode.

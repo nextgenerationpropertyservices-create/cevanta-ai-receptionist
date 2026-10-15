@@ -1,0 +1,11 @@
+# Agent handoff
+- **Task ID:** CEV-DASHBOARD-121A
+- **Work completed:** Replaced the long default lead list with a Needs attention queue, status views with counts, combined search and filters, follow-up date filters, and at-a-glance priority badges and row accents.
+- **Files changed:** `src/app/workspaces/[tenantId]/leads/page.tsx`, `src/app/globals.css`, `tests/leads-ui.test.ts`.
+- **Database changes:** None planned.
+- **API or contract changes:** None planned.
+- **Verification commands and results:** `pnpm test -- tests/leads-ui.test.ts` passed (42 files / 845 tests because the project test script includes the full suite); `pnpm typecheck` passed; `pnpm lint` passed. `pnpm build` was attempted but blocked by a Turbopack worker panic while processing `src/app/globals.css` in the OneDrive workspace; no hosted build was claimed.
+- **Known limitations:** The attention queue is derived from existing lead status, priority, and follow-up fields; it does not add a new database status or archive model.
+- **Risks:** A lead with no follow-up date appears in Needs attention when contacted, which is intentional for office review.
+- **Rollback notes:** Revert the scoped UI/CSS/test changes.
+- **Exact next action:** Owner refreshes the production Leads page and confirms the pipeline views, date filter, and priority badges in the signed-in browser.

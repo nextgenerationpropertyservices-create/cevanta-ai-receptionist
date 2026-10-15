@@ -1,0 +1,13 @@
+# Agent handoff
+- Task ID: CEV-MAKE-CEVANTA-BRIDGE-85A
+- Work completed: Updated Make scenario `6515719` module 11 to map Retell's actual post-call extraction keys into the Cevanta bridge payload, then updated Cevanta to accept Retell's `Routine` urgency value as normal priority.
+- Files changed: `src/app/api/integrations/make/retell-lead/route.ts`; `tests/make-retell-lead-ingress.test.ts`; `docs/project/PROJECT_STATUS.md`; `docs/project/handoffs/CEV-MAKE-CEVANTA-BRIDGE-85A-retell-key-mapping-2026-10-08.md`.
+- Database changes: None.
+- API or contract changes: Cevanta Make bridge now accepts `Routine` as an optional urgency value and normalizes it to normal priority. Make maps `Caller Name`, `Callback Phone`, `HVAC Problem`, `Service Address`, `Urgency`, `Preferred Appointment Date`, and `Preferred Appointment Time` from Retell payloads.
+- Make changes: Scenario `6515719`, module 11 JSON body mapping changed from lower-case custom-analysis keys to Retell's display-label keys. Scenario remains active.
+- Deployment changes: Commit `2c31ef7` pushed to GitHub. Vercel production deployment `dpl_EQ4ERt85mR2UwdA73rR63cNUhsbo` reached READY with production alias.
+- Verification commands and results: `pnpm test -- tests/make-retell-lead-ingress.test.ts tests/retell-proxy-path.test.ts` PASS with 23 files / 767 tests. `pnpm typecheck` PASS. `pnpm lint` PASS. `pnpm build` PASS. Fictional structured Make webhook test `call_cevanta_retell_keys_test_20261007_02` reached Cevanta in execution `e55ceede2c9d4612afd328a1a7ed5255` and returned HTTP200 `verified_not_persisted`, `persisted:false`, `bookingCreated:false`.
+- Known limitations: The latest successful proof is a fictional direct Make webhook test, not a fresh live phone-number call after the mapping and urgency fixes. Writer mode remains off, so no dashboard lead was created.
+- Risks: Make is active; live Retell calls can reach Cevanta verifier mode. Keep writer disabled until a fresh live call proves structured mapping and the owner approves a lead-creation test.
+- Rollback notes: Revert commit `2c31ef7` to remove `Routine` urgency support; use Make scenario history or patch module 11 to restore the prior lower-case mappings. Deactivate Make scenario `6515719` to stop live bridge traffic.
+- Exact next action: Run one complete fictional HVAC call to `+1 207-407-9904`, wait for Retell analysis, and inspect Make execution module 11 for Cevanta HTTP200 `verified_not_persisted`.

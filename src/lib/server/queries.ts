@@ -4,6 +4,9 @@ import type { Lead } from "@/lib/intake-contracts";
 import type { Job } from "@/lib/jobs-contracts";
 import type { Appointment } from "@/lib/appointments-contracts";
 import { requireUser, requireMembership, uuidSchema } from "./authorization";
+import { getOnboardingSnapshot } from "./onboarding-rpc";
+import { evaluateClientOnboardingGate } from "./client-onboarding-gate";
+import { redirect } from "next/navigation";
 
 export async function getWorkspaces(): Promise<Tenant[]> {
   const { client, user } = await requireUser();
@@ -16,11 +19,24 @@ export async function getWorkspaces(): Promise<Tenant[]> {
   return result.data as Tenant[];
 }
 
-export async function getWorkspace(tenantId: string) {
+export async function getWorkspaceRecord(tenantId: string) {
   const { client, role } = await requireMembership(tenantId);
   const { data, error } = await client.from("tenants").select("*").eq("id", tenantId).single();
   if (error || !data) throw new Error("Workspace is unavailable.");
   return { tenant: data as Tenant, role };
+}
+
+export async function getWorkspace(tenantId: string) {
+  const workspace = await getWorkspaceRecord(tenantId);
+  const setup = workspace.tenant.account_type === "client" && (workspace.role === "owner" || workspace.role === "admin")
+    ? await getOnboardingSnapshot(tenantId)
+    : null;
+  const snapshot = setup?.status === "available" && setup.snapshot.projection === "owner_setup" ? setup.snapshot : null;
+  const gate = evaluateClientOnboardingGate(workspace.tenant, workspace.role, snapshot);
+  if (gate.applies && (!gate.checkable || !gate.complete)) {
+    redirect(`/workspaces/${tenantId}/onboarding?locked=1`);
+  }
+  return workspace;
 }
 
 export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string }

@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-MAKE-CEVANTA-BRIDGE-85A
+- Work completed: Completed the Make custom app connection Communication setup for private app `Cevanta Bridge` (`cevanta-bridge-cgv2vw`). Confirmed through Make metadata that the connection validation API now points to the hosted Cevanta Make bridge endpoint and uses the private password parameter `apiKey` through an Authorization bearer header. Added Make scenario note `354654` documenting the current gate.
+- Files changed: `docs/project/PROJECT_STATUS.md`; `docs/project/handoffs/CEV-MAKE-CEVANTA-BRIDGE-85A-make-private-app-continuation-2026-10-07.md`.
+- Database changes: None.
+- API or contract changes: No app code changed. Make private app connection validation now uses the existing `/api/integrations/make/retell-lead` verifier path with fictional Retell analyzed-call data.
+- Verification commands and results: Make `_custom_app_connection_list` returned saved `api` section with the production Cevanta endpoint and password parameter `apiKey`. Make `_custom_app_module_list` returned `sendRetellLead` attached to `cevanta-bridge-cgv2vw`. Make `_module_spec` still returned `notFound` for `cevanta-bridge-cgv2vw:sendRetellLead`, confirming the module is not scenario-builder available yet.
+- Known limitations: The private app is not published. Make scenario `6515719` remains inactive and still uses its safe data-store intake path. No live Retell delivery, writer persistence, booking, SMS, email, or calendar write was tested or enabled.
+- Risks: Make's Publish prompt says publishing makes the custom app shareable and prevents making it private again or deleting it. That needs owner approval before proceeding.
+- Rollback notes: No source code rollback needed. In Make, the private app connection Communication can be edited back to the default/example or the private custom app can remain unused. Scenario note `354654` can be removed if the coordinator chooses.
+- Exact next action: Owner chooses whether to approve the irreversible Make custom app Publish step, or choose the safer built-in HTTP module path that keeps the app private and uses a Make credential/keychain.
+- Screenshot evidence: `docs/project/handoffs/make-cevanta-private-app-gate-2026-10-07.png`.

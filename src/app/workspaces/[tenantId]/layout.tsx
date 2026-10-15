@@ -1,4 +1,4 @@
-import { getWorkspace } from '@/lib/server/queries';
+import { getWorkspaceRecord } from '@/lib/server/queries';
 import { getLeads } from '@/lib/server/intake-queries';
 import { getJobs } from '@/lib/server/jobs-queries';
 import { isNewAiReceptionistLead } from '@/lib/ai-lead-notifications';
@@ -7,7 +7,7 @@ import { WorkspaceShell } from '@/components/workspace-shell';
 
 export default async function Layout({children,params}: {children:React.ReactNode;params:Promise<{tenantId:string}>}) {
  const {tenantId} = await params;
- const [workspace,leads,jobs] = await Promise.all([getWorkspace(tenantId),getLeads(tenantId),getJobs(tenantId)]);
+ const [workspace,leads,jobs] = await Promise.all([getWorkspaceRecord(tenantId),getLeads(tenantId),getJobs(tenantId)]);
  const officeView=canManageCustomers(workspace.role);
  const aiLeadItems=leads.ready ? leads.leads.filter(isNewAiReceptionistLead) : [];
  const aiLeads=aiLeadItems.length;
