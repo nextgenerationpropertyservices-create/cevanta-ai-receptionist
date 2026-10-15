@@ -21,6 +21,8 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain('class="active"');
     expect(html).toContain("Billing");
     expect(html).toContain("Manual");
+    expect(html).toContain("Start setup");
+    expect(html).toContain(`/workspaces/${tenant.id}/onboarding`);
     expect(html).toContain("Go Live");
     expect(html).toContain(`/workspaces/${tenant.id}/go-live`);
     expect(html).toContain(`/workspaces/${tenant.id}/manual`);
@@ -40,6 +42,7 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain("Clients");
     expect(html).toContain(`/workspaces/${tenant.id}/clients`);
     expect(html).not.toContain("Back office");
+    expect(html).not.toContain("Start setup");
   });
   it("does not show an attention pill when there is nothing urgent", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "viewer" }, createElement("div", null, "Dashboard body")));
