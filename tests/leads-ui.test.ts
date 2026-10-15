@@ -25,26 +25,30 @@ beforeEach(() => {
   harness.leads.mockResolvedValue({ ready: true, leads: [] });
 });
 
-async function html(leads = [aiLead]) {
+async function html(leads = [aiLead], filters: {status?: string; priority?: string; source?: string} = {}) {
   harness.leads.mockResolvedValue({ ready: true, leads });
-  return renderToStaticMarkup(await Leads({ params: Promise.resolve({ tenantId: tenant }) }));
+  return renderToStaticMarkup(await Leads({ params: Promise.resolve({ tenantId: tenant }), searchParams: Promise.resolve(filters) }));
 }
 
 describe('lead inbox AI receptionist notifications', () => {
-  it('shows a prominent review notice for new AI receptionist leads', async () => {
+  it('shows useful service details for new AI receptionist leads without duplicating the global alert', async () => {
     const output = await html([aiLead, manualLead]);
-    expect(output).toContain('New AI receptionist lead waiting');
-    expect(output).toContain('1 new AI receptionist lead needs office review');
-    expect(output).toContain('including 1 high-priority request');
-    expect(output).toContain('Review newest AI lead');
+    expect(output).not.toContain('New AI receptionist lead waiting');
     expect(output).toContain(`/workspaces/${tenant}/leads/${aiLead.id}`);
     expect(output).toContain('NEW AI LEAD');
     expect(output).toContain('AI receptionist');
+    expect(output).toContain('fictional dry run.');
   });
   it('does not show the AI notification for manual or already-contacted leads', async () => {
     const output = await html([manualLead, { ...aiLead, id: '55555555-5555-4555-8555-555555555555', status: 'contacted' }]);
     expect(output).not.toContain('New AI receptionist lead');
     expect(output).not.toContain('NEW AI LEAD');
     expect(output).toContain('Manual');
+  });
+  it('filters the inbox by source and reports the visible count', async () => {
+    const output = await html([aiLead, manualLead], { source: 'manual' });
+    expect(output).toContain('1 of 2 enquiries shown');
+    expect(output).toContain('Manual Lead');
+    expect(output).not.toContain('Fictional AI Caller');
   });
 });

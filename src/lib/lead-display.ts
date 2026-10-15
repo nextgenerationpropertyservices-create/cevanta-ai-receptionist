@@ -82,12 +82,17 @@ function titleFrom(value: string) {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
+function isGenericLeadName(value: string) {
+  return /^(?:ai\s+receptionist(?:\s+call)?|new\s+(?:ai\s+)?lead|unknown\s+caller|caller)$/i.test(value);
+}
+
 export function getLeadDisplayDetails(lead: Lead): LeadDisplayDetails {
   const fields = extractInlineFields(lead.description ?? "");
   const serviceRequest = cleanSummary(lead.description ?? "", fields) || lead.description || "Service request needs office review.";
   const jobTitleSource = fields.service || serviceRequest || lead.name;
+  const storedName = compact(lead.name ?? "");
   return {
-    name: lead.name?.trim() || fields.name || "New enquiry",
+    name: (storedName && !isGenericLeadName(storedName) ? storedName : fields.name) || "Unknown caller",
     email: lead.email || fields.email || null,
     phone: lead.phone || fields.phone || null,
     serviceRequest,
