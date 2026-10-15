@@ -1,5 +1,8 @@
 import "server-only";
 import type { Tenant, Customer, Contact, ServiceLocation, Equipment } from "@/lib/contracts";
+import type { Lead } from "@/lib/intake-contracts";
+import type { Job } from "@/lib/jobs-contracts";
+import type { Appointment } from "@/lib/appointments-contracts";
 import { requireUser, requireMembership, uuidSchema } from "./authorization";
 
 export async function getWorkspaces(): Promise<Tenant[]> {
@@ -57,5 +60,26 @@ export async function getCustomer(tenantId: string, customerId: string) {
   const locationIds = (locations.data ?? []).map(location => location.id as string);
   const equipment = locationIds.length ? await client.from("equipment").select("*").eq("tenant_id", tenantId).in("service_location_id", locationIds).order("name") : { data: [], error: null };
   if (equipment.error) throw new Error("Could not load equipment.");
-  return { customer: customer.data as Customer, contacts: contacts.data as Contact[], locations: locations.data as ServiceLocation[], equipment: equipment.data as Equipment[] };
+  const [leadResult, jobResult] = await Promise.all([
+    client.from("leads").select("*").eq("tenant_id", tenantId).eq("customer_id", customerId).order("created_at", { ascending: false }),
+    client.from("jobs").select("*").eq("tenant_id", tenantId).eq("customer_id", customerId).order("created_at", { ascending: false }),
+  ]);
+  const missing = (code?: string) => code === "42P01" || code === "PGRST205";
+  if (leadResult.error && !missing(leadResult.error.code)) throw new Error("Could not load customer leads.");
+  if (jobResult.error && !missing(jobResult.error.code)) throw new Error("Could not load customer jobs.");
+  const jobs = (jobResult.data ?? []) as Job[];
+  const jobIds = jobs.map(job => job.id);
+  const appointmentResult = jobIds.length
+    ? await client.from("appointments").select("*").eq("tenant_id", tenantId).in("job_id", jobIds).order("starts_at", { ascending: false })
+    : { data: [], error: null };
+  if (appointmentResult.error && !missing(appointmentResult.error.code)) throw new Error("Could not load customer appointments.");
+  return {
+    customer: customer.data as Customer,
+    contacts: contacts.data as Contact[],
+    locations: locations.data as ServiceLocation[],
+    equipment: equipment.data as Equipment[],
+    leads: (leadResult.data ?? []) as Lead[],
+    jobs,
+    appointments: (appointmentResult.data ?? []) as Appointment[],
+  };
 }

@@ -26,6 +26,8 @@ export function WorkspaceShell({tenant,role,children,attention={aiLeads:0,unassi
   {href:`${base}/go-live`,label:'Go Live'},
   {href:`${base}/billing`,label:'Billing'},
   {href:`${base}/manual`,label:'Manual'},
+  {href:`${base}/receptionist`,label:'Receptionist'},
+  {href:`${base}/reports`,label:'Reports'},
   {href:`${base}/integrations`,label:'Integrations'},
   {href:`${base}/settings`,label:'Settings'},
  ];
