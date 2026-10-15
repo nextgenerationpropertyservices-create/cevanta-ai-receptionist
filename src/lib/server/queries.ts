@@ -1,6 +1,12 @@
 import "server-only";
 import type { Tenant, Customer, Contact, ServiceLocation, Equipment } from "@/lib/contracts";
+import type { Lead } from "@/lib/intake-contracts";
+import type { Job } from "@/lib/jobs-contracts";
+import type { Appointment } from "@/lib/appointments-contracts";
 import { requireUser, requireMembership, uuidSchema } from "./authorization";
+import { getOnboardingSnapshot } from "./onboarding-rpc";
+import { evaluateClientOnboardingGate } from "./client-onboarding-gate";
+import { redirect } from "next/navigation";
 
 export async function getWorkspaces(): Promise<Tenant[]> {
   const { client, user } = await requireUser();
@@ -13,11 +19,24 @@ export async function getWorkspaces(): Promise<Tenant[]> {
   return result.data as Tenant[];
 }
 
-export async function getWorkspace(tenantId: string) {
+export async function getWorkspaceRecord(tenantId: string) {
   const { client, role } = await requireMembership(tenantId);
   const { data, error } = await client.from("tenants").select("*").eq("id", tenantId).single();
   if (error || !data) throw new Error("Workspace is unavailable.");
   return { tenant: data as Tenant, role };
+}
+
+export async function getWorkspace(tenantId: string) {
+  const workspace = await getWorkspaceRecord(tenantId);
+  const setup = workspace.tenant.account_type === "client" && (workspace.role === "owner" || workspace.role === "admin")
+    ? await getOnboardingSnapshot(tenantId)
+    : null;
+  const snapshot = setup?.status === "available" && setup.snapshot.projection === "owner_setup" ? setup.snapshot : null;
+  const gate = evaluateClientOnboardingGate(workspace.tenant, workspace.role, snapshot);
+  if (gate.applies && (!gate.checkable || !gate.complete)) {
+    redirect(`/workspaces/${tenantId}/onboarding?locked=1`);
+  }
+  return workspace;
 }
 
 export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string }
@@ -57,5 +76,26 @@ export async function getCustomer(tenantId: string, customerId: string) {
   const locationIds = (locations.data ?? []).map(location => location.id as string);
   const equipment = locationIds.length ? await client.from("equipment").select("*").eq("tenant_id", tenantId).in("service_location_id", locationIds).order("name") : { data: [], error: null };
   if (equipment.error) throw new Error("Could not load equipment.");
-  return { customer: customer.data as Customer, contacts: contacts.data as Contact[], locations: locations.data as ServiceLocation[], equipment: equipment.data as Equipment[] };
+  const [leadResult, jobResult] = await Promise.all([
+    client.from("leads").select("*").eq("tenant_id", tenantId).eq("customer_id", customerId).order("created_at", { ascending: false }),
+    client.from("jobs").select("*").eq("tenant_id", tenantId).eq("customer_id", customerId).order("created_at", { ascending: false }),
+  ]);
+  const missing = (code?: string) => code === "42P01" || code === "PGRST205";
+  if (leadResult.error && !missing(leadResult.error.code)) throw new Error("Could not load customer leads.");
+  if (jobResult.error && !missing(jobResult.error.code)) throw new Error("Could not load customer jobs.");
+  const jobs = (jobResult.data ?? []) as Job[];
+  const jobIds = jobs.map(job => job.id);
+  const appointmentResult = jobIds.length
+    ? await client.from("appointments").select("*").eq("tenant_id", tenantId).in("job_id", jobIds).order("starts_at", { ascending: false })
+    : { data: [], error: null };
+  if (appointmentResult.error && !missing(appointmentResult.error.code)) throw new Error("Could not load customer appointments.");
+  return {
+    customer: customer.data as Customer,
+    contacts: contacts.data as Contact[],
+    locations: locations.data as ServiceLocation[],
+    equipment: equipment.data as Equipment[],
+    leads: (leadResult.data ?? []) as Lead[],
+    jobs,
+    appointments: (appointmentResult.data ?? []) as Appointment[],
+  };
 }

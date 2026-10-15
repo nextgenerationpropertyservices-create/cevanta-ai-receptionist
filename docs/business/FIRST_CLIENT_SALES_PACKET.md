@@ -3,6 +3,8 @@
 Date: 2026-10-05
 Use: sell the first version as a managed pilot without overpromising automation.
 Related launch walkthrough: docs/business/PILOT_LAUNCH_WALKTHROUGH.md.
+One-time video script: docs/business/ONE_TIME_DEMO_VIDEO_SCRIPT.md.
+Recording checklist: docs/business/PILOT_DEMO_RECORDING_CHECKLIST.md.
 
 Cevanta is not ready to sell as a fully automated production AI receptionist. It is ready to present as a managed pilot if you are clear that the office still confirms appointments, customer messages and calendar changes. Retell phone answering has passed a live inbound test, and the Make safe intake receiver has passed fictional duplicate-handling tests. Production writes, SMS, email, external calendar writes, billing and fully self-service launch are still gated.
 
@@ -179,6 +181,7 @@ Record:
 - blockers
 
 Do not record credentials, private webhook URLs, provider secrets, real customer lists, call recordings, or transcripts in project docs.
+
 
 
 

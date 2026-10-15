@@ -894,3 +894,21 @@ Owner approved release. GitHub `main` was pushed at commit `82e77fd`, including 
 Production smoke evidence: `https://cevanta-ai-receptionist.vercel.app` returned HTTP 200, `/api/health` returned HTTP 200 with `{"status":"ok","databaseConfigured":true}`, `/workspaces` returned HTTP 200, and the protected leads route returned HTTP 200. Automated smoke checks verify route availability and health; signed-in visual confirmation still depends on the owner browser session.
 
 The release does not enable Retell publishing, Make activation, SMS, email, external calendar writes, automatic booking, payment collection, subscription billing, dispatch automation, or provider side effects. Lead/job deletion is a tenant-scoped destructive action limited to existing office-write roles.
+
+- 2026-10-15: CEV-DASHBOARD-118A implemented a tenant-scoped Customer 360 timeline on customer records, combining related leads, jobs, and visits with direct links. Focused UI coverage passed as part of 40 files / 840 tests; typecheck and lint passed. Webpack production build was attempted but OneDrive returned EPERM while creating .next; no production deployment was made in this turn.
+
+
+- 2026-10-15: CEV-DASHBOARD-119A added a protected Receptionist Quality Center with fictional scenario coverage, safe review flow, and visible guardrails. Navigation exposes it under More. The configured runner completed 41 files / 841 tests; typecheck and lint passed. No live provider action or production deployment was performed.
+
+
+- 2026-10-15: CEV-DASHBOARD-120A added a read-only Owner Insights / Reports page with lead conversion, workload, visits, and editable ROI assumptions. Reports is available under More. The configured runner completed 42 files / 842 tests; typecheck and lint passed. Revenue remains estimated and no external side effects were added.
+
+- 2026-10-15: CEV-DASHBOARD-121A implemented a focused Leads pipeline. Needs attention is the default view; status views show counts; staff can search contact/service details and filter by status, priority, source, or follow-up date. Priority badges and row accents make urgent/high requests visible at a glance. The configured runner completed 42 files / 845 tests; typecheck and lint passed. The local OneDrive Turbopack build was blocked by a worker panic while processing globals.css, so no production deployment was made.
+
+## CEV-DASHBOARD-121A production release
+
+Date: 2026-10-15 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was pushed at commit `0bcccdf`. Vercel production deployment `cevanta-ai-receptionist-aceuxx73x.vercel.app` reached Ready. Production health returned `{"status":"ok","databaseConfigured":true}`. No database, provider, messaging, booking, payment, calendar, dispatch, or automation side effects were added.
+

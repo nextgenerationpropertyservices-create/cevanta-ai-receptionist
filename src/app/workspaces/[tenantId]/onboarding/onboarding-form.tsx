@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveOnboardingConfiguration, saveOnboardingProgress } from '@/app/actions/onboarding';
+import { saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
 import { ONBOARDING_STEPS, ONBOARDING_TIMEZONES } from '@/lib/onboarding-contracts';
 import { validateConfiguration, validateResume } from '@/lib/onboarding-validation';
 import type { ConfigurationInput, ConfigurationPayloads, ConfigurationResult, ServiceInput, HoursDay, EscalationInput, OnboardingStep, ResumeInput, SavedHoursException } from '@/lib/onboarding-contracts';
@@ -32,6 +32,33 @@ export function RefreshSetupButton() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return <button className="button secondary" type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())}>{pending ? 'Loading setup…' : 'Try again'}</button>;
+}
+
+export function SheetSyncForm({ tenantId }: { tenantId: string }) {
+  const [pending, setPending] = useState(false);
+  const [result, setResult] = useState<SheetSyncResult | null>(null);
+  const message = result?.status === 'sent'
+    ? 'Sent to the Cevanta Client Intake Responses sheet.'
+    : result?.status === 'not_configured'
+      ? 'Sheet sync is not configured yet. Ask the Cevanta operator to add the server-only Make webhook setting.'
+      : result?.status === 'unavailable'
+        ? 'Only the workspace owner or admin can send setup information to the intake sheet.'
+        : result?.status === 'failed'
+          ? 'The sheet sync could not be confirmed. No success was reported; review Make before retrying.'
+          : '';
+  async function send() {
+    if (pending) return;
+    setPending(true);
+    try { setResult(await syncOnboardingToSheet(tenantId)); }
+    catch { setResult({ status: 'failed' }); }
+    finally { setPending(false); }
+  }
+  return <section className="panel setup-editor-panel" aria-labelledby="sheet-sync-title">
+    <h2 id="sheet-sync-title">Send completed intake to your sheet</h2>
+    <p>After reviewing all setup sections, send one complete snapshot to the private Cevanta intake sheet. Saving sections above does not send anything automatically.</p>
+    <button className="button" type="button" onClick={() => void send()} disabled={pending}>{pending ? 'Sending…' : 'Send to Google Sheet'}</button>
+    <p className={result?.status === 'sent' ? 'notice' : result ? 'form-error' : 'small'} aria-live="polite">{pending ? 'Waiting for Make to confirm the row…' : message || 'Use this once after the client has reviewed the complete intake.'}</p>
+  </section>;
 }
 
 const resumeLabels: Record<OnboardingStep, string> = {

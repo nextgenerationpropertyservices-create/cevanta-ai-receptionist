@@ -15,6 +15,8 @@ This tracker is for evidence, not secrets. Do not paste API keys, webhook URLs, 
 | Make/Retell dry-run checklist | Ready as documentation | `docs/ops/MAKE_RETELL_DRY_RUN_CHECKLIST.md` | Run in safe scenario only |
 | Sales packet | Ready as documentation | `docs/business/FIRST_CLIENT_SALES_PACKET.md` | Use managed-pilot language |
 | Managed pilot launch walkthrough | Ready as documentation | `docs/business/PILOT_LAUNCH_WALKTHROUGH.md` | Use as the step-by-step launch path before client commitment |
+| One-time demo video package | Ready as documentation | `docs/business/ONE_TIME_DEMO_VIDEO_SCRIPT.md`; `docs/business/PILOT_DEMO_RECORDING_CHECKLIST.md` | Record 5–8 minute demo with fictional data only |
+| Top-level demo video script | Ready as documentation | `docs/business/TOP_LEVEL_DEMO_VIDEO_SCRIPT.md` | Record 2–3 minute overview for outreach |
 | Live provider readiness | Blocked | 2026-10-05: Retell dashboard opens; Make requires sign-in; Twilio number exists as individual but SMS/business rollout waits for registration; local Retell writer fails safely until server-only Supabase key is configured. | Sign in to Make, add server-only local service key, then rerun signed Retell HTTP writer test. |
 | Production deployment | PASS WITH LIMITATIONS | 2026-10-05: Vercel production app exists at https://cevanta-ai-receptionist.vercel.app/; production lead/customer persistence smokes accepted with limitations. Provider writers, billing, role-browser matrix, backup/restore and live pilot gates remain open. | Sell only as managed pilot after owner-approved boundary. |
 

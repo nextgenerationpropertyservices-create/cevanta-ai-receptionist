@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-CLIENT-ONBOARDING-GATE-123A
+- Work completed: Added a server-derived client onboarding gate. Client owners/admins with incomplete business details, office contact, services, weekly hours, request rules, or escalation contact are redirected to Setup; internal workspaces and limited roles are unchanged. Setup shows an explicit unlock message when reached from the gate.
+- Files changed: `src/lib/server/client-onboarding-gate.ts`; `src/lib/server/queries.ts`; `src/app/workspaces/[tenantId]/layout.tsx`; `src/app/workspaces/[tenantId]/onboarding/page.tsx`; `tests/client-onboarding-gate.test.ts`; task ledger entry.
+- Database changes: None. The gate derives status from the existing verified onboarding snapshot and tenant account type.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run --configLoader native tests/client-onboarding-gate.test.ts` passed (4 tests); route coverage audit passed; `pnpm typecheck` passed; `pnpm lint` passed; full `pnpm test -- --runInBand` passed (44 files, 850 tests). `pnpm build` is blocked by the existing OneDrive sandbox/Turbopack process failure while processing `src/app/globals.css`; no production build claim is made.
+- Known limitations: Completion is derived from stored setup fields; it does not represent provider verification, billing, live booking, messaging, calendar writes, or dispatch approval. Internal owner approval/status is not persisted by this slice.
+- Risks: A client owner/admin with incomplete setup cannot open operational modules until required setup is saved. Lower roles retain their current access behavior.
+- Rollback notes: Revert the gate helper and the `getWorkspace`/layout/onboarding changes; no migration rollback is needed.
+- Exact next action: Run focused and full checks, then have Quality review protected route behavior before any deployment approval.

@@ -25,11 +25,11 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain(`/workspaces/${tenant.id}/go-live`);
     expect(html).toContain(`/workspaces/${tenant.id}/manual`);
     expect(html).toContain("2</span>");
-    expect(html).toContain("NEW AI RECEPTIONIST LEAD");
+    expect(html).toContain("NEEDS ATTENTION");
     expect(html).toContain("2 new leads need office review, including 1 urgent or high-priority");
     expect(html).toContain(`/workspaces/${tenant.id}/leads/33333333-3333-4333-8333-333333333333`);
-    expect(html).toContain("in-app alert only");
-    expect(html).toContain("does not send SMS, email, book appointments, charge money, write calendars, or dispatch technicians");
+    expect(html).toContain("In-app only");
+    expect(html).toContain("no messages, bookings, payments, calendar writes, or dispatch");
     expect(html).toContain("3</span>");
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });

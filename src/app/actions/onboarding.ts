@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import type { ConfigurationCommand, ConfigurationResult, InvitationAcceptanceResult } from "@/lib/onboarding-contracts";
-import { configureOnboarding, saveOnboardingResume, acceptOnboardingInvitation } from "@/lib/server/onboarding-rpc";
+import { configureOnboarding, saveOnboardingResume, acceptOnboardingInvitation, getOnboardingSnapshot } from "@/lib/server/onboarding-rpc";
 
 type Outcome = ConfigurationResult | InvitationAcceptanceResult;
 function message(result: Outcome): string {
@@ -39,5 +39,63 @@ export async function saveOnboardingProgress(input:unknown) {
 export async function acceptOnboardingAccess(input:unknown) {
   const result=await acceptOnboardingInvitation(input);
   return finish(result,"workspace" in result ? result.workspace.id : undefined);
+}
+
+export type SheetSyncResult =
+  | { status: "sent"; sync_key: string }
+  | { status: "not_configured" | "unavailable" | "failed" };
+
+/**
+ * Sends one complete, owner-approved intake snapshot to the inactive/approved
+ * Make webhook. The webhook URL is server-only; it is never sent to the
+ * browser. This is intentionally explicit so saving individual setup sections
+ * cannot create duplicate spreadsheet rows.
+ */
+export async function syncOnboardingToSheet(tenantId: string): Promise<SheetSyncResult> {
+  const endpoint = process.env.CEVANTA_CLIENT_INTAKE_WEBHOOK_URL;
+  if (!endpoint) return { status: "not_configured" };
+  if (!/^https:\/\/hook\.[a-z0-9-]+\.make\.com\//i.test(endpoint)) return { status: "failed" };
+
+  const response = await getOnboardingSnapshot(tenantId);
+  if (response.status !== "available" || response.snapshot.projection !== "owner_setup") {
+    return { status: "unavailable" };
+  }
+  const snapshot = response.snapshot;
+  const sync_key = `${snapshot.workspace.id}:${snapshot.config_revision}`;
+  const submitted_at = new Date().toISOString();
+  const payload = {
+    submitted_at,
+    sync_key,
+    client_business: snapshot.workspace.name,
+    trade: snapshot.workspace.trade,
+    contact_name: snapshot.profile?.business_contact_name ?? "",
+    contact_email: snapshot.profile?.business_email ?? "",
+    contact_phone: snapshot.profile?.business_phone ?? "",
+    timezone: snapshot.workspace.timezone,
+    service_area: "",
+    services: snapshot.services.filter(item => item.enabled).map(item => item.name).join("; "),
+    business_hours: snapshot.weekly_hours.map(day => `${day.weekday}:${day.closed ? "closed" : day.intervals.map(interval => `${interval.start_minute}-${interval.end_minute}`).join(",")}`).join(" | "),
+    emergency_rules: "Office review required; no dispatch promise.",
+    escalation_contacts: snapshot.escalation.filter(item => item.enabled).map(item => `${item.label}: ${item.contact_name}${item.email ? ` (${item.email})` : ""}${item.phone ? ` ${item.phone}` : ""}`).join("; "),
+    call_handling_rules: snapshot.booking?.notes ?? "Capture requests for office review.",
+    never_promise_rules: "No confirmed appointments, prices, payment, SMS, email, calendar writes, or dispatch unless separately approved and tested.",
+    retell_agent: "",
+    make_scenario: "Cevanta Client Intake → Google Sheet",
+    setup_status: "Submitted for review",
+    notes: "Sent from the owner Setup page. Review before enabling any live provider writes.",
+  };
+
+  try {
+    const result = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
+    return result.ok ? { status: "sent", sync_key } : { status: "failed" };
+  } catch {
+    return { status: "failed" };
+  }
 }
 
