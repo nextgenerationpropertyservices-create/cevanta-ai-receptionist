@@ -1,0 +1,19 @@
+# Agent handoff
+- Task ID: CEV-CLIENT-INVITE-124A
+- Work completed: Added owner/admin-only client invitation issuance, one-time expiring token links, private invite acceptance page, and internal Clients-page invite controls. Existing acceptance RPC remains the membership-creation boundary.
+- Files changed: `supabase/migrations/202610150001_client_invitation_issuance.sql`; `supabase/tests/onboarding_commands.sql`; `src/app/actions/invitations.ts`; `src/app/invite/page.tsx`; `src/components/invitation-link.tsx`; `src/app/workspaces/[tenantId]/clients/page.tsx`; `tests/managed-clients.test.ts`; task ledger and project status.
+- Database changes: Added `public.issue_client_invitation(jsonb)`. It verifies the confirmed issuer, internal owner/admin membership, managed-client relationship, existing confirmed recipient account, pending/membership conflicts, seven-day expiry, and 32-byte digest. It inserts only pending invitations and an audit event; membership is still created only by `onboarding_accept_invitation`.
+- API or contract changes: The new RPC returns safe status data only. The server action generates a canonical random token, stores only SHA-256 digest, and returns the private URL once to the authorized operator UI. Acceptance is routed through the existing strict contract.
+- Verification commands and results:
+  - `pnpm typecheck` — passed.
+  - `pnpm lint` — passed.
+  - `pnpm test` — passed, 44 files / 850 tests.
+  - `pnpm test:onboarding:db` — passed.
+  - `pnpm test:managed-clients:db` — passed.
+  - `pnpm test:onboarding:commands:db` — passed, including new invitation issuance cases.
+  - `pnpm build` — blocked by a Turbopack worker panic while processing `src/app/globals.css` in the OneDrive workspace.
+  - `pnpm exec next build --webpack` — blocked by OneDrive `EPERM` creating `.next/static/chunks/app/workspaces/[tenantId]/billing`.
+- Known limitations: Email delivery is not wired; the operator must copy the link and send it through an approved private channel. The invited user must already have a confirmed Cevanta account. Live hosted Supabase execution and browser acceptance were not verified in this turn. Production deployment was not attempted.
+- Risks: Private invite URLs are bearer credentials until accepted or expired; operators must not post them publicly. A user can be invited only once while a pending invite exists; revocation UI is not included in this slice.
+- Rollback notes: Do not remove the existing invitation table or acceptance RPC. If release is withheld, leave the migration unapplied and do not expose the new Clients-page control. If applied, disable issuance at the UI/RPC layer with a forward migration; retain invitation history.
+- Exact next action: Architect and Quality review the migration/RPC and acceptance path, then owner approves a preview deployment. After hosted migration and browser smoke verification, decide whether to add provider-backed email delivery.

@@ -70,6 +70,9 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain("Paperwork, launch, payment, and support monitor");
     expect(html).toContain("CLIENT INTAKE DETAILS");
     expect(html).toContain("What each client has filled out");
+    expect(html).toContain("PRIVATE CLIENT ACCESS");
+    expect(html).toContain("Create private invite");
+    expect(html).toContain("The client must confirm this Cevanta account first");
     expect(html).toContain("Northstar HVAC");
     expect(html).toContain("60%");
     expect(html).toContain("3/5 setup gates complete");
@@ -84,7 +87,7 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain("Keep provider writes off");
     expect(html).toContain(`/workspaces/${clientTenant}/onboarding`);
     expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
-    expect(html).toContain("does not invite the client, connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
+    expect(html).toContain("does not connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
     expect(html).toContain("Create client workspace");
     expect(html).toContain("LAUNCH CONTROL");
     expect(html).toContain("Keep booking, SMS/email, calendar writes and dispatch automation off unless separately approved.");
@@ -136,7 +139,4 @@ describe("managed client workspace action", () => {
     expect(result.message).toContain("temporarily unavailable");
   });
 });
-
-
-
 
