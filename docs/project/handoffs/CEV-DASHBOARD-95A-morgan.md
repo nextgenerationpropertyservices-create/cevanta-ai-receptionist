@@ -9,3 +9,9 @@
 - Risks: ROI uses simple visible assumptions of $850 average job value, 35% close rate, and $297 monthly pilot cost. These should become workspace-configurable before using as financial proof for live clients.
 - Rollback notes: Revert the dashboard page, CSS block, dashboard UI test changes, and this documentation if the new overview needs to be removed.
 - Exact next action: Owner should review the dashboard locally or in preview, then approve push/deploy if this front-office overview should go live.
+
+## Nova visual follow-up
+- Applied a dark reference-inspired command-board skin to the authenticated Overview route in `src/app/globals.css`.
+- Preserved existing feature cards and actions while tightening the hero, attention banners, summary metrics, queue, field workload, calendar pulse, top navigation, and footer.
+- Verification after visual follow-up: `pnpm lint` PASS; `pnpm typecheck` PASS; `pnpm test -- tests/dashboard-ui.test.ts` PASS (44 files, 852 tests).
+- Browser limitation: the available preview session was unauthenticated and redirected to `/sign-in`; authenticated visual review remains Morgan's next action.
