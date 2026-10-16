@@ -20,10 +20,19 @@ export async function getWorkspaces(): Promise<Tenant[]> {
 }
 
 export async function getWorkspaceRecord(tenantId: string) {
-  const { client, role } = await requireMembership(tenantId);
+  const { client, user, role } = await requireMembership(tenantId);
   const { data, error } = await client.from("tenants").select("*").eq("id", tenantId).single();
   if (error || !data) throw new Error("Workspace is unavailable.");
-  return { tenant: data as Tenant, role };
+  return { tenant: data as Tenant, role, client, user };
+}
+
+async function hasInternalOperatorAccess(client: Awaited<ReturnType<typeof getWorkspaceRecord>>["client"], userId: string, clientTenantId: string) {
+  const memberships = await client.from("memberships").select("tenant_id").eq("user_id", userId);
+  if (memberships.error) return false;
+  const operatorIds = (memberships.data ?? []).map(row => row.tenant_id as string);
+  if (!operatorIds.length) return false;
+  const relation = await client.from("managed_client_workspaces").select("client_tenant_id").eq("client_tenant_id", clientTenantId).in("operator_tenant_id", operatorIds).maybeSingle();
+  return !relation.error && !!relation.data;
 }
 
 export async function getWorkspace(tenantId: string) {
@@ -32,7 +41,10 @@ export async function getWorkspace(tenantId: string) {
     ? await getOnboardingSnapshot(tenantId)
     : null;
   const snapshot = setup?.status === "available" && setup.snapshot.projection === "owner_setup" ? setup.snapshot : null;
-  const gate = evaluateClientOnboardingGate(workspace.tenant, workspace.role, snapshot);
+  const internalOperatorAccess = workspace.tenant.account_type === "client"
+    ? await hasInternalOperatorAccess(workspace.client, workspace.user.id, tenantId)
+    : false;
+  const gate = evaluateClientOnboardingGate(workspace.tenant, workspace.role, snapshot, internalOperatorAccess);
   if (gate.applies && (!gate.checkable || !gate.complete)) {
     redirect(`/workspaces/${tenantId}/onboarding?locked=1`);
   }

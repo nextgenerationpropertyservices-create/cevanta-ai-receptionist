@@ -20,6 +20,11 @@ const base = {
 } satisfies OwnerOnboardingSnapshot;
 
 describe("client onboarding gate", () => {
+  it("does not lock an authorized internal operator reviewing a client workspace", () => {
+    const result = evaluateClientOnboardingGate({ account_type: "client" }, "owner", null, true);
+    expect(result.applies).toBe(false);
+    expect(result.complete).toBe(true);
+  });
   it("blocks an incomplete client owner and identifies missing setup", () => {
     const result = evaluateClientOnboardingGate(tenant, "owner", { ...base, profile: null, services: [], weekly_hours: [], booking: null, escalation: [] });
     expect(result).toMatchObject({ applies: true, checkable: true, complete: false });

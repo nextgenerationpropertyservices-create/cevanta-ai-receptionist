@@ -20,8 +20,9 @@ export function evaluateClientOnboardingGate(
   tenant: Pick<Tenant, "account_type">,
   role: Role,
   snapshot: OwnerOnboardingSnapshot | null,
+  internalOperatorAccess = false,
 ): ClientOnboardingGate {
-  const applies = tenant.account_type === "client" && (role === "owner" || role === "admin");
+  const applies = tenant.account_type === "client" && (role === "owner" || role === "admin") && !internalOperatorAccess;
   if (!applies) return { applies: false, checkable: true, complete: true, missing: [] };
   if (!snapshot) return { applies: true, checkable: false, complete: false, missing: ["Setup could not be verified"] };
 
