@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DASHBOARD-GUIDE-129A
+- Work completed: Added a built-in Cevanta Guide assistant to workspace pages. It provides quick prompts and deterministic answers for common dashboard workflows, with an accessible launcher, dialog, close action, keyboard-friendly form controls, responsive styling, and an explicit local-only data boundary.
+- Files changed: `src/components/dashboard-guide.tsx`, `src/components/workspace-shell.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-DASHBOARD-GUIDE-129A.md`, `docs/project/handoffs/CEV-DASHBOARD-GUIDE-129A-morgan.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Pending coordinator verification.
+- Known limitations: This first version is a built-in workflow guide, not a generative model and not connected to workspace records or an external AI provider. It does not perform actions for the user.
+- Risks: The copy must stay aligned with route names and current product permissions as the dashboard evolves.
+- Rollback notes: Revert the guide component, its workspace-shell mount, CSS block, and documentation.
+- Exact next action: Run focused UI tests, `pnpm typecheck`, and `pnpm lint`; then publish a preview and review the guide on an authenticated workspace.
