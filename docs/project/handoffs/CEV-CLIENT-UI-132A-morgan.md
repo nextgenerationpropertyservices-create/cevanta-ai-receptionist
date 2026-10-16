@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-CLIENT-UI-132A
+- Work completed: Condensed Client Intake Details and Private Client Access into native expandable rows. Each row keeps the existing readiness summary, intake details, workspace/setup links, or invitation form while reducing page length.
+- Files changed: `src/app/workspaces/[tenantId]/clients/page.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-CLIENT-UI-132A.md`, `docs/project/handoffs/CEV-CLIENT-UI-132A-morgan.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Pending coordinator verification.
+- Known limitations: Browser visual review still requires an authenticated internal workspace.
+- Risks: None; native details elements preserve keyboard and screen-reader disclosure behavior.
+- Rollback notes: Revert the details markup, CSS block, and documentation.
+- Exact next action: Run focused managed-client UI tests, typecheck, lint, then publish a preview.
