@@ -318,3 +318,17 @@ main .lead-filter{background:#0d1a30;border-color:var(--line)}main .lead-filter 
 .dashboard-guide-form .button{padding:9px 12px}
 .dashboard-guide-panel small{color:#8196bb;font-size:10px;line-height:1.35}
 @media(max-width:700px){.dashboard-guide{right:14px;bottom:14px}.dashboard-guide-panel{width:calc(100vw - 28px);max-height:calc(100vh - 28px)}}
+
+/* Workspace chooser hierarchy */
+.workspace-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-height:250px;overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.workspace-card:hover{transform:translateY(-3px)}
+.workspace-card-internal{background:linear-gradient(145deg,#082c43 0%,#0d172b 62%);border-color:#00c8e8;box-shadow:0 16px 42px #00131f99,0 0 0 1px #00e4ff33}
+.workspace-card-internal:hover{border-color:#67efff;box-shadow:0 20px 52px #00131fcc,0 0 0 2px #00e4ff55}
+.workspace-card-internal .avatar{background:#00d5ee;color:#061326;box-shadow:0 0 0 5px #00d5ee1c}
+.workspace-card-kicker{display:inline-flex;align-items:center;gap:7px;margin-bottom:18px;color:#69efff;font-size:10px;font-weight:800;letter-spacing:1.8px}
+.workspace-card-kicker::before{content:'◆';font-size:8px}
+.workspace-card-internal h2{color:#f4fdff}
+.workspace-card-internal p{color:#b7d9e5}
+.workspace-card-internal .pill{background:#0b4159;border-color:#168eaa;color:#83f2ff}
+.workspace-card-internal .card-link{color:#69efff;margin-top:auto}
+@media(max-width:700px){.workspace-card{min-height:220px}.workspace-card-kicker{margin-bottom:14px}}

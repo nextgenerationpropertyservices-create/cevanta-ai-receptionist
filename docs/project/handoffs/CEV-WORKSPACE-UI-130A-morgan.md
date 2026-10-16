@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-WORKSPACE-UI-130A
+- Work completed: Added an explicit CEVANTA INTERNAL kicker and a dark navy/cyan emphasis style to internal workspace cards on the workspace chooser. Client cards retain their prior appearance and links.
+- Files changed: `src/app/workspaces/page.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-WORKSPACE-UI-130A.md`, `docs/project/handoffs/CEV-WORKSPACE-UI-130A-morgan.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Pending coordinator verification.
+- Known limitations: Visual review needs an authenticated workspace chooser session.
+- Risks: None beyond future theme changes affecting the emphasis contrast.
+- Rollback notes: Revert the internal card class/kicker, CSS block, and this documentation.
+- Exact next action: Run focused workspace tests, typecheck, lint, then publish a preview.
