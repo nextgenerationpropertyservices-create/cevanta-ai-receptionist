@@ -10,11 +10,19 @@ const paymentRequestSchema = z.object({
   operatorTenantId: z.uuid(),
   clientTenantId: z.uuid(),
   paymentType: z.enum(["setup", "monthly"]),
+  setupAmountDollars: z.string().trim(),
+  monthlyAmountDollars: z.string().trim(),
   requestId: z.uuid(),
 });
 
 const stripeObjectSchema = z.object({ id: z.string().min(1) });
 const stripeLinkSchema = z.object({ url: z.string().url() });
+
+function parseUsdAmount(value: string) {
+  if (!/^\d{1,7}(?:\.\d{1,2})?$/.test(value)) return null;
+  const amount = Math.round(Number(value) * 100);
+  return Number.isSafeInteger(amount) && amount >= 100 && amount <= 100_000_000 ? amount : null;
+}
 
 async function stripeRequest(path: string, body: URLSearchParams, idempotencyKey: string) {
   const secret = process.env.STRIPE_SECRET_KEY;
@@ -41,6 +49,8 @@ export async function createStripePaymentRequest(_previous: ActionState, form: F
   const parsed = paymentRequestSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { status: "error", message: "Choose a client and payment type before creating the request." };
   if (!isSupabaseConfigured()) return { status: "error", message: "Supabase is not configured." };
+  const amount = parsed.data.paymentType === "setup" ? parseUsdAmount(parsed.data.setupAmountDollars) : parseUsdAmount(parsed.data.monthlyAmountDollars);
+  if (amount === null) return { status: "error", message: "Enter a valid amount from $1.00 to $1,000,000.00." };
 
   let destination: string | null = null;
   try {
@@ -54,7 +64,6 @@ export async function createStripePaymentRequest(_previous: ActionState, form: F
     const tenant = await client.from("tenants").select("name").eq("id", parsed.data.clientTenantId).single();
     if (tenant.error || !tenant.data) return { status: "error", message: "The client workspace could not be found." };
 
-    const amount = parsed.data.paymentType === "setup" ? 49700 : 29700;
     const label = parsed.data.paymentType === "setup" ? "Setup fee" : "Managed pilot — first month";
     const suffix = parsed.data.paymentType === "setup" ? "setup" : "monthly";
     const requestKey = parsed.data.requestId;
@@ -87,7 +96,7 @@ export async function createStripePaymentRequest(_previous: ActionState, form: F
     const link = stripeLinkSchema.safeParse(linkResult.payload);
     if (!link.success || !/^https:\/\/(buy\.stripe\.com|checkout\.stripe\.com)\//.test(link.data.url)) return { status: "error", message: "Stripe returned an unexpected payment-link response." };
 
-    destination = `/workspaces/${parsed.data.operatorTenantId}/clients?payment_link=${encodeURIComponent(link.data.url)}&payment_client=${encodeURIComponent(tenant.data.name)}&payment_type=${encodeURIComponent(label)}`;
+    destination = `/workspaces/${parsed.data.operatorTenantId}/clients?payment_link=${encodeURIComponent(link.data.url)}&payment_client=${encodeURIComponent(tenant.data.name)}&payment_type=${encodeURIComponent(label)}&payment_amount=${encodeURIComponent((amount / 100).toFixed(2))}`;
   } catch {
     console.warn("[stripe.paymentLink]", { category: "unavailable" });
     return { status: "error", message: "Payment request creation is temporarily unavailable. Please try again." };
