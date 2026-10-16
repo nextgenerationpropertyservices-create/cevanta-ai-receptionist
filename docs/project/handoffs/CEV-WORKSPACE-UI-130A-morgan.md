@@ -4,8 +4,9 @@
 - Files changed: `src/app/workspaces/page.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-WORKSPACE-UI-130A.md`, `docs/project/handoffs/CEV-WORKSPACE-UI-130A-morgan.md`.
 - Database changes: None.
 - API or contract changes: None.
-- Verification commands and results: Pending coordinator verification.
+- Verification commands and results: `pnpm exec vitest run tests/workspace-shell-ui.test.ts tests/dashboard-ui.test.ts` passed (6 tests); `pnpm typecheck` passed; `pnpm lint` passed; `git diff --check` passed. A broader `workspaces-page-ui.test.tsx` filter was unavailable because the configured Vitest include pattern only discovers `tests/**/*.test.ts`.
+- Preview deployment: READY at https://cevant-git-245e81-nextgenerationpropertyservices-1486s-projects.vercel.app from commit `60c42221089a258e836739e11082a84243f57831`.
 - Known limitations: Visual review needs an authenticated workspace chooser session.
 - Risks: None beyond future theme changes affecting the emphasis contrast.
 - Rollback notes: Revert the internal card class/kicker, CSS block, and this documentation.
-- Exact next action: Run focused workspace tests, typecheck, lint, then publish a preview.
+- Exact next action: Review the workspace chooser in the preview. Production release requires explicit approval.
