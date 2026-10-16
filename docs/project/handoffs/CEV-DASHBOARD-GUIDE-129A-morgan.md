@@ -4,8 +4,9 @@
 - Files changed: `src/components/dashboard-guide.tsx`, `src/components/workspace-shell.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-DASHBOARD-GUIDE-129A.md`, `docs/project/handoffs/CEV-DASHBOARD-GUIDE-129A-morgan.md`.
 - Database changes: None.
 - API or contract changes: None.
-- Verification commands and results: Pending coordinator verification.
+- Verification commands and results: `pnpm exec vitest run tests/workspace-shell-ui.test.ts tests/dashboard-ui.test.ts` passed (6 tests); `pnpm typecheck` passed; `pnpm lint` passed; `pnpm build` was attempted but hit the existing Windows/OneDrive Turbopack process panic while parsing `src/app/globals.css`.
+- Preview deployment: READY at https://cevant-git-245e81-nextgenerationpropertyservices-1486s-projects.vercel.app from commit `8bdafdffcabdc57c97da73967ac33b91a1accd3f`.
 - Known limitations: This first version is a built-in workflow guide, not a generative model and not connected to workspace records or an external AI provider. It does not perform actions for the user.
 - Risks: The copy must stay aligned with route names and current product permissions as the dashboard evolves.
 - Rollback notes: Revert the guide component, its workspace-shell mount, CSS block, and documentation.
-- Exact next action: Run focused UI tests, `pnpm typecheck`, and `pnpm lint`; then publish a preview and review the guide on an authenticated workspace.
+- Exact next action: Review the Dashboard help launcher on an authenticated workspace. If clients need generative answers later, choose an AI provider and add a separately reviewed server-side integration with strict tenant-safe context.
