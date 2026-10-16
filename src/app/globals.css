@@ -298,3 +298,23 @@ main .dispatch-summary article,main .dispatch-card,main .lead-view-tabs a,main .
 
 /* Leads page dark-theme cleanup. */
 main .lead-filter{background:#0d1a30;border-color:var(--line)}main .lead-filter .field span{color:#9ab0d1}main .lead-view-tabs a{background:#0d172b;color:var(--ink)}main .lead-view-tabs a.active{background:#073a50;color:var(--accent);border-color:#00aeca}main .lead-view-tabs strong{background:#142b45;color:#9fc0e4}main .lead-view-tabs a.active strong{background:var(--accent);color:#061326}main .lead-priority-key{color:#9ab0d1}main .lead-priority-urgent{color:#ff9da7}main .lead-priority-high{color:#f0c36c}main .lead-priority-normal{color:#8ed39a}main .lead-priority-low{color:#9aaabd}main table caption{color:#8196bb}main .lead-row-title .pill{background:#173c4b;border-color:#286071;color:#73d5dc}
+
+/* Built-in dashboard guide */
+.dashboard-guide{position:fixed;right:22px;bottom:22px;z-index:50}
+.dashboard-guide-launcher{display:inline-flex;align-items:center;gap:8px;border:1px solid #00aeca;border-radius:999px;padding:11px 16px;background:#073a50;color:#00e4ff;font-weight:800;box-shadow:0 14px 35px #0008;cursor:pointer}
+.dashboard-guide-launcher:hover{background:#0b536d}
+.dashboard-guide-panel{width:min(390px,calc(100vw - 28px));max-height:min(620px,calc(100vh - 36px));display:flex;flex-direction:column;gap:12px;padding:16px;background:#0d172b;border:1px solid #29415f;border-radius:16px;box-shadow:0 24px 70px #000b;color:#f4f7ff}
+.dashboard-guide-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dashboard-guide-heading strong{display:block;font-size:16px}
+.dashboard-guide-messages{display:grid;gap:8px;max-height:300px;overflow:auto;padding-right:3px}
+.dashboard-guide-message{margin:0;padding:10px 12px;border-radius:11px;font-size:12px;line-height:1.45;color:#b9cae4;background:#12243d}
+.dashboard-guide-message.user{justify-self:end;background:#073a50;color:#d9f9ff}
+.dashboard-guide-quick{display:flex;flex-wrap:wrap;gap:6px}
+.dashboard-guide-quick button{border:1px solid #2b4768;border-radius:999px;padding:7px 9px;background:#101e35;color:#9fc0e4;font-size:11px;cursor:pointer}
+.dashboard-guide-quick button:hover{background:#16304e;color:#baf5ff}
+.dashboard-guide-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+.dashboard-guide-form input{min-width:0;border:1px solid #2b405f;border-radius:8px;background:#0a1427;color:#f4f7ff;padding:9px 10px}
+.dashboard-guide-form input::placeholder{color:#60789e}
+.dashboard-guide-form .button{padding:9px 12px}
+.dashboard-guide-panel small{color:#8196bb;font-size:10px;line-height:1.35}
+@media(max-width:700px){.dashboard-guide{right:14px;bottom:14px}.dashboard-guide-panel{width:calc(100vw - 28px);max-height:calc(100vh - 28px)}}
