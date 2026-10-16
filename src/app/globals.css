@@ -338,3 +338,19 @@ main .lead-filter{background:#0d1a30;border-color:var(--line)}main .lead-filter 
 .payment-link-result{display:grid;gap:5px;margin:18px 0;border-color:#1593aa;background:#103448;color:#d8fbff}
 .payment-link-result a{color:#69efff;font-weight:800;overflow-wrap:anywhere}
 .payment-request-panel code{color:#69efff;font-size:11px}
+
+/* Condensed internal client sections */
+.client-intake-details,.client-access-details{padding:0;overflow:hidden}
+.client-intake-details summary,.client-access-details summary{display:flex;align-items:center;justify-content:space-between;gap:14px;list-style:none;cursor:pointer;padding:16px 18px}
+.client-intake-details summary::-webkit-details-marker,.client-access-details summary::-webkit-details-marker{display:none}
+.client-intake-details summary::after,.client-access-details summary::after{content:'+';color:#69efff;font-size:20px;line-height:1}
+.client-intake-details[open] summary::after,.client-access-details[open] summary::after{content:'−'}
+.client-intake-details summary:hover,.client-access-details summary:hover{background:#12243d}
+.client-intake-details summary>span:first-child,.client-access-details summary>span:first-child{display:grid;gap:3px;min-width:0}
+.client-intake-details summary strong,.client-access-details summary strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.client-intake-details summary small,.client-access-details summary small{color:#8196bb;font-size:11px}
+.client-intake-details summary .intake-summary-ready,.client-intake-details summary .intake-summary-review{font-size:12px;font-weight:800;white-space:nowrap}
+.intake-summary-ready{color:#72f1c2}.intake-summary-review{color:#ffd27c}
+.client-intake-details>dl,.client-access-details>.invitation-form{margin:0 18px 14px}
+.client-intake-details>.button-row{padding:0 18px 18px}
+.client-access-details>.invitation-form{padding-top:2px}
