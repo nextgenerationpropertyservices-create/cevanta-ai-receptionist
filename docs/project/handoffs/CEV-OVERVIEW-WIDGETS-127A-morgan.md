@@ -2,7 +2,7 @@
 
 - **Task ID:** CEV-OVERVIEW-WIDGETS-127A
 - **Owner:** Morgan
-- **Completed work:** Added browser-scoped overview card personalization (reorder, hide/show, reset, keyboard controls) and updated the More top-navigation menu to close on outside pointer interaction or Escape.
+- **Completed work:** Added browser-scoped overview card personalization (reorder, per-card small/medium/large sizing, hide/show, reset, keyboard controls) and updated the More top-navigation menu to close on outside pointer interaction or Escape.
 - **Changed files:** `src/components/dashboard-widgets.tsx`, `src/components/workspace-nav.tsx`, `src/app/workspaces/[tenantId]/page.tsx`, `src/app/globals.css`, this task record.
 - **Database changes:** None.
 - **API or contract changes:** None.
