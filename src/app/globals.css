@@ -332,3 +332,9 @@ main .lead-filter{background:#0d1a30;border-color:var(--line)}main .lead-filter 
 .workspace-card-internal .pill{background:#0b4159;border-color:#168eaa;color:#83f2ff}
 .workspace-card-internal .card-link{color:#69efff;margin-top:auto}
 @media(max-width:700px){.workspace-card{min-height:220px}.workspace-card-kicker{margin-bottom:14px}}
+
+.payment-request-panel{border-color:#2a7186;background:linear-gradient(145deg,#0d1e31,#0d172b)}
+.payment-request-panel .section-heading{margin-bottom:18px}
+.payment-link-result{display:grid;gap:5px;margin:18px 0;border-color:#1593aa;background:#103448;color:#d8fbff}
+.payment-link-result a{color:#69efff;font-weight:800;overflow-wrap:anywhere}
+.payment-request-panel code{color:#69efff;font-size:11px}
