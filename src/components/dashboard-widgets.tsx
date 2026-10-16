@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState, type DragEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 
-type Widget = { id: string; label: string; node: ReactNode; pinned?: boolean };
+type Widget = { id: string; label: string; node: ReactNode; href?: string; pinned?: boolean };
 type WidgetSize = 'small' | 'medium' | 'large';
 const widgetSizes: WidgetSize[] = ['small', 'medium', 'large'];
 
@@ -57,6 +57,16 @@ export function DashboardWidgets({ tenantId, widgets }: { tenantId: string; widg
   }
   function reset() { setOrder(defaults); setHidden([]); setSizes({}); }
   function setSize(id: string, size: WidgetSize) { setSizes(current => ({ ...current, [id]: size })); }
+  function openWidget(event: MouseEvent<HTMLDivElement>, href?: string) {
+    if (editing || !href || (event.target instanceof Element && event.target.closest('a,button,input,select,textarea,summary'))) return;
+    window.location.assign(href);
+  }
+  function openWidgetWithKeyboard(event: KeyboardEvent<HTMLDivElement>, href?: string) {
+    if (!editing && href && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      window.location.assign(href);
+    }
+  }
 
   return <>
     <div className="dashboard-layout-controls" aria-label="Overview layout controls">
@@ -68,7 +78,7 @@ export function DashboardWidgets({ tenantId, widgets }: { tenantId: string; widg
     </div>
     {editing && <div className="dashboard-widget-help" role="status">Drag cards to reorder them, choose a size, use the arrows for keyboard control, or hide cards you do not need. Needs Attention stays pinned.</div>}
     <div className={`dashboard-widget-list${editing ? ' is-editing' : ''}`}>
-      {visible.map((widget, index) => { const size = sizes[widget.id] ?? 'large'; return <div className={`dashboard-widget dashboard-widget-size-${size}`} key={widget.id} draggable={editing && !widget.pinned} onDragStart={() => setDragged(widget.id)} onDragOver={event => event.preventDefault()} onDrop={event => drop(event, widget.id)}>
+      {visible.map((widget, index) => { const size = sizes[widget.id] ?? 'large'; const clickable = !editing && !!widget.href; return <div className={`dashboard-widget dashboard-widget-size-${size}${clickable ? ' is-clickable' : ''}`} key={widget.id} draggable={editing && !widget.pinned} onDragStart={() => setDragged(widget.id)} onDragOver={event => event.preventDefault()} onDrop={event => drop(event, widget.id)} onClick={event => openWidget(event, widget.href)} onKeyDown={event => openWidgetWithKeyboard(event, widget.href)} role={clickable ? 'link' : undefined} tabIndex={clickable ? 0 : undefined} aria-label={clickable ? `Open ${widget.label}` : undefined}>
         {editing && <div className="dashboard-widget-toolbar"><strong>{widget.label}</strong><div className="button-row"><label className="dashboard-widget-size-control">Size<select aria-label={`Size of ${widget.label}`} value={size} onChange={event => setSize(widget.id, event.target.value as WidgetSize)}><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label><button className="icon-button" type="button" aria-label={`Move ${widget.label} up`} onClick={() => move(widget.id, -1)} disabled={index === 0}>↑</button><button className="icon-button" type="button" aria-label={`Move ${widget.label} down`} onClick={() => move(widget.id, 1)} disabled={index === visible.length - 1}>↓</button><button className="icon-button" type="button" aria-label={`Hide ${widget.label}`} onClick={() => setHidden(current => [...current, widget.id])}>×</button></div></div>}
         {widget.node}
       </div>; })}
