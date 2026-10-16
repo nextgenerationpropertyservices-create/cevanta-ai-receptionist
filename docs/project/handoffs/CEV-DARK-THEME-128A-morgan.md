@@ -2,7 +2,7 @@
 
 - **Task ID:** CEV-DARK-THEME-128A
 - **Owner:** Morgan
-- **Completed work:** Added a shared dark navy/cyan theme override covering the app shell, navigation, panels, forms, tables, alerts, cards, calendar, setup, CRM, receptionist, and dashboard states, followed by a contrast pass for nested cards, labels, status pills, and form controls.
+- **Completed work:** Added a shared dark navy/cyan theme override covering the app shell, navigation, panels, forms, tables, alerts, cards, calendar, setup, CRM, receptionist, and dashboard states, followed by contrast passes for nested cards, labels, status pills, form controls, and remaining white card surfaces.
 - **Changed files:** `src/app/globals.css`, this task record.
 - **Database changes:** None.
 - **API or contract changes:** None.
