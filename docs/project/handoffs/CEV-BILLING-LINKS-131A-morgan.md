@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-BILLING-LINKS-131A
+- Work completed: Added an internal Clients dashboard form for a fixed $497 setup or $297 monthly payment request. The server action verifies internal owner/admin membership, verifies the client relationship, creates Stripe Product/Price/Payment Link objects with idempotency keys, validates the hosted Stripe URL, and returns it to the dashboard. Cevanta never receives card details and does not auto-charge or mark payment as paid.
+- Files changed: `src/app/actions/stripe-payment-links.ts`, `src/app/workspaces/[tenantId]/clients/page.tsx`, `src/app/globals.css`, `docs/project/tasks/CEV-BILLING-LINKS-131A.md`, `docs/project/handoffs/CEV-BILLING-LINKS-131A-morgan.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Pending coordinator verification.
+- Known limitations: Requires `STRIPE_SECRET_KEY` in server-only Vercel environment variables. Stripe test-mode/live provider proof is not yet run. Payment status is still manually confirmed in Stripe.
+- Risks: Creating a link creates Stripe objects; repeated attempts are protected per request ID, but each new request ID intentionally creates a new link.
+- Rollback notes: Remove the payment request panel/action and revoke unused Stripe links in Stripe.
+- Exact next action: Run focused tests, configure Stripe test mode, perform one fictional test-mode request, then approve production environment setup separately.
