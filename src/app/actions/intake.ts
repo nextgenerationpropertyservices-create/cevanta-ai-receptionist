@@ -57,6 +57,8 @@ export async function deleteLead(_previous: ActionState, form: FormData): Promis
     const leadId = recordId(form, "leadId");
     const result = await client.from("leads").delete().eq("tenant_id", tenantId).eq("id", leadId).select("id").single();
     if (result.error?.code === "42P01" || result.error?.code === "PGRST205") return { status: "error", message: "Lead intake needs its database migration before deleting." };
+    if (result.error?.code === "23503") return { status: "error", message: "This lead is linked to records that must be handled first. Remove or resolve the linked job or call record first." };
+    if (result.error?.code === "42501" || result.error?.code === "PGRST301") return { status: "error", message: "Lead deletion is not enabled for this workspace yet. Apply the latest database migration, then try again." };
     if (result.error || !result.data) return { status: "error", message: "Unable to delete this lead. It may already be removed or linked to records that must be handled first." };
     revalidatePath(`/workspaces/${tenantId}/leads`);
     revalidatePath(`/workspaces/${tenantId}/notifications`);
