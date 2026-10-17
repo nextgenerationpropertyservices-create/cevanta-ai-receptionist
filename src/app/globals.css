@@ -354,3 +354,13 @@ main .lead-filter{background:#0d1a30;border-color:var(--line)}main .lead-filter 
 .client-intake-details>dl,.client-access-details>.invitation-form{margin:0 18px 14px}
 .client-intake-details>.button-row{padding:0 18px 18px}
 .client-access-details>.invitation-form{padding-top:2px}
+
+/* Calendar readability: keep every event and board surface on the dark theme. */
+main .calendar-board,main .calendar-board article,main .calendar-board article header,main .calendar-board header span,main .calendar-event,main .calendar-card-assigned,main .calendar-card-unassigned,main .calendar-card-urgent,main .calendar-card-cancelled{background:#0d172b!important;color:var(--ink);border-color:var(--line)}
+main .calendar-board article.has-items{background:#12243d!important;border-color:#2a6580}
+main .calendar-event-urgent{background:#3b2027!important;border-left-color:#ff7b87!important}
+main .calendar-event-unassigned{background:#3b301b!important;border-left-color:#f0c36c!important}
+main .calendar-event-cancelled{background:#1a2230!important;color:#9ab0d1}
+main .calendar-board article header span{background:#14243a!important;color:#9fc0e4}
+.call-received{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#102039;color:var(--ink);font-size:13px}
+.call-received time{color:#9ab0d1}
