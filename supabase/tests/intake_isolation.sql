@@ -33,7 +33,10 @@ do $$ declare n integer; begin
   end if;
   update public.leads set status='closed' where id='41000000-0000-4000-8000-000000000002';
   if found then raise exception 'Cross tenant update'; end if;
-  begin delete from public.leads where id='41000000-0000-4000-8000-000000000001'; raise exception 'Ordinary delete allowed'; exception when insufficient_privilege then null; end;
+  if n>3 then
+   delete from public.leads where id='41000000-0000-4000-8000-000000000001';
+   if found then raise exception 'Read-only/nonmember delete allowed'; end if;
+  end if;
  end loop;
 end $$;
 select set_config('request.jwt.claim.sub','91000000-0000-4000-8000-000000000001',true);
@@ -50,6 +53,14 @@ do $$ declare identity_column text; begin
  begin insert into public.leads(tenant_id,submission_id,name,description,priority) values('10000000-0000-4000-8000-000000000001',gen_random_uuid(),'Synthetic invalid','Synthetic description','root'); raise exception 'Invalid priority'; exception when check_violation then null; end;
 end $$;
 reset role;
+select set_config('request.jwt.claim.sub','91000000-0000-4000-8000-000000000001',true);
+do $$ declare deleted_id uuid; begin
+ insert into public.leads(id,tenant_id,submission_id,name,description)
+ values('41000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000001',gen_random_uuid(),'Synthetic deletable lead','Synthetic description');
+ delete from public.leads where id='41000000-0000-4000-8000-000000000003' returning id into deleted_id;
+ if deleted_id is null then raise exception 'Office delete denied'; end if;
+end $$;
+reset role;
 -- Add second membership to ensure column grants protect multi-tenant office users.
 insert into public.memberships(tenant_id,user_id,role) values('10000000-0000-4000-8000-000000000002','91000000-0000-4000-8000-000000000001','admin');
 set local role authenticated;
@@ -58,8 +69,9 @@ do $$ begin
 end $$;
 reset role;
 do $$ begin
- if (select count(*) from public.audit_events where entity_type='leads' and action='INSERT') <> 5 then raise exception 'Lead insert audit count/duplicate audit'; end if;
+ if (select count(*) from public.audit_events where entity_type='leads' and action='INSERT') <> 6 then raise exception 'Lead insert audit count/duplicate audit'; end if;
  if (select count(*) from public.audit_events where entity_type='leads' and action='UPDATE') <> 3 then raise exception 'Lead update audit count'; end if;
+ if (select count(*) from public.audit_events where entity_type='leads' and action='DELETE') <> 1 then raise exception 'Lead delete audit count'; end if;
  if exists(select 1 from information_schema.columns where table_schema='public' and table_name='audit_events' and column_name not in ('id','tenant_id','actor_user_id','entity_type','entity_id','action','created_at')) then raise exception 'Audit payload metadata violation'; end if;
  if not exists(select 1 from public.audit_events where entity_type='leads' and actor_user_id='91000000-0000-4000-8000-000000000003') then raise exception 'Audit actor missing'; end if;
 end $$;

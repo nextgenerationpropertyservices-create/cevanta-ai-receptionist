@@ -362,5 +362,8 @@ main .calendar-event-urgent{background:#3b2027!important;border-left-color:#ff7b
 main .calendar-event-unassigned{background:#3b301b!important;border-left-color:#f0c36c!important}
 main .calendar-event-cancelled{background:#1a2230!important;color:#9ab0d1}
 main .calendar-board article header span{background:#14243a!important;color:#9fc0e4}
+main .calendar-menu nav a{background:#0d1b31!important;color:#9fc0e4!important;border-color:#29415f!important}
+main .calendar-menu nav a:hover{background:#16304e!important;color:#eff7ff!important;border-color:#3b7196!important}
+main .calendar-menu nav a.active{background:#073a50!important;color:#00e4ff!important;border-color:#00aeca!important;box-shadow:0 6px 18px #0006}
 .call-received{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#102039;color:var(--ink);font-size:13px}
 .call-received time{color:#9ab0d1}
