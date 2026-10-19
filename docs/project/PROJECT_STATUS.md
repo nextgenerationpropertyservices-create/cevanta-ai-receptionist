@@ -922,3 +922,12 @@ Owner approved release. GitHub `main` was pushed at commit `0bcccdf`. Vercel pro
 - 2026-10-19: Lead cleanup follow-up added visible Archive and Delete actions directly in the lead list. Archive safely moves a lead to Closed; Delete remains tenant-scoped and reports linked-record blockers. Typecheck, lint, and 44 files / 860 tests passed; production build remains blocked by the known OneDrive/Turbopack globals.css worker panic.
 
 - 2026-10-19: CEV-MANAGED-CLIENT-133A implemented locally. Internal owner/admin users can remove managed client workspaces from the Clients page or the authorized internal view inside a client workspace by typing `DELETE WORKSPACE`. Removal archives the relation, revokes the internal support membership, hides the workspace from the active client list, and preserves records for audit. Typecheck, lint, and focused tests passed (44 files / 865 tests). The hosted Supabase migration and production deployment remain pending owner approval.
+
+## CEV-MANAGED-CLIENT-133A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. Supabase migration `managed_client_workspace_archive` was applied to project `rafiksklbrfgefkypvkn`. GitHub `main` was updated at commit `9b9349b`; Vercel production deployment `cevanta-ai-receptionist-3aqm3m2es.vercel.app` reached Ready and was assigned the production alias `cevanta-ai-receptionist.vercel.app`.
+
+The release adds owner/admin-only workspace archive controls in the internal Clients page and the authorized internal view of a client workspace. It requires the exact `DELETE WORKSPACE` confirmation, removes the workspace from active client operations, revokes the internal support membership, and preserves records for audit. Live provider accounts and automation settings are unchanged.
