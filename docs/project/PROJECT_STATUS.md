@@ -945,6 +945,8 @@ Production now presents the internal workspace as a Cevanta operations command c
 
 - 2026-10-19: CEV-TECH-138A implemented locally. Technician management now supports name-first roster entries with optional email, an accessible checkbox skill picker, service areas, and pending-link status. Linking a confirmed Cevanta account is owner/admin-only, tenant-scoped, and copies skills/availability into the existing assignment profile; unlinked entries cannot be assigned to jobs. Typecheck, lint, full Vitest suite (46 files / 871 tests), embedded migration/RLS checks, and focused roster tests passed. Local production output remains blocked by the known OneDrive/Turbopack CSS panic and Webpack `.next` EPERM. Hosted Supabase migration, independent security review, preview smoke, and production approval remain pending.
 
+- 2026-10-19: CEV-TECH-139A prepared locally. Technician roster cards now show the technician name prominently, capture/display an optional phone number, and use the dark card surface consistently. Hosted migration `technician_roster_phone` is applied. Typecheck, lint, focused roster tests (47 files / 874 tests), and embedded migration/RLS checks passed. Local production build remains blocked by the known OneDrive/Turbopack CSS worker panic. Awaiting owner approval before pushing this follow-up to production.
+
 ## CEV-TECH-138A production release
 
 Date: 2026-10-19 (America/New_York)

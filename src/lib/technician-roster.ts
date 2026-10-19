@@ -20,6 +20,7 @@ export const technicianRosterSchema = z.object({
  tenantId:z.uuid(),
  rosterId:z.preprocess(value => value || undefined,z.uuid().optional()),
  display_name:z.string().trim().min(1,"Enter a technician name.").max(160,"Keep the name under 160 characters."),
+ phone:z.preprocess(value => typeof value === "string" && value.trim() ? value : undefined,z.string().trim().max(40,"Keep the phone number under 40 characters.").optional()),
  email:z.preprocess(value => typeof value === "string" && value.trim() ? value : undefined,z.email().max(254).optional()),
  skills:listFromText(800,20,40),
  skill_presets:presetList,
@@ -37,6 +38,7 @@ export const technicianRosterSchema = z.object({
  tenantId:value.tenantId,
  rosterId:value.rosterId,
  display_name:value.display_name,
+ phone:value.phone,
  email:value.email,
  skills:Array.from(new Set([...value.skill_presets,...value.skills])).slice(0,20),
  service_areas:value.service_areas,
@@ -48,12 +50,13 @@ export const technicianRosterSchema = z.object({
  }),
 }));
 
-export interface TechnicianRosterEntry { id:string; tenant_id:string; display_name:string; email:string|null; linked_user_id:string|null; skills:string[]; service_areas:string[]; availability_note:string; availability_windows:AvailabilityWindow[]; created_at:string; updated_at:string }
+export interface TechnicianRosterEntry { id:string; tenant_id:string; display_name:string; phone:string|null; email:string|null; linked_user_id:string|null; skills:string[]; service_areas:string[]; availability_note:string; availability_windows:AvailabilityWindow[]; created_at:string; updated_at:string }
 const safeArray=(value:unknown) => Array.isArray(value) ? Array.from(new Set(value.filter((item):item is string => typeof item === "string").map(item=>item.trim().toLowerCase()).filter(Boolean))).slice(0,30) : [];
 const safeWindows=(value:unknown):AvailabilityWindow[] => Array.isArray(value) ? value.filter((item):item is AvailabilityWindow => !!item && typeof item === "object" && typeof (item as AvailabilityWindow).day === "string" && typeof (item as AvailabilityWindow).start === "string" && typeof (item as AvailabilityWindow).end === "string").slice(0,14) : [];
 export function normalizeTechnicianRoster(row:Record<string,unknown>):TechnicianRosterEntry {
  return {
   id:String(row.id ?? ""),tenant_id:String(row.tenant_id ?? ""),display_name:String(row.display_name ?? "Technician"),
+  phone:typeof row.phone === "string" ? row.phone : null,
   email:typeof row.email === "string" ? row.email : null, linked_user_id:typeof row.linked_user_id === "string" ? row.linked_user_id : null,
   skills:safeArray(row.skills).slice(0,20),service_areas:safeArray(row.service_areas),availability_note:typeof row.availability_note === "string" ? row.availability_note.slice(0,500) : "",availability_windows:safeWindows(row.availability_windows),created_at:String(row.created_at ?? ""),updated_at:String(row.updated_at ?? "")
  };

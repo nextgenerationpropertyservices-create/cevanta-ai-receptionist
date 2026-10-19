@@ -9,6 +9,8 @@ const page=readFileSync(join(root,"src/app/workspaces/[tenantId]/technicians/pag
 describe("technician roster UI", () => {
  it("offers name-first roster entry, checkbox skills, and delayed linking", () => {
   expect(page).toContain("Start with a name and skills");
+  expect(page).toContain('label="Phone number"');
+  expect(page).toContain("technician-roster-name");
   expect(page).toContain("Email is optional at this step");
   expect(page).toContain("Choose common skills");
   expect(page).toContain("PENDING LINK");

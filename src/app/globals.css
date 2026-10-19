@@ -396,3 +396,11 @@ main .calendar-menu nav a.active{background:#073a50!important;color:#00e4ff!impo
 .skill-picker summary small{color:var(--muted);font-weight:500}.skill-picker-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:10px;border-top:1px solid var(--line)}
 .skill-option{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;color:var(--ink);font-size:12px}.skill-option:hover{background:#12243d}.skill-option input{accent-color:var(--accent);width:16px;height:16px}.technician-roster-card{border:1px solid var(--line);border-radius:12px;padding:16px;background:#0d172b}.technician-roster-card-pending{border-color:#8c6b2d;background:#211d18}.technician-roster-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.technician-roster-card-head>div{display:grid;gap:2px}.technician-roster-card-head span:not(.pill){color:var(--muted);font-size:12px;overflow-wrap:anywhere}.technician-roster-card-pending .pill{background:#3b301b;border-color:#8c6b2d;color:#ffd27c}.technician-roster-card .dispatch-create{margin-top:12px}.technician-roster-card .dispatch-create summary{font-size:12px}.technician-roster-card .skill-chip-list{margin:10px 0}
 @media(max-width:600px){.skill-picker-options{grid-template-columns:1fr}.technician-roster-card-head{display:grid}.technician-roster-card-head .pill{justify-self:start}}
+
+/* Technician roster readability: keep every roster card on the dark command-board surface. */
+main .tech-roster-list article.technician-roster-card,
+main .tech-roster-list article:not(.technician-roster-card){background:#0d172b;border-color:var(--line);color:var(--ink);box-shadow:0 10px 24px #0003}
+main .tech-roster-list article.technician-roster-card-pending{background:#211d18;border-color:#8c6b2d}
+main .tech-roster-list .technician-roster-name{display:block;color:#f4f7ff;font-size:18px;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere}
+main .tech-roster-list .technician-roster-card-head span:not(.pill),main .tech-roster-list article>div>span{color:#9ab0d1}
+main .tech-roster-list article>p{color:#a8b8d0}

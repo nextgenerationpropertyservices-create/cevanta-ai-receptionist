@@ -19,7 +19,7 @@ export async function saveTechnicianRoster(_previous:ActionState,form:FormData):
    if(existing.error || !existing.data) return {status:"error",message:"Technician roster entry not found."};
    linkedUserId=typeof existing.data.linked_user_id === "string" ? existing.data.linked_user_id : undefined;
   }
-  const payload={display_name:parsed.data.display_name,skills:parsed.data.skills,service_areas:parsed.data.service_areas,availability_note:parsed.data.availability_note,availability_windows:parsed.data.availability_windows,...(parsed.data.email ? {email:parsed.data.email} : {})};
+  const payload={display_name:parsed.data.display_name,phone:parsed.data.phone ?? null,skills:parsed.data.skills,service_areas:parsed.data.service_areas,availability_note:parsed.data.availability_note,availability_windows:parsed.data.availability_windows,...(parsed.data.email ? {email:parsed.data.email} : {})};
   const result=parsed.data.rosterId
    ? await client.from("technician_roster").update(payload).eq("tenant_id",parsed.data.tenantId).eq("id",parsed.data.rosterId).select("id").single()
    : await client.from("technician_roster").insert({...payload,email:parsed.data.email ?? null,tenant_id:parsed.data.tenantId}).select("id").single();

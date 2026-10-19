@@ -5,8 +5,9 @@ const tenantId="11111111-1111-4111-8111-111111111111";
 
 describe("technician roster", () => {
  it("allows a name and skills before an email exists", () => {
-  const result=technicianRosterSchema.parse({tenantId,display_name:"Casey Field Tech",skill_presets:["no heat","maintenance"],skills:"mini split"});
+  const result=technicianRosterSchema.parse({tenantId,display_name:"Casey Field Tech",phone:"207-555-0101",skill_presets:["no heat","maintenance"],skills:"mini split"});
   expect(result.email).toBeUndefined();
+  expect(result.phone).toBe("207-555-0101");
   expect(result.skills).toEqual(["no heat","maintenance","mini split"]);
  });
  it("normalizes stored roster data safely", () => {
