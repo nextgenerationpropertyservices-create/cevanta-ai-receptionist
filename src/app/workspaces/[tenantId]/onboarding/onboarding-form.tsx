@@ -1,11 +1,12 @@
 'use client';
 
-import { useId, useRef, useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
 import { ONBOARDING_STEPS, ONBOARDING_TIMEZONES } from '@/lib/onboarding-contracts';
 import { validateConfiguration, validateResume } from '@/lib/onboarding-validation';
 import type { ConfigurationInput, ConfigurationPayloads, ConfigurationResult, ServiceInput, HoursDay, EscalationInput, OnboardingStep, ResumeInput, SavedHoursException } from '@/lib/onboarding-contracts';
+import { useOnboardingWizard } from './onboarding-wizard';
 
 type Profile = ConfigurationPayloads['save_business_profile'];
 type Attempt = ConfigurationInput<'save_business_profile'>;
@@ -34,9 +35,11 @@ export function RefreshSetupButton() {
   return <button className="button secondary" type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())}>{pending ? 'Loading setup…' : 'Try again'}</button>;
 }
 
-export function SheetSyncForm({ tenantId }: { tenantId: string }) {
+export function SheetSyncForm({ tenantId, configRevision }: { tenantId: string; configRevision: number }) {
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<SheetSyncResult | null>(null);
+  const wizard = useOnboardingWizard();
+  const syncMarker = `cevanta:onboarding-sheet-sync:${tenantId}:${configRevision}`;
   const message = result?.status === 'sent'
     ? 'Sent to the Cevanta Client Intake Responses sheet.'
     : result?.status === 'not_configured'
@@ -46,18 +49,29 @@ export function SheetSyncForm({ tenantId }: { tenantId: string }) {
         : result?.status === 'failed'
           ? 'The sheet sync could not be confirmed. No success was reported; review Make before retrying.'
           : '';
-  async function send() {
+  async function send(automatic = false) {
     if (pending) return;
     setPending(true);
-    try { setResult(await syncOnboardingToSheet(tenantId)); }
+    try {
+      const response = await syncOnboardingToSheet(tenantId);
+      setResult(response);
+      if (automatic && response.status === 'sent') window.localStorage.setItem(syncMarker, 'sent');
+    }
     catch { setResult({ status: 'failed' }); }
     finally { setPending(false); }
   }
+  useEffect(() => {
+    if (!wizard || wizard.active !== wizard.stepCount - 1 || window.localStorage.getItem(syncMarker) === 'sent') return;
+    const timer = window.setTimeout(() => void send(true), 0);
+    // The marker is scoped to this tenant and saved setup revision.
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wizard?.active, wizard?.stepCount, syncMarker]);
   return <section className="panel setup-editor-panel" aria-labelledby="sheet-sync-title">
     <h2 id="sheet-sync-title">Send completed intake to your sheet</h2>
-    <p>After reviewing all setup sections, send one complete snapshot to the private Cevanta intake sheet. Saving sections above does not send anything automatically.</p>
-    <button className="button" type="button" onClick={() => void send()} disabled={pending}>{pending ? 'Sending…' : 'Send to Google Sheet'}</button>
-    <p className={result?.status === 'sent' ? 'notice' : result ? 'form-error' : 'small'} aria-live="polite">{pending ? 'Waiting for Make to confirm the row…' : message || 'Use this once after the client has reviewed the complete intake.'}</p>
+    <p>When the required setup is complete, Cevanta automatically sends one snapshot for this saved revision to the private intake sheet. You can retry below if setup is incomplete or the connection needs attention.</p>
+    <button className="button secondary" type="button" onClick={() => void send()} disabled={pending}>{pending ? 'Sending…' : 'Send again'}</button>
+    <p className={result?.status === 'sent' ? 'notice' : result ? 'form-error' : 'small'} aria-live="polite">{pending ? 'Waiting for Make to confirm the row…' : message || 'Automatic sync runs when this final step opens.'}</p>
   </section>;
 }
 
