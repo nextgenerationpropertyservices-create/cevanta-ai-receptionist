@@ -37,11 +37,11 @@ select set_config('request.jwt.claim.sub','93000000-0000-4000-8001-000000000003'
 do $$ begin begin update public.technician_profiles set service_areas=array['auburn'] where tenant_id='10000000-0000-4000-8000-000000000001' and user_id='93000000-0000-4000-8001-000000000004'; if found then raise exception 'Dispatcher profile write accepted'; end if; exception when insufficient_privilege then null; end; end $$;
 select set_config('request.jwt.claim.sub','93000000-0000-4000-8001-000000000005',true);
 do $$ begin begin update public.technician_profiles set service_areas=array['auburn'] where tenant_id='10000000-0000-4000-8000-000000000001' and user_id='93000000-0000-4000-8001-000000000004'; if found then raise exception 'Viewer profile write accepted'; end if; exception when insufficient_privilege then null; end; end $$;
-reset role;
-rollback;
-
-
-
-
-
-
+set local role authenticated;
+select set_config('request.jwt.claim.sub','93000000-0000-4000-8001-000000000001',true);
+insert into public.technician_roster(tenant_id,display_name,skills) values('10000000-0000-4000-8000-000000000001','Pending Casey',array['maintenance']);
+select set_config('request.jwt.claim.sub','93000000-0000-4000-8001-000000000003',true);
+do $$ begin begin insert into public.technician_roster(tenant_id,display_name) values('10000000-0000-4000-8000-000000000001','Dispatcher Draft'); raise exception 'Dispatcher roster write accepted'; exception when insufficient_privilege then null; end; end $$;
+select set_config('request.jwt.claim.sub','93000000-0000-4000-8001-000000000005',true);
+do $$ begin begin perform 1 from public.technician_roster where tenant_id='10000000-0000-4000-8000-000000000001'; if found then raise exception 'Viewer roster read accepted'; end if; exception when insufficient_privilege then null; end; end $$;
+reset role;rollback;

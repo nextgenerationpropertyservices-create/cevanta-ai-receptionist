@@ -1,0 +1,13 @@
+# Agent task
+- Task ID: CEV-TECH-138A
+- Owner: Morgan — Product Manager and Orchestrator
+- State: ready
+- Scope: Add a tenant-scoped technician roster so a client can create a technician with a name and skills before an email exists, then link that roster entry to a confirmed Cevanta account later. Replace the current Ctrl/Command multi-select experience with an accessible skills picker and clearly mark unlinked technicians as unavailable for job assignment.
+- Dependencies: Existing team management, technician profiles, jobs assignment, Supabase auth/membership/RLS conventions, Next.js Server Actions.
+- Allowed files: supabase/migrations/202610190003_technician_roster.sql; supabase/tests/technician_profiles.sql; src/lib/technician-roster.ts; src/lib/server/technician-roster-queries.ts; src/app/actions/technician-roster.ts; src/app/workspaces/[tenantId]/technicians/page.tsx; src/app/globals.css; tests/technician-roster-ui.test.ts; tests/technician-roster-actions.test.ts; docs/project/tasks/CEV-TECH-138A.md; docs/project/handoffs/CEV-TECH-138A-morgan.md; docs/project/PROJECT_STATUS.md.
+- Prohibited/shared files: Existing migrations and unrelated routes/actions; do not weaken jobs assignment or membership authorization.
+- Acceptance criteria: (1) Owner/admin can save a roster technician with name, no email, common skills and custom skills. (2) Skills use an easy openable picker with checkboxes and preserve server-side validation. (3) Owner/admin can link a roster technician to a confirmed account by email; the account becomes a technician membership and profile data is copied safely. (4) Unlinked entries are visible as pending and cannot be assigned to jobs. (5) Tenant isolation and role checks are enforced in SQL and actions. (6) Loading/error/empty states remain clear.
+- Required evidence: Migration review notes, focused UI/action tests, typecheck, lint, and production-build result; explicitly report hosted migration/deployment status.
+- Reviewers: Atlas architecture/security review required for the migration; Quinn quality review required for cross-module authorization; Phoenix release review only if deployment is requested.
+- Branch/worktree or ownership fallback: Coordinator owns integration in the current checkout because no separate specialist was requested.
+- Exact next action: Inspect current technician contracts, implement the roster migration/actions/query/UI, then run focused and project checks.

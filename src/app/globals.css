@@ -388,3 +388,11 @@ main .calendar-menu nav a.active{background:#073a50!important;color:#00e4ff!impo
 .topnav-shell:has(.workspace-topnav) .brand-logo{background:#0d172b;border-color:#00d8f2;box-shadow:0 5px 18px #0008}
 .topnav-shell:has(.workspace-topnav) .brand-logo-image{filter:brightness(0) invert(1)}
 @media(max-width:700px){.brand-logo{width:190px;min-height:48px;padding:4px 9px}.brand-logo-image{width:172px}}
+
+/* Technician roster skill picker */
+.skill-picker{margin:12px 0;border:1px solid var(--line);border-radius:12px;background:#0a1427;overflow:hidden}
+.skill-picker summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;color:var(--ink);font-weight:700;list-style:none}
+.skill-picker summary::-webkit-details-marker{display:none}.skill-picker summary::after{content:'+';color:var(--accent);font-size:18px}.skill-picker[open] summary::after{content:'−'}
+.skill-picker summary small{color:var(--muted);font-weight:500}.skill-picker-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:10px;border-top:1px solid var(--line)}
+.skill-option{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;color:var(--ink);font-size:12px}.skill-option:hover{background:#12243d}.skill-option input{accent-color:var(--accent);width:16px;height:16px}.technician-roster-card{border:1px solid var(--line);border-radius:12px;padding:16px;background:#0d172b}.technician-roster-card-pending{border-color:#8c6b2d;background:#211d18}.technician-roster-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.technician-roster-card-head>div{display:grid;gap:2px}.technician-roster-card-head span:not(.pill){color:var(--muted);font-size:12px;overflow-wrap:anywhere}.technician-roster-card-pending .pill{background:#3b301b;border-color:#8c6b2d;color:#ffd27c}.technician-roster-card .dispatch-create{margin-top:12px}.technician-roster-card .dispatch-create summary{font-size:12px}.technician-roster-card .skill-chip-list{margin:10px 0}
+@media(max-width:600px){.skill-picker-options{grid-template-columns:1fr}.technician-roster-card-head{display:grid}.technician-roster-card-head .pill{justify-self:start}}
