@@ -17,7 +17,7 @@ const values = { name: 'Fictional Service', trade: 'HVAC', timezone: 'America/Ne
 const owner: OwnerOnboardingSnapshot = { projection: 'owner_setup', workspace: { id: tenant, name: values.name, trade: values.trade, timezone: values.timezone }, flow_version: 'onboarding-v1', config_revision: 7, profile: { business_contact_name: values.business_contact_name, business_email: values.business_email, business_phone: values.business_phone }, services: [], weekly_hours: [], exceptions: [], booking: null, escalation: [], resume_step: 'profile', resume_version: 0, readiness: PENDING_ONBOARDING_READINESS };
 
 async function render(role = 'owner', result: OnboardingSnapshotResult = { status: 'available', snapshot: owner }) {
-  harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: values.name, trade: values.trade, timezone: values.timezone, created_at: '', updated_at: '' }, role });
+  harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: values.name, trade: values.trade, timezone: values.timezone, created_at: '', updated_at: '' }, role, user: { email: 'owner@example.invalid' } });
   harness.snapshot.mockResolvedValue(result);
   return renderToStaticMarkup(await Page({ params: Promise.resolve({ tenantId: tenant }) }));
 }
@@ -32,6 +32,9 @@ describe('settings onboarding action wiring', () => {
     expect(html).toContain('Fictional Service');
     expect(html).toContain('America/New_York');
     expect(html).toContain('keeps your existing business contact details');
+    expect(html).toContain('Your sign-in');
+    expect(html).toContain('owner@example.invalid');
+    expect(html).toContain('Change password');
     expect(html).not.toMatch(/updateTenantSettings|request_id|expected_config_revision|config_revision|receipt|token|business_email|fictional@example.invalid/);
   });
 

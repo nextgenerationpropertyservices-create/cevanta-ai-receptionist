@@ -958,6 +958,8 @@ Owner approved deployment. GitHub `main` was pushed at commit `72bce71`, contain
 
 Production verification through the connected Vercel tool is unavailable because the project/team authorization is not mapped to the current Vercel connection. The owner should refresh the canonical production site, sign in, and verify the Technicians page and header theme switch after the Vercel build finishes.
 
+- 2026-10-19: CEV-ACCOUNT-141A prepared locally. Workspace Settings now includes an Account section showing the signed-in email and a secure Change password link. Passwords are never displayed or stored. Typecheck, lint, and the configured 47-file / 874-test run passed. Awaiting owner approval before pushing this follow-up.
+
 ## CEV-TECH-138A production release
 
 Date: 2026-10-19 (America/New_York)
