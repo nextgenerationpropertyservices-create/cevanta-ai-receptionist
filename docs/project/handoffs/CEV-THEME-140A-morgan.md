@@ -6,5 +6,5 @@
 - **Database/provider changes:** None.
 - **Verification:** Focused shell test, typecheck, and lint are required before release. No provider side effects were added.
 - **Known limitation:** Local production build may hit the existing OneDrive/Turbopack CSS worker limitation; this must be recorded if it recurs.
-- **Production state:** Prepared locally and not pushed. Production deployment requires owner approval.
-- **Exact next action:** Run checks, then combine this with the technician roster update for one approved production push.
+- **Production state:** Owner approved deployment; commit `72bce71` was pushed to `main` to trigger the Vercel production build. The connected Vercel tool cannot independently verify the resulting deployment because project/team authorization is not mapped.
+- **Exact next action:** Owner refreshes the canonical production site after the Vercel build completes and verifies the theme switch and roster cards while signed in.

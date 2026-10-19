@@ -949,6 +949,15 @@ Production now presents the internal workspace as a Cevanta operations command c
 
 - 2026-10-19: CEV-THEME-140A prepared locally. Authenticated workspace pages now have a persistent light/dark mode switch in the header; dark remains the default and light mode restores readable navigation, cards, forms, and roster surfaces. No database or provider side effects. Awaiting final checks and owner approval before the combined roster/theme production push.
 
+## CEV-TECH-139A and CEV-THEME-140A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. GitHub `main` was pushed at commit `72bce71`, containing the technician roster readability/phone update and the persistent light/dark mode switch. Vercel Git integration was triggered for the production target. No database or provider side effects were added by the theme work; the roster phone migration was already applied to `rafiksklbrfgefkypvkn`.
+
+Production verification through the connected Vercel tool is unavailable because the project/team authorization is not mapped to the current Vercel connection. The owner should refresh the canonical production site, sign in, and verify the Technicians page and header theme switch after the Vercel build finishes.
+
 ## CEV-TECH-138A production release
 
 Date: 2026-10-19 (America/New_York)
