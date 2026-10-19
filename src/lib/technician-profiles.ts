@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const WEEKDAYS = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] as const;
+export const COMMON_TECHNICIAN_SKILLS = ["no heat","no cooling","maintenance","diagnostics","installation","repair","heat pumps","central air","boilers","furnaces","water heaters","ductwork","electrical","refrigeration","indoor air quality"] as const;
 export type Weekday = typeof WEEKDAYS[number];
 export interface AvailabilityWindow { day: Weekday; start: string; end: string }
 
@@ -11,6 +12,12 @@ const listFromText = (maxChars:number,maxItems:number,itemChars:number) => z.str
  if(items.length>maxItems) context.addIssue({code:"custom",message:`Use ${maxItems} or fewer items.`});
  return items;
 }).refine(items => items.every(item => item.length <= itemChars), `Keep each item under ${itemChars} characters.`);
+const presetList = z.preprocess(value => Array.isArray(value) ? value : value ? [value] : [], z.array(z.string()).max(20)).default([]).transform((items, context) => {
+ const normalized=Array.from(new Set(items.map(item => item.trim().toLowerCase()).filter(Boolean)));
+ const allowed=new Set<string>(COMMON_TECHNICIAN_SKILLS);
+ if(normalized.some(item => !allowed.has(item))) context.addIssue({code:"custom",message:"Choose skills from the available list."});
+ return normalized;
+});
 const timeField = z.string().trim().regex(timePattern, "Use 24-hour time like 08:00 or leave blank.").optional().default("");
 const availabilityShape = Object.fromEntries(WEEKDAYS.flatMap(day => [[`availability_${day}_start`, timeField],[`availability_${day}_end`, timeField]])) as Record<string, typeof timeField>;
 
@@ -18,6 +25,7 @@ export const technicianProfileSchema = z.object({
  tenantId: z.uuid(),
  userId: z.uuid(),
  skills: listFromText(800,20,40),
+ skill_presets: presetList,
  service_areas: listFromText(1000,30,60),
  availability_note: z.string().trim().max(500, "Availability note must be 500 characters or less.").optional().transform(value => value ?? ""),
  ...availabilityShape,
@@ -31,7 +39,7 @@ export const technicianProfileSchema = z.object({
 }).transform(value=>({
  tenantId:value.tenantId,
  userId:value.userId,
- skills:value.skills,
+ skills:Array.from(new Set([...value.skill_presets,...value.skills])).slice(0,20),
  service_areas:value.service_areas,
  availability_note:value.availability_note,
  availability_windows:WEEKDAYS.flatMap(day=>{

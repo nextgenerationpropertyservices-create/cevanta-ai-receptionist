@@ -18,7 +18,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
 }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); }, unstable_rethrow: (error: unknown) => { if (error instanceof Error && error.message.startsWith("REDIRECT:")) throw error; } }));
 vi.mock("next/cache", () => ({ revalidatePath: harness.revalidate }));
-import { createLead, deleteLead, updateLead } from "@/app/actions/intake";
+import { archiveLead, createLead, deleteLead, updateLead } from "@/app/actions/intake";
 import { getLead, getLeads } from "@/lib/server/intake-queries";
 import { leadSchema } from "@/lib/intake-validation";
 
@@ -37,7 +37,7 @@ const writes = () => harness.calls.filter(call => ["insert", "update"].includes(
 beforeEach(() => { harness.configured = true; harness.user = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }; harness.authError = null; harness.calls = []; harness.responses = []; });
 
 describe("intake actual action authorization and validation", () => {
-  it.each([createLead, updateLead, deleteLead])("preserves unauthenticated redirect", async action => {
+  it.each([createLead, updateLead, deleteLead, archiveLead])("preserves unauthenticated redirect", async action => {
     harness.user = null; await expect(action(idle, form())).rejects.toThrow("REDIRECT:/sign-in");
     expect(harness.calls).toEqual([]); expect(harness.revalidate).not.toHaveBeenCalled();
   });
@@ -45,7 +45,7 @@ describe("intake actual action authorization and validation", () => {
     harness.authError = { message: "synthetic-auth-error" }; await expect(createLead(idle, form())).rejects.toThrow("REDIRECT:/sign-in"); expect(harness.calls).toEqual([]);
   });
   it.each(["technician", "viewer", "root", null])("denies role %s before intake reads/writes", async role => {
-    for (const action of [createLead, updateLead, deleteLead]) {
+    for (const action of [createLead, updateLead, deleteLead, archiveLead]) {
       respond(role ? { role } : null); harness.calls = [];
       expect((await action(idle, form())).status).toBe("error"); expect(writes()).toEqual([]);
       expect(harness.calls.every(call => call.table === "memberships")).toBe(true); expect(harness.revalidate).not.toHaveBeenCalled();
@@ -129,6 +129,12 @@ describe("intake update and queries", () => {
     expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["id", lead] });
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads`);
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/notifications`);
+  });
+  it.each(["owner", "admin", "dispatcher"])("allows %s to archive a lead", async role => {
+    respond({ role }, { id: lead });
+    await expect(archiveLead(idle, form())).rejects.toThrow(`REDIRECT:/workspaces/${tenant}/leads`);
+    expect(writes()).toEqual([{ table: "leads", method: "update", args: [{ status: "closed" }] }]);
+    expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}`);
   });
   it("returns a safe message when lead deletion is blocked by linked records", async () => {
     harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error: { code: "23503", message: "synthetic-provider-detail" } }];

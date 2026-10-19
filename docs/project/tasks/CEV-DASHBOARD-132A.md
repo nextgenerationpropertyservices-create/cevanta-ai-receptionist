@@ -1,13 +1,13 @@
 # CEV-DASHBOARD-132A
 
-- **Owner:** Morgan (Product Manager / Orchestrator)
-- **Scope:** Improve call chronology and dark-theme readability across the overview queue, lead list/detail, and calendar.
-- **Dependencies:** Existing `created_at` lead contract and current dark command-board theme.
-- **Allowed files:** `src/app/workspaces/[tenantId]/page.tsx`, `src/app/workspaces/[tenantId]/leads/page.tsx`, `src/app/workspaces/[tenantId]/leads/[leadId]/page.tsx`, `src/app/globals.css`, this task record, and its handoff.
-- **Acceptance criteria:**
-  1. Overview Today’s queue shows each AI caller name and received date/time.
-  2. Lead list and lead detail show the call received date/time in UTC.
-  3. Calendar board, events, and appointment cards retain readable dark surfaces with no white card backgrounds.
-  4. Typecheck, lint, focused UI tests, and build result are recorded.
-- **Evidence required:** Command output for typecheck, lint, focused tests, and production build; manual review of affected markup and CSS.
-- **Status:** implemented; production deployment remains pending owner approval.
+- Owner: Morgan (coordinator)
+- Scope: Show manually created new leads in the workspace overview queue and summary; add a common technician-skill picker while retaining custom skills, editing, service areas, and availability.
+- Dependencies: Existing tenant-scoped lead queries, technician profile contract, and owner/admin technician permissions.
+- Allowed files: `src/app/workspaces/[tenantId]/page.tsx`, `src/app/workspaces/[tenantId]/technicians/page.tsx`, `src/app/actions/technician-profiles.ts`, `src/lib/technician-profiles.ts`, `tests/dashboard-ui.test.ts`, `tests/technician-profiles.test.ts`, this task record, and its handoff.
+- Acceptance criteria:
+  - New leads created manually are visible in the overview summary, attention banner, and today's queue while preserving links to the lead detail.
+  - AI and manually created leads remain distinguishable in the queue.
+  - Owners/admins can edit a technician profile with common skills selected from a multi-select list and additional free-form skills.
+  - Preset and custom skills are normalized, deduplicated, validated, and saved through the existing tenant-scoped action.
+  - Existing tenant and role checks remain unchanged.
+- Required evidence: typecheck, lint, focused overview/profile tests, full configured test run, and production build result.

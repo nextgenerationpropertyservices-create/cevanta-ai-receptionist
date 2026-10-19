@@ -3,11 +3,11 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { Lead } from '@/lib/intake-contracts';
 
 const harness = vi.hoisted(() => ({
-  workspace: vi.fn(), leads: vi.fn(), customers: vi.fn(), createLead: vi.fn(),
+  workspace: vi.fn(), leads: vi.fn(), customers: vi.fn(), createLead: vi.fn(), archiveLead: vi.fn(), deleteLead: vi.fn(),
 }));
 vi.mock('@/lib/server/queries', () => ({ getWorkspace: harness.workspace, getCustomers: harness.customers }));
 vi.mock('@/lib/server/intake-queries', () => ({ getLeads: harness.leads }));
-vi.mock('@/app/actions/intake', () => ({ createLead: harness.createLead }));
+vi.mock('@/app/actions/intake', () => ({ createLead: harness.createLead, archiveLead: harness.archiveLead, deleteLead: harness.deleteLead }));
 
 import Leads from '@/app/workspaces/[tenantId]/leads/page';
 
@@ -74,5 +74,11 @@ describe('lead inbox AI receptionist notifications', () => {
     expect(output).toContain('1 of 2 enquiries shown');
     expect(output).toContain('Manual Lead');
     expect(output).not.toContain('Fictional AI Caller');
+  });
+  it('shows archive and delete controls to office roles', async () => {
+    harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'owner' });
+    const output = await html([manualLead]);
+    expect(output).toContain('Archive');
+    expect(output).toContain('Delete');
   });
 });

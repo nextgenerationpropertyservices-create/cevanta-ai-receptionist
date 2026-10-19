@@ -16,7 +16,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ rpc: harn
 vi.mock("next/navigation", () => ({ redirect: harness.redirect }));
 
 import Page from "@/app/workspaces/[tenantId]/clients/page";
-import { provisionManagedClientWorkspace } from "@/app/actions/managed-clients";
+import { archiveManagedClientWorkspace, provisionManagedClientWorkspace } from "@/app/actions/managed-clients";
 
 const operatorTenant = "1cb2a226-84ef-4dcd-9976-5ce87dd3e449";
 const clientTenant = "20000000-0000-4000-8000-000000000001";
@@ -89,6 +89,8 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
     expect(html).toContain("does not connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
     expect(html).toContain("Create client workspace");
+    expect(html).toContain("Remove a client workspace");
+    expect(html).toContain("Type DELETE WORKSPACE to confirm");
     expect(html).toContain("LAUNCH CONTROL");
     expect(html).toContain("Keep booking, SMS/email, calendar writes and dispatch automation off unless separately approved.");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|billing started|booking confirmed/i);
@@ -137,6 +139,41 @@ describe("managed client workspace action", () => {
     const result = await provisionManagedClientWorkspace({ status: "idle", message: "" }, form());
     expect(result.status).toBe("error");
     expect(result.message).toContain("temporarily unavailable");
+  });
+});
+
+describe("managed client workspace removal", () => {
+  function archiveForm(overrides: Record<string, string> = {}) {
+    const data = new FormData();
+    data.set("operatorTenantId", operatorTenant);
+    data.set("clientTenantId", clientTenant);
+    data.set("confirmation", "DELETE WORKSPACE");
+    for (const [key, value] of Object.entries(overrides)) data.set(key, value);
+    return data;
+  }
+
+  it("archives only after the exact confirmation and redirects to the client list", async () => {
+    harness.rpc.mockResolvedValue({ data: { status: "archived" }, error: null });
+    await expect(archiveManagedClientWorkspace({ status: "idle", message: "" }, archiveForm())).rejects.toThrow(`NEXT_REDIRECT:/workspaces/${operatorTenant}/clients`);
+    expect(harness.rpc).toHaveBeenCalledWith("archive_managed_client_workspace", { input: { operator_tenant_id: operatorTenant, client_tenant_id: clientTenant, confirmation: "DELETE WORKSPACE" } });
+  });
+
+  it("fails closed when the confirmation is not exact", async () => {
+    const result = await archiveManagedClientWorkspace({ status: "idle", message: "" }, archiveForm({ confirmation: "delete workspace" }));
+    expect(result.status).toBe("error");
+    expect(result.message).toContain("DELETE WORKSPACE");
+    expect(harness.rpc).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [{ status: "unavailable" }, "Only an internal owner or admin"],
+    [{ status: "validation_error" }, "DELETE WORKSPACE exactly"],
+    [{ status: "retryable_failure" }, "temporarily unavailable"],
+  ])("maps safe removal result %j", async (data, expected) => {
+    harness.rpc.mockResolvedValue({ data, error: null });
+    const result = await archiveManagedClientWorkspace({ status: "idle", message: "" }, archiveForm());
+    expect(result.status).toBe("error");
+    expect(result.message).toContain(expected);
   });
 });
 

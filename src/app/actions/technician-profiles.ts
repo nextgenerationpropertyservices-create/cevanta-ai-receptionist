@@ -8,7 +8,8 @@ import type { ActionState } from "@/lib/server/action-state";
 
 export async function saveTechnicianProfile(_previous:ActionState,form:FormData):Promise<ActionState> {
  try {
-  const parsed=technicianProfileSchema.safeParse(Object.fromEntries(form));
+  const raw={...Object.fromEntries(form),skill_presets:form.getAll("skill_presets")};
+  const parsed=technicianProfileSchema.safeParse(raw);
   if(!parsed.success) return {status:"error",message:parsed.error.issues[0]?.message ?? "Check technician skills and availability."};
   const {tenantId,userId,skills,service_areas,availability_note,availability_windows}=parsed.data;
   const {client}=await requireMembership(tenantId,SETTINGS_ROLES);

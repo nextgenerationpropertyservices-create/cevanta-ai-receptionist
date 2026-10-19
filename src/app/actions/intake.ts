@@ -68,3 +68,20 @@ export async function deleteLead(_previous: ActionState, form: FormData): Promis
     return { status: "error", message: "Unable to delete this lead. Check your permissions, then try again." };
   }
 }
+export async function archiveLead(_previous: ActionState, form: FormData): Promise<ActionState> {
+  try {
+    const tenantId = recordId(form, "tenantId");
+    const { client } = await requireMembership(tenantId, OFFICE_ROLES);
+    const leadId = recordId(form, "leadId");
+    const result = await client.from("leads").update({ status: "closed" }).eq("tenant_id", tenantId).eq("id", leadId).select("id").single();
+    if (result.error?.code === "42P01" || result.error?.code === "PGRST205") return { status: "error", message: "Lead intake needs its database migration before archiving." };
+    if (result.error || !result.data) return { status: "error", message: "Unable to archive this lead. It may already be removed." };
+    revalidatePath(`/workspaces/${tenantId}/leads`);
+    revalidatePath(`/workspaces/${tenantId}`);
+    revalidatePath(`/workspaces/${tenantId}/notifications`);
+    redirect(`/workspaces/${tenantId}/leads`);
+  } catch (error) {
+    unstable_rethrow(error);
+    return { status: "error", message: "Unable to archive this lead. Check your permissions, then try again." };
+  }
+}

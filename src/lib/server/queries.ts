@@ -58,7 +58,7 @@ export async function getManagedClientWorkspaces(operatorTenantId: string): Prom
   const allowed = tenant.account_type === "internal" && (role === "owner" || role === "admin");
   if (!allowed) return { operator: tenant, role, clients: [], allowed: false };
   const { client } = await requireMembership(operatorTenantId, ["owner", "admin"]);
-  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).order("created_at", { ascending: false });
+  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).neq("status", "archived").order("created_at", { ascending: false });
   if (result.error) throw new Error("Could not load client workspaces.");
   const clients = (result.data ?? []).flatMap(row => {
     const clientRow = Array.isArray(row.client) ? row.client[0] : row.client;

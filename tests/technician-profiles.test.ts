@@ -41,4 +41,9 @@ describe("technician profile validation", () => {
     const parsed = technicianProfileSchema.safeParse({ tenantId, userId, skills: "no heat", availability_note: "x".repeat(501) });
     expect(parsed.success).toBe(false);
   });
+
+  it("combines preset and custom skills without duplicates", () => {
+    const parsed = technicianProfileSchema.parse({ tenantId, userId, skill_presets: ["no heat", "maintenance"], skills: "maintenance, mini split" });
+    expect(parsed.skills).toEqual(["no heat", "maintenance", "mini split"]);
+  });
 });

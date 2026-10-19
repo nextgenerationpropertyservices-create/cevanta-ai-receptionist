@@ -1,18 +1,13 @@
-# CEV-DASHBOARD-132A handoff
+# Agent handoff
+- Task ID: CEV-DASHBOARD-132A
+- Work completed: Updated the workspace overview to count and queue all new leads, including manually added leads, with clear AI-versus-manual labeling. Added a common technician skills multi-select with custom skill entry; the server action combines, normalizes, deduplicates, and validates both sources before saving.
+- Files changed: `src/app/workspaces/[tenantId]/page.tsx`, `src/app/workspaces/[tenantId]/technicians/page.tsx`, `src/app/actions/technician-profiles.ts`, `src/lib/technician-profiles.ts`, `tests/dashboard-ui.test.ts`, `tests/technician-profiles.test.ts`, `docs/project/tasks/CEV-DASHBOARD-132A.md`.
+- Database changes: None; existing technician profile columns and grants are used.
+- API or contract changes: No external API changes. The existing profile action now accepts repeated `skill_presets` form values.
+- Verification commands and results: `pnpm typecheck` PASS; `pnpm lint` PASS; focused command `pnpm test -- tests/dashboard-ui.test.ts tests/technician-profiles.test.ts` PASS (44 files, 855 tests because the configured runner executes the full suite). `pnpm build` BLOCKED by the recurring Windows/OneDrive Turbopack worker panic while processing `src/app/globals.css`; no application build error was reported.
+- Known limitations: The common skill list is intentionally small and can be extended later. The local production build remains environment-blocked; hosted preview deployment has not been performed for this change.
+- Risks: Existing profile records with custom skills remain supported. The overview now includes all status=`new` leads, so offices should use the lead status to remove handled records from the attention queue.
+- Rollback notes: Revert the overview queue/count changes and the skill picker/schema additions; no migration rollback is needed.
+- Exact next action: Review the technician editor and manually add a fictional lead in preview, then approve a preview/production deployment if the behavior is correct.
 
-- **Task:** CEV-DASHBOARD-132A
-- **Owner:** Morgan
-- **Completed work:** Added received date/time to the overview queue, lead list, and lead detail. The overview queue now resolves the display caller name and service summary. Added stronger dark-theme overrides for calendar boards, events, headers, and appointment cards.
-- **Changed files:**
-  - `src/app/workspaces/[tenantId]/page.tsx`
-  - `src/app/workspaces/[tenantId]/leads/page.tsx`
-  - `src/app/workspaces/[tenantId]/leads/[leadId]/page.tsx`
-  - `src/app/globals.css`
-  - `docs/project/tasks/CEV-DASHBOARD-132A.md`
-- **Database changes:** None.
-- **API/contract changes:** None.
-- **Verification:** `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm test -- tests/dashboard-ui.test.ts` PASS (44 files, 853 tests). `pnpm build` was attempted and blocked by the known Windows/OneDrive Turbopack panic while parsing `src/app/globals.css`; no application diagnostic was reported.
-- **Limitations:** Times are displayed in UTC to match existing calendar behavior. Hosted preview/production visual review was not run in this turn.
-- **Risks:** The build failure is environment/tooling-related and should be rechecked in Vercel or a clean local path before release.
-- **Rollback:** Revert the four source-file changes and remove this task/handoff if the display changes are not wanted.
-- **Exact next action:** Review the overview, leads, and calendar pages in preview, then approve deployment if the dark surfaces and timestamps look correct.
+Follow-up: Added visible lead-list Archive and Delete actions. Archive updates status to closed and removes the lead from attention views; Delete uses the existing protected delete action. Focused intake/lead UI verification now passes with 44 files / 860 tests, typecheck, and lint.

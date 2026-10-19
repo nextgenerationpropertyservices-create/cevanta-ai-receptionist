@@ -77,6 +77,15 @@ describe("workspace overview front office dashboard", () => {
     expect(output).not.toContain("new AI lead needs office review");
     expect(output).not.toContain("Review newest lead");
   });
+
+  it("puts manually added new leads in the overview queue", async () => {
+    const manualLead = { ...aiLead, id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", submission_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", name: "Manual office lead", description: "Routine maintenance request", priority: "normal" };
+    const output = await html([manualLead]);
+    expect(output).toContain("1 new lead needs office review");
+    expect(output).toContain("manually added");
+    expect(output).toContain("Manual office lead");
+    expect(output).toContain(`/workspaces/${tenant}/leads/${manualLead.id}`);
+  });
 });
 
 
