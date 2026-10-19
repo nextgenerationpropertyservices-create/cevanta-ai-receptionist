@@ -944,3 +944,14 @@ Owner approved release. GitHub `main` was updated at commit `dbcb5ed`; Vercel pr
 Production now presents the internal workspace as a Cevanta operations command center, while client workspaces retain the trade-service front office. No provider, billing, messaging, calendar, booking, payment, or dispatch side effects were added.
 
 - 2026-10-19: CEV-TECH-138A implemented locally. Technician management now supports name-first roster entries with optional email, an accessible checkbox skill picker, service areas, and pending-link status. Linking a confirmed Cevanta account is owner/admin-only, tenant-scoped, and copies skills/availability into the existing assignment profile; unlinked entries cannot be assigned to jobs. Typecheck, lint, full Vitest suite (46 files / 871 tests), embedded migration/RLS checks, and focused roster tests passed. Local production output remains blocked by the known OneDrive/Turbopack CSS panic and Webpack `.next` EPERM. Hosted Supabase migration, independent security review, preview smoke, and production approval remain pending.
+
+## CEV-TECH-138A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. Supabase migration `technician_roster` was applied to project `rafiksklbrfgefkypvkn`. GitHub `main` was pushed at commit `ee62f2c`; Vercel production deployment `cevanta-ai-receptionist-lx8fwgqki.vercel.app` reached Ready and was assigned the canonical production alias `cevanta-ai-receptionist.vercel.app`.
+
+The release adds name-first technician roster entries, optional email linking, checkbox skills, service areas, availability fields, and pending-link safeguards. Unlinked roster entries cannot be assigned to jobs; linking a confirmed account remains owner/admin-only and copies approved profile data into the assignment profile. No SMS/email, booking, payment, calendar-write, or dispatch automation was enabled.
+
+The connected Vercel fetch tool denied an independent health request because project authorization is not mapped, but deployment metadata reports `READY`, production target, the expected commit SHA, and the canonical alias. The owner should refresh the live Technicians and Jobs pages in an authenticated browser session to confirm the signed-in visual flow.
