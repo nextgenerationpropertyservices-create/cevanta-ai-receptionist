@@ -6,7 +6,7 @@
 - Database changes: None.
 - API or contract changes: None; uses the existing managed client workspace read contract.
 - Verification commands and results: `pnpm typecheck` passed; `pnpm lint` passed; configured Vitest invocation passed 44 files / 866 tests. `pnpm build` remains blocked by the recurring Windows/OneDrive Turbopack worker panic while parsing `src/app/globals.css`.
-- Known limitations: Live visual review requires an authenticated internal workspace session. No production deployment was made in this turn.
+- Known limitations: Live visual review requires an authenticated internal workspace session. The local production build remains blocked by the OneDrive/Turbopack worker panic, while Vercel's remote production build reached Ready.
 - Risks: Internal counts reflect managed workspace status, while detailed onboarding readiness remains in the Clients monitor.
 - Rollback notes: Revert the internal route branch and CSS block; client workspace behavior is unchanged.
-- Exact next action: Review the internal Overview in preview, then approve production deployment if the new operations layout is acceptable.
+- Exact next action: Refresh the production internal workspace in the owner browser and confirm the portfolio cards and owner shortcuts are visible.

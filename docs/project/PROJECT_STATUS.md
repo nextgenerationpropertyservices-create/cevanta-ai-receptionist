@@ -933,3 +933,12 @@ Owner approved deployment. Supabase migration `managed_client_workspace_archive`
 The release adds owner/admin-only workspace archive controls in the internal Clients page and the authorized internal view of a client workspace. It requires the exact `DELETE WORKSPACE` confirmation, removes the workspace from active client operations, revokes the internal support membership, and preserves records for audit. Live provider accounts and automation settings are unchanged.
 
 - 2026-10-19: CEV-INTERNAL-OPS-134A implemented locally. Internal workspaces now use a Cevanta operations command center with managed-client portfolio counts, onboarding/pilot/live/paused status, owner shortcuts, and a clear boundary that sends trade-specific work to client workspaces. Client workspace overviews remain unchanged. Typecheck, lint, and 44 files / 866 tests passed. Production build remains blocked by the known OneDrive/Turbopack `globals.css` worker panic. Awaiting owner review and release approval.
+
+## CEV-INTERNAL-OPS-134A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was updated at commit `dbcb5ed`; Vercel production deployment `cevanta-ai-receptionist-ptadn8jwy.vercel.app` reached Ready and was assigned the canonical production alias `cevanta-ai-receptionist.vercel.app`.
+
+Production now presents the internal workspace as a Cevanta operations command center, while client workspaces retain the trade-service front office. No provider, billing, messaging, calendar, booking, payment, or dispatch side effects were added.
