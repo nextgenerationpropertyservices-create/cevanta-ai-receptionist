@@ -55,6 +55,8 @@ describe('lead inbox AI receptionist notifications', () => {
   it('starts with an attention queue and exposes focused lead views', async () => {
     const output = await html([aiLead, manualLead, { ...aiLead, id: '66666666-6666-4666-8666-666666666666', status: 'closed', priority: 'normal' }]);
     expect(output).toContain('Needs attention');
+    expect(output).toContain('lead-inbox-panel');
+    expect(output).toContain('lead-table-scroll');
     expect(output).toContain('All leads');
     expect(output).toContain('name="q"');
     expect(output).toContain('2 of 2 enquiries shown');

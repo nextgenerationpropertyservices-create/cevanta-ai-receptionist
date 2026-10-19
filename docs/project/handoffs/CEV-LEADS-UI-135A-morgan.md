@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LEADS-UI-135A
+- Work completed: Contained the Leads needs-attention table in its own bounded scroll region with a sticky header, stable horizontal scrolling, and readable row/action sizing. The page panel now remains in place while users work through a long queue.
+- Files changed: `src/app/workspaces/[tenantId]/leads/page.tsx`, `src/app/globals.css`, `tests/leads-ui.test.ts`, `docs/project/tasks/CEV-LEADS-UI-135A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm vitest run tests/leads-ui.test.ts` PASS (7 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm next build --webpack` PASS. Default `pnpm build` remains blocked by the known Windows/OneDrive Turbopack CSS process panic; the webpack production build completed successfully.
+- Known limitations: The focused browser view was not run in this turn. The default Turbopack build issue is environment-specific and does not reproduce with the webpack production build.
+- Risks: The queue height is viewport-based; very short windows receive a shorter but still internally scrollable panel.
+- Rollback notes: Revert the `lead-inbox-panel`/`lead-table-scroll` markup and CSS plus the focused assertions.
+- Exact next action: Review the Leads page at desktop and mobile widths; then approve deployment if the contained queue behavior looks right.
