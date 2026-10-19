@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { SELF_SERVICE_ONBOARDING_STEPS, STANDARD_INTAKE_FIELDS, templateForTrade } from '@/lib/client-onboarding-blueprint';
 import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
 import type { OwnerOnboardingSnapshot } from '@/lib/onboarding-contracts';
-import { BusinessProfileForm, RefreshSetupButton, ServicesForm, WeeklyHoursForm, HoursExceptionsForm, BookingPreferencesForm, EscalationContactsForm, ResumeStepForm, SheetSyncForm } from './onboarding-form';
+import { BusinessProfileForm, RefreshSetupButton, ServicesForm, WeeklyHoursForm, HoursExceptionsForm, BookingPreferencesForm, EscalationContactsForm, ResumeStepForm, SheetSyncForm, StarterTemplateForm } from './onboarding-form';
 import { OnboardingWizard } from './onboarding-wizard';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -41,6 +41,8 @@ function OnboardingBlueprint({ snapshot }: { snapshot: OwnerOnboardingSnapshot }
       <span className="pill">{template.label}</span>
     </div>
     <p>Cevanta will use this saved setup to draft the AI receptionist and route office-review leads. This is a control plan only; it does not create provider accounts, publish a Retell agent, activate Make, send messages, write calendars, collect payment, or dispatch technicians.</p>
+    <p className="notice">Starting a new workspace? Apply the trade starter services once, then review and edit them below. Existing saved services are never replaced.</p>
+    <StarterTemplateForm tenantId={snapshot.workspace.id} hasServices={snapshot.services.length > 0}/>
     <div className="dispatch-summary">
       <article><span>Starter services</span><strong>{template.defaultServices.slice(0, 3).join(', ')}</strong><p className="small muted">Edit the saved services below so the client’s actual work wins over defaults.</p></article>
       <article><span>Ask during calls</span><strong>{template.intakeFocus.slice(0, 3).join(', ')}</strong><p className="small muted">The receptionist should collect only enough detail for office review.</p></article>

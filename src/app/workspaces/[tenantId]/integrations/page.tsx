@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { AutomationControlForm } from './automation-control-form';
 import { getAutomationControls } from '@/lib/server/automation-control-queries';
 import { getWorkspace } from '@/lib/server/queries';
+import { RetellMappingForm } from './retell-mapping-form';
+import { RetellPauseForm } from './retell-pause-form';
+import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
 
 const integrations = [
   {
@@ -59,6 +62,7 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
   const { tenantId } = await params;
   const { tenant, role } = await getWorkspace(tenantId);
   const { ready, controls, canManage } = await getAutomationControls(tenantId);
+  const retellHealth = canManage ? await getRetellAgentMappingHealth(tenantId) : null;
   const base = `/workspaces/${tenant.id}`;
 
   return (
@@ -127,6 +131,15 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
           </table>
         </div>
       </section>
+
+      {canManage && <section className="panel" aria-labelledby="retell-routing-title">
+        <div className="section-heading"><div><span className="eyebrow">TRUSTED ROUTING</span><h2 id="retell-routing-title">Map this client’s Retell draft</h2></div><span className="pill">Owner/admin only</span></div>
+        <p>After you create the client’s Retell draft, enter its agent ID here. Cevanta stores the workspace mapping server-side for the shared Make intake. This does not publish the agent, change phone routing, or enable live writes.</p>
+        <p className="notice" role="status">Route status: <strong>{retellHealth?.status === 'active' ? 'Active' : retellHealth?.status === 'paused' ? 'Paused' : retellHealth?.status === 'not_mapped' ? 'Not mapped' : retellHealth?.status === 'not_configured' ? 'Server configuration needed' : 'Unavailable'}</strong>. This status does not expose the Retell agent ID.</p>
+        <RetellMappingForm tenantId={tenantId}/>
+        <RetellPauseForm tenantId={tenantId}/>
+        <p className="small muted">Pausing is reversible and affects only this workspace’s trusted route. It does not delete the Retell agent or revoke the API key.</p>
+      </section>}
 
       <section className="panel">
         <div className="section-heading">

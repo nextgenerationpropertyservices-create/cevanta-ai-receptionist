@@ -4,6 +4,8 @@ import { buildProvisioningReadiness, provisioningStateLabel } from '@/lib/provis
 import { getAutomationControls } from '@/lib/server/automation-control-queries';
 import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
 import { getWorkspace } from '@/lib/server/queries';
+import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
+import type { RetellRouteReadiness } from '@/lib/provisioning-readiness';
 
 const readinessRows = [
   {
@@ -59,7 +61,8 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
   const template = templateForTrade(tenant.trade);
   const [onboarding, automation] = await Promise.all([getOnboardingSnapshot(tenant.id), getAutomationControls(tenant.id)]);
   const ownerSnapshot = onboarding.status === 'available' && onboarding.snapshot.projection === 'owner_setup' ? onboarding.snapshot : null;
-  const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls);
+  const retellRoute: RetellRouteReadiness = role === 'owner' || role === 'admin' ? (await getRetellAgentMappingHealth(tenant.id)).status : 'not_configured';
+  const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls, retellRoute);
 
   return (
     <>
