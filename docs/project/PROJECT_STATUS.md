@@ -960,6 +960,10 @@ Production verification through the connected Vercel tool is unavailable because
 
 - 2026-10-19: CEV-ACCOUNT-141A prepared locally. Workspace Settings now includes an Account section showing the signed-in email and a secure Change password link. Passwords are never displayed or stored. Typecheck, lint, and the configured 47-file / 874-test run passed. Awaiting owner approval before pushing this follow-up.
 
+- 2026-10-19: CEV-STARTUP-142A implemented locally. The workspace picker now has a clear welcome area, separate internal/client sections, stronger card actions, a first-run create-workspace form, and a page-by-page quick tour with examples for Setup, Leads, Jobs & calendar, Technicians, Notifications, and Reports. Typecheck, lint, and the configured 47-file / 874-test run passed. The local production build remains blocked by the known OneDrive/Turbopack `globals.css` worker panic. No production deployment was made.
+
+- 2026-10-19: CEV-ONBOARD-WIZARD-143A implemented locally. Client owner/admin setup now flips through one section at a time with Back/Next controls, a compact progress strip, and an expandable blueprint. Existing save actions, validation, role projections, and provider side-effect boundaries are unchanged. Onboarding tests, typecheck, lint, and the configured 47-file / 874-test run passed. No production deployment was made.
+
 ## CEV-TECH-138A production release
 
 Date: 2026-10-19 (America/New_York)

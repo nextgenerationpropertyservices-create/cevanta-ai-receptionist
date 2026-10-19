@@ -25,8 +25,23 @@ describe("workspace picker", () => {
     expect(html).toContain("Internal owner dashboard");
     expect(html).toContain("Manage clients");
     expect(html).toContain("Open clients dashboard");
+    expect(html).toContain("Pick up where you left off");
+    expect(html).toContain("Internal dashboard");
+    expect(html).toContain("Client workspaces");
+    expect(html).toContain("What each page is for");
+    expect(html).toContain("Example: a no-cooling call is marked urgent");
     expect(html).toContain("Northstar HVAC");
     expect(html).toContain("Client workspace");
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
+  });
+
+  it("keeps the first-run action clear when no workspaces exist", async () => {
+    harness.configured = true;
+    harness.workspaces.mockResolvedValue([]);
+    const html = renderToStaticMarkup(await Page());
+    expect(html).toContain("Create your first workspace");
+    expect(html).toContain("Create workspace");
+    expect(html).toContain("Business name");
+    expect(html).toContain("Technicians");
   });
 });
