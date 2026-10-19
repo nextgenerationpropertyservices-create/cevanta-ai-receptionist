@@ -27,6 +27,10 @@ function hasWeeklyHours(snapshot: OwnerOnboardingSnapshot) {
   return snapshot.weekly_hours.some(day => !day.closed && day.intervals.length > 0);
 }
 
+function hasOfficeContact(snapshot: OwnerOnboardingSnapshot) {
+  return Boolean(snapshot.profile && hasText(snapshot.profile.business_contact_name) && (hasText(snapshot.profile.business_email) || hasText(snapshot.profile.business_phone)));
+}
+
 function setupReady(snapshot: OwnerOnboardingSnapshot | null) {
   if (!snapshot) return false;
   return Boolean(
@@ -34,6 +38,7 @@ function setupReady(snapshot: OwnerOnboardingSnapshot | null) {
     hasText(snapshot.workspace.name) &&
     hasText(snapshot.workspace.trade) &&
     hasText(snapshot.workspace.timezone) &&
+    hasOfficeContact(snapshot) &&
     snapshot.services.some(service => service.enabled && hasText(service.name)) &&
     hasWeeklyHours(snapshot) &&
     snapshot.booking?.acknowledged &&
@@ -67,8 +72,8 @@ export function buildProvisioningReadiness(snapshot: OwnerOnboardingSnapshot | n
       key: "saved_setup",
       label: "Client setup data",
       state: setupIsReady ? "ready" : "needs_setup",
-      summary: setupIsReady ? "Business details, services, hours, request rules and escalation contacts are saved." : "Setup still needs complete business details, services, hours, request rules and escalation contacts.",
-      nextAction: setupIsReady ? "Review for client-specific wording." : "Open Setup and finish the missing intake details.",
+      summary: setupIsReady ? "Required identity, office contact, services, hours, request rules and escalation contact are saved." : "Setup still needs the required business identity, office contact, services, hours, request rules or escalation contact.",
+      nextAction: setupIsReady ? "Review for client-specific wording." : "Open Setup and finish the missing required intake details.",
     },
     {
       key: "receptionist_draft",

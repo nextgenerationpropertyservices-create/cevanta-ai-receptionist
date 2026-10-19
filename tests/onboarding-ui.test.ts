@@ -60,7 +60,7 @@ describe('persisted resume marker without readiness changes', () => {
 describe('storage summary without readiness completion', () => {
   it('shows missing stored sections and the guided editor', async () => {
     const html = await render({ status: 'available', snapshot: { ...owner, profile: null } });
-    for (const missing of ['Business contact information not saved yet', 'No services saved', '0 of 7 days saved', 'No date-specific hours saved', 'Request preferences not saved yet', 'No escalation contacts saved']) expect(html).toContain(missing);
+    for (const missing of ['Required: add a contact name and at least one office email or phone.', 'No services saved', '0 of 7 days saved', 'No date-specific hours saved', 'Request preferences not saved yet', 'No escalation contacts saved']) expect(html).toContain(missing);
     for (const target of ['business-details', 'setup-services', 'setup-hours', 'setup-exceptions', 'setup-requests', 'setup-contacts']) expect(html).toContain(`id="${target}"`);
     expect(html).toContain('Guided workspace setup');
     expect(html).toContain('Your next step:');
@@ -70,17 +70,17 @@ describe('storage summary without readiness completion', () => {
     const booking = { mode: 'request_only' as const, lead_time_minutes: 0, buffer_before_minutes: 0, buffer_after_minutes: null, horizon_days: null, notes: '', acknowledged: false };
     const snapshot = { ...owner, services: [{ id: tenant, version: 1, name: '', description: '', position: 0, enabled: true }], weekly_hours: Array.from({ length: 7 }, (_, weekday) => ({ weekday, closed: weekday !== 0, intervals: [] })), booking, escalation: [{ id: tenant, version: 1, label: '', contact_name: '', email: null, phone: null, position: 0, enabled: true }] };
     const html = await render({ status: 'available', snapshot });
-    for (const text of ['1 services saved; 1 enabled', '1 services have no name', '7 of 7 days saved', '1 open days have no intervals', 'Request preferences saved', '2 optional timing preferences not set', '1 contacts saved; 1 enabled', '1 contacts are missing a name or both email and phone']) expect(html).toContain(text);
+    for (const text of ['1 services saved; 1 enabled', 'Required: enable at least one named service.', '7 of 7 days saved', '1 open days have no intervals', 'Request preferences saved', '2 optional timing preferences not set', '1 contacts saved; 1 enabled', 'Required: enable one contact with a name and email or phone.']) expect(html).toContain(text);
     expect(html).toContain('Blank optional fields are stored choices, not readiness checks');
     expect(html).not.toMatch(/Setup complete|Ready to launch|Provider connected|Production ready|Live booking enabled|100%/i);
   });
   it('keeps fully populated saved information pending and blocked through Setup', async () => {
     const snapshot = { ...owner, services: [{ id: tenant, version: 1, name: 'Fictional service', description: '', position: 0, enabled: false }], weekly_hours: Array.from({ length: 7 }, (_, weekday) => ({ weekday, closed: true, intervals: [] })), booking: { mode: 'request_only' as const, lead_time_minutes: 0, buffer_before_minutes: 0, buffer_after_minutes: 0, horizon_days: 1, notes: '', acknowledged: true }, escalation: [{ id: tenant, version: 1, label: 'Synthetic office', contact_name: 'Fictional Operator', email: 'fictional@example.invalid', phone: null, position: 0, enabled: false }] };
     const html = await render({ status: 'available', snapshot });
-    expect(html).toContain('All seven days have stored entries');
+    expect(html).toContain('Required: all seven days are saved with at least one open day.');
     expect(html).toContain('1 services saved; 0 enabled'); expect(html).toContain('1 contacts saved; 0 enabled');
     expect(html).toContain('0 optional timing preferences not set');
-    expect(html).toContain('Readiness review is pending'); expect(html).toContain('Services and service area');
+    expect(html).toContain('Readiness review is pending'); expect(html).toContain('At least one enabled service');
     expect(html).toContain('Booking remains request-only'); expect(html).toContain('Controlled writes:');
     expect(html).toContain('SMS, email, and external calendar writes stay off until approved and tested.');
     expect(html).not.toMatch(/Setup complete|Ready to launch|Provider connected|Production ready|Live booking enabled|100%/i);

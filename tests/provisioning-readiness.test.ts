@@ -45,6 +45,12 @@ describe('provisioning readiness', () => {
     expect(readiness.gates.find(gate => gate.key === 'receptionist_draft')?.nextAction).toContain('Collect services');
   });
 
+  it('keeps setup blocked when the profile has no office contact method', () => {
+    const readiness = buildProvisioningReadiness(snapshot({ profile: { business_contact_name: 'Fictional Owner', business_email: null, business_phone: null } }), []);
+    expect(readiness.gates.find(gate => gate.key === 'saved_setup')?.state).toBe('needs_setup');
+    expect(readiness.gates.find(gate => gate.key === 'saved_setup')?.summary).toContain('office contact');
+  });
+
   it('summarizes requested optional automation without activating it', () => {
     const controls = AUTOMATION_CONTROL_DEFINITIONS.map(definition => ({ ...defaultAutomationControl(tenant, definition), requested: definition.capability === 'email', owner_approved: definition.capability === 'email', activation_state: definition.capability === 'email' ? 'ready' as const : 'off' as const, test_evidence: definition.capability === 'email' ? 'Fictional email test passed.' : '', rollback_plan: definition.capability === 'email' ? 'Pause email control.' : '' }));
     const readiness = buildProvisioningReadiness(snapshot(), controls);
