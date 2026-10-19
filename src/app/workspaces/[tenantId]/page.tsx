@@ -12,15 +12,32 @@ import type { Job,Technician } from '@/lib/jobs-contracts';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { ActionForm, Field } from '@/components/action-form';
 import { archiveManagedClientWorkspace } from '@/app/actions/managed-clients';
+import { getManagedClientWorkspaces, type ManagedClientWorkspace } from '@/lib/server/queries';
 
 const todayKey = () => new Date().toISOString().slice(0,10);
 const formatDateTime = (value:string) => new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC'}).format(new Date(value));
 const technicianName = (job:Job|undefined,technicians:Technician[]) => job?.assigned_user_id ? technicians.find(tech=>tech.user_id===job.assigned_user_id)?.display_name ?? 'Assigned field tech' : 'Unassigned';
 
+async function InternalOperationsDashboard({ tenantId, name }: { tenantId: string; name: string }) {
+ const { clients, allowed } = await getManagedClientWorkspaces(tenantId);
+ if (!allowed) return <section className="panel"><span className="eyebrow">CEVANTA OPERATIONS</span><h1>Internal access required</h1><p>Your account does not have owner/admin access to the Cevanta operations workspace.</p></section>;
+ const onboarding = clients.filter(client => client.status === 'onboarding');
+ const live = clients.filter(client => client.status === 'active' || client.status === 'pilot');
+ const paused = clients.filter(client => client.status === 'paused');
+ return <>
+  <section className="internal-ops-hero"><div><span className="eyebrow">CEVANTA OPERATIONS</span><h1>Run your client portfolio from one place.</h1><p>{name} is your internal command center for onboarding, pilot readiness, client support, payment follow-up, and launch decisions. Open a client workspace when you need trade-specific dispatch tools.</p></div><div className="internal-ops-actions"><Link className="button" href={`/workspaces/${tenantId}/clients`}>Manage clients ↗</Link><Link className="button secondary" href={`/workspaces/${tenantId}/reports`}>View reports ↗</Link></div></section>
+  <section className="internal-ops-stats" aria-label="Cevanta operations summary"><article><span>Managed clients</span><strong>{clients.length}</strong><p>Every client workspace connected to Cevanta.</p></article><article><span>Onboarding</span><strong>{onboarding.length}</strong><p>Clients still completing setup and paperwork.</p></article><article><span>Live or pilot</span><strong>{live.length}</strong><p>Clients currently in pilot or active service.</p></article><article><span>Paused</span><strong>{paused.length}</strong><p>Clients needing a follow-up decision.</p></article></section>
+  <div className="internal-ops-grid"><section className="panel"><div className="section-heading"><div><span className="eyebrow">CLIENT PORTFOLIO</span><h2>What needs your attention</h2></div><Link className="card-link" href={`/workspaces/${tenantId}/clients`}>Open full client monitor ↗</Link></div>{clients.length ? <div className="internal-client-list">{clients.slice(0, 8).map((client: ManagedClientWorkspace) => <Link key={client.id} href={`/workspaces/${client.id}`}><div><strong>{client.name}</strong><span>{client.trade} · {client.timezone}</span></div><em className={`internal-status internal-status-${client.status}`}>{client.status}</em><small>Open workspace ↗</small></Link>)}</div> : <Empty title="No managed clients yet">Create your first client workspace when a prospect accepts the managed pilot.</Empty>}</section><section className="panel"><span className="eyebrow">OWNER SHORTCUTS</span><h2>Keep operations moving</h2><div className="internal-shortcuts"><Link href={`/workspaces/${tenantId}/clients`}><strong>Onboard a client</strong><span>Create a workspace, issue private access, and track setup.</span></Link><Link href={`/workspaces/${tenantId}/billing`}><strong>Payment follow-up</strong><span>Review manual Stripe requests and payment status.</span></Link><Link href={`/workspaces/${tenantId}/manual`}><strong>Operating manual</strong><span>Use the same launch and support process every time.</span></Link><Link href={`/workspaces/${tenantId}/settings`}><strong>Internal settings</strong><span>Manage your Cevanta workspace preferences.</span></Link></div></section></div>
+  <section className="panel internal-ops-boundary"><span className="eyebrow">WORKSPACE BOUNDARY</span><h2>Trade tools stay with the client</h2><p>Technicians, jobs, calendars, leads, receptionist settings, and automation controls belong inside each client workspace. This internal dashboard stays focused on your portfolio and the next owner action.</p></section>
+ </>;
+}
+
 export default async function Dashboard({params}: {params:Promise<{tenantId:string}>}) {
  const {tenantId}=await params;
- const [workspace,inbox,jobsInbox,appointmentsInbox]=await Promise.all([getWorkspace(tenantId),getLeads(tenantId),getJobs(tenantId),getAppointments(tenantId)]);
+ const workspace=await getWorkspace(tenantId);
  const {tenant,role}=workspace;
+ if (tenant.account_type === 'internal') return await InternalOperationsDashboard({ tenantId, name: tenant.name });
+ const [inbox,jobsInbox,appointmentsInbox]=await Promise.all([getLeads(tenantId),getJobs(tenantId),getAppointments(tenantId)]);
  let operatorTenantId: string | null = null;
  if (tenant.account_type === 'client' && (role === 'owner' || role === 'admin') && 'client' in workspace && workspace.client) {
   const managed = await workspace.client.from('managed_client_workspaces').select('operator_tenant_id').eq('client_tenant_id', tenantId).maybeSingle();

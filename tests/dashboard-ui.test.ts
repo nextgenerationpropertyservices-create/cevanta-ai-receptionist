@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const harness = vi.hoisted(() => ({
-  workspace: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(),
+  workspace: vi.fn(), managedClients: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(),
 }));
-vi.mock("@/lib/server/queries", () => ({ getWorkspace: harness.workspace }));
+vi.mock("@/lib/server/queries", () => ({ getWorkspace: harness.workspace, getManagedClientWorkspaces: harness.managedClients }));
 vi.mock("@/lib/server/intake-queries", () => ({ getLeads: harness.leads }));
 vi.mock("@/lib/server/jobs-queries", () => ({ getJobs: harness.jobs, getTechnicians: harness.technicians }));
 vi.mock("@/lib/server/appointments-queries", () => ({ getAppointments: harness.appointments }));
@@ -25,6 +25,7 @@ const appointment = { id: "88888888-8888-4888-8888-888888888888", tenant_id: ten
 
 beforeEach(() => {
   harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: "Fictional Plumbing", trade: "Plumbing", timezone: "America/New_York", account_type: "client" }, role: "owner" });
+  harness.managedClients.mockResolvedValue({ clients: [], allowed: false, operator: { id: tenant, name: "Cevanta Operations", trade: "Operations", timezone: "America/New_York", account_type: "internal" } });
   harness.leads.mockResolvedValue({ ready: true, leads: [] });
   harness.jobs.mockResolvedValue({ ready: true, jobs: [] });
   harness.appointments.mockResolvedValue({ ready: true, appointments: [] });
@@ -85,6 +86,22 @@ describe("workspace overview front office dashboard", () => {
     expect(output).toContain("manually added");
     expect(output).toContain("Manual office lead");
     expect(output).toContain(`/workspaces/${tenant}/leads/${manualLead.id}`);
+  });
+
+  it("gives the internal workspace an owner operations command center", async () => {
+    const internalTenant = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    harness.workspace.mockResolvedValue({ tenant: { id: internalTenant, name: "Cevanta Operations", trade: "Internal Operations", timezone: "America/New_York", account_type: "internal" }, role: "owner" });
+    harness.managedClients.mockResolvedValue({ allowed: true, role: "owner", operator: { id: internalTenant, name: "Cevanta Operations", trade: "Internal Operations", timezone: "America/New_York", account_type: "internal" }, clients: [
+      { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", name: "Fictional Plumbing", trade: "Plumbing", timezone: "America/New_York", status: "onboarding", created_at: "2026-10-19T00:00:00.000Z", updated_at: "2026-10-19T00:00:00.000Z" },
+    ] });
+    const output = await Dashboard({ params: Promise.resolve({ tenantId: internalTenant }) });
+    const markup = renderToStaticMarkup(output);
+    expect(markup).toContain("Run your client portfolio from one place.");
+    expect(markup).toContain("CLIENT PORTFOLIO");
+    expect(markup).toContain("Fictional Plumbing");
+    expect(markup).toContain("Trade tools stay with the client");
+    expect(markup).not.toContain("RECOVERED LOSS SNAPSHOT");
+    expect(harness.leads).not.toHaveBeenCalled();
   });
 });
 
