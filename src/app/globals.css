@@ -371,3 +371,13 @@ main .calendar-menu nav a:hover{background:#16304e!important;color:#eff7ff!impor
 main .calendar-menu nav a.active{background:#073a50!important;color:#00e4ff!important;border-color:#00aeca!important;box-shadow:0 6px 18px #0006}
 .call-received{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#102039;color:var(--ink);font-size:13px}
 .call-received time{color:#9ab0d1}
+.lead-inbox-panel{min-width:0;display:flex;flex-direction:column;min-height:0}
+.lead-table-scroll{max-height:clamp(360px,calc(100vh - 355px),720px);overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:12px;scrollbar-gutter:stable}
+.lead-table-scroll table{min-width:920px}
+.lead-table-scroll caption{caption-side:top;text-align:left;padding:12px 14px;background:var(--paper);border-bottom:1px solid var(--line);font-size:11px}
+.lead-table-scroll thead{position:sticky;top:0;z-index:2;background:#0d172b}
+.lead-table-scroll th{white-space:nowrap;background:#0d172b}
+.lead-table-scroll td{vertical-align:top;white-space:nowrap}
+.lead-table-scroll td:first-child{white-space:normal;min-width:220px}
+.lead-table-scroll td:last-child{min-width:180px}
+@media(max-width:700px){.lead-table-scroll{max-height:calc(100vh - 430px);min-height:300px}.lead-table-scroll table{min-width:880px}.lead-table-scroll caption{position:sticky;left:0;z-index:3}}
