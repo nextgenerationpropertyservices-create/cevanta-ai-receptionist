@@ -22,6 +22,8 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain("Billing");
     expect(html).toContain("Manual");
     expect(html).toContain("Start setup");
+    expect(html).toContain("Switch to light mode");
+    expect(html).toContain("theme-toggle");
     expect(html).toContain(`/workspaces/${tenant.id}/onboarding`);
     expect(html).toContain("Go Live");
     expect(html).toContain(`/workspaces/${tenant.id}/go-live`);

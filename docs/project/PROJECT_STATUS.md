@@ -947,6 +947,8 @@ Production now presents the internal workspace as a Cevanta operations command c
 
 - 2026-10-19: CEV-TECH-139A prepared locally. Technician roster cards now show the technician name prominently, capture/display an optional phone number, and use the dark card surface consistently. Hosted migration `technician_roster_phone` is applied. Typecheck, lint, focused roster tests (47 files / 874 tests), and embedded migration/RLS checks passed. Local production build remains blocked by the known OneDrive/Turbopack CSS worker panic. Awaiting owner approval before pushing this follow-up to production.
 
+- 2026-10-19: CEV-THEME-140A prepared locally. Authenticated workspace pages now have a persistent light/dark mode switch in the header; dark remains the default and light mode restores readable navigation, cards, forms, and roster surfaces. No database or provider side effects. Awaiting final checks and owner approval before the combined roster/theme production push.
+
 ## CEV-TECH-138A production release
 
 Date: 2026-10-19 (America/New_York)
