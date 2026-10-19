@@ -26,7 +26,7 @@ beforeEach(() => {
   harness.leads.mockResolvedValue({ ready: true, leads: [] });
 });
 
-async function html(leads: Lead[] = [aiLead], filters: {view?: string; q?: string; status?: string; priority?: string; source?: string; date?: string} = {}) {
+async function html(leads: Lead[] = [aiLead], filters: {view?: string; q?: string; status?: string; priority?: string; source?: string; date?: string; received?: string} = {}) {
   harness.leads.mockResolvedValue({ ready: true, leads });
   return renderToStaticMarkup(await Leads({ params: Promise.resolve({ tenantId: tenant }), searchParams: Promise.resolve(filters) }));
 }
@@ -76,6 +76,17 @@ describe('lead inbox AI receptionist notifications', () => {
     expect(output).toContain('1 of 2 enquiries shown');
     expect(output).toContain('Manual Lead');
     expect(output).not.toContain('Fictional AI Caller');
+  });
+  it('exposes and applies received-date and urgency filters', async () => {
+    const output = await html([
+      { ...aiLead, created_at: new Date().toISOString() },
+      { ...manualLead, created_at: '2020-01-01T13:00:00.000Z', priority: 'low' },
+    ], { view: 'all', received: 'today', priority: 'high' });
+    expect(output).toContain('Date received');
+    expect(output).toContain('Urgency');
+    expect(output).toContain('1 of 2 enquiries shown');
+    expect(output).toContain('Fictional AI Caller');
+    expect(output).not.toContain('Manual Lead');
   });
   it('shows archive and delete controls to office roles', async () => {
     harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'owner' });
