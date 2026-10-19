@@ -2,6 +2,7 @@ import type { AutomationControl } from "@/lib/automation-controls";
 import type { OwnerOnboardingSnapshot } from "@/lib/onboarding-contracts";
 
 export type ProvisioningGateState = "ready" | "needs_setup" | "manual_required" | "blocked";
+export type RetellRouteReadiness = "active" | "paused" | "not_mapped" | "not_configured" | "unavailable";
 
 export interface ProvisioningGate {
   key: string;
@@ -63,7 +64,7 @@ function controlledOptionsSummary(controls: AutomationControl[]) {
   return { requested: requested.length, ready: ready.length };
 }
 
-export function buildProvisioningReadiness(snapshot: OwnerOnboardingSnapshot | null, controls: AutomationControl[] = []): ProvisioningReadiness {
+export function buildProvisioningReadiness(snapshot: OwnerOnboardingSnapshot | null, controls: AutomationControl[] = [], retellRoute: RetellRouteReadiness = "not_configured"): ProvisioningReadiness {
   const setupIsReady = setupReady(snapshot);
   const draftIsReady = receptionistDraftReady(snapshot);
   const options = controlledOptionsSummary(controls);
@@ -85,9 +86,9 @@ export function buildProvisioningReadiness(snapshot: OwnerOnboardingSnapshot | n
     {
       key: "trusted_route",
       label: "Trusted tenant route",
-      state: "manual_required",
-      summary: "Make, Retell and Cevanta must route by trusted server-side mapping, not by caller or client-supplied workspace IDs.",
-      nextAction: "Create or verify the tenant route only after the provider connection is approved.",
+      state: retellRoute === "active" ? "ready" : "manual_required",
+      summary: retellRoute === "active" ? "An active tenant-scoped Retell route is present; routing still remains subject to fictional test-call and owner approval gates." : "Make, Retell and Cevanta must route by trusted server-side mapping, not by caller or client-supplied workspace IDs.",
+      nextAction: retellRoute === "active" ? "Run the fictional recovery test and keep live writers off until approval." : retellRoute === "paused" ? "Resume the tenant route only after the provider connection and recovery plan are approved." : "Create or verify the tenant route only after the provider connection is approved.",
     },
     {
       key: "provider_connections",

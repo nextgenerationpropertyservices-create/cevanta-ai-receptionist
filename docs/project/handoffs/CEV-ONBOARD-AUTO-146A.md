@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-AUTO-146A
+- Work completed: Added owner/admin-only Retell agent mapping for the shared Make intake. The action validates the Retell agent ID, reads the shared Make connection ID only from server configuration, refuses cross-workspace reassignment, and writes enabled mappings to the existing private Retell connection table. Added a controlled Integrations form; it does not publish agents or change phone routing.
+- Files changed: `src/app/actions/retell-provisioning.ts`, `src/app/workspaces/[tenantId]/integrations/retell-mapping-form.tsx`, `src/app/workspaces/[tenantId]/integrations/page.tsx`, `tests/retell-provisioning.test.ts`.
+- Database changes: None; reuses `integration_private.retell_connections` from the existing Retell ingestion migration.
+- API or contract changes: Added `registerRetellAgentMapping(tenantId, rawAgentId)` server action and the owner/admin Integrations UI form.
+- Verification commands and results: Focused tests passed (6 tests); `pnpm exec tsc --noEmit --incremental false` passed; lint passed; full Vitest suite passed with 49 files and 878 tests.
+- Known limitations: No Retell API draft creation is attempted because no approved Retell provisioning API contract or server-only API key is configured. The shared Make connection must already be configured. Hosted database schema availability, live Auth/JWT/RLS behavior, provider routing, and production release remain unverified.
+- Risks: The private schema must be available to the service-role PostgREST client. If the hosted project does not expose that schema to the service client, replace this action with a reviewed security-definer RPC before enabling it.
+- Rollback notes: Remove or disable the mapping row through the reviewed operator path; do not rotate the shared Make connection or delete the Retell agent as a rollback.
+- Exact next action: Obtain an approved Retell provisioning API contract and server-only key, then implement draft creation behind a separate approval-gated action and add hosted fictional routing tests.

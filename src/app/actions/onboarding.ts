@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import type { ConfigurationCommand, ConfigurationResult, InvitationAcceptanceResult } from "@/lib/onboarding-contracts";
 import { configureOnboarding, saveOnboardingResume, acceptOnboardingInvitation, getOnboardingSnapshot } from "@/lib/server/onboarding-rpc";
+import { starterServicesForTrade } from "@/lib/client-onboarding-blueprint";
 
 type Outcome = ConfigurationResult | InvitationAcceptanceResult;
 function message(result: Outcome): string {
@@ -35,6 +36,34 @@ export async function saveOnboardingProgress(input:unknown) {
   const result=await saveOnboardingResume(input);
   const tenant=input && typeof input === "object" && "tenant_id" in input && typeof input.tenant_id === "string" ? input.tenant_id : undefined;
   return finish(result,tenant?.toLowerCase());
+}
+
+export type StarterTemplateResult =
+  | { status: "saved" | "replayed"; service_count: number }
+  | { status: "already_configured" | "unavailable" | "retryable_failure" };
+
+/**
+ * Applies only the safe service starter list for a new workspace. It refuses
+ * to replace a list the client has already started and does not touch provider
+ * credentials, calendars, messaging, booking, or activation controls.
+ */
+export async function applyIndustryStarterTemplate(tenantId: string): Promise<StarterTemplateResult> {
+  const snapshotResponse = await getOnboardingSnapshot(tenantId);
+  if (snapshotResponse.status !== "available" || snapshotResponse.snapshot.projection !== "owner_setup") {
+    return { status: snapshotResponse.status === "retryable_failure" ? "retryable_failure" : "unavailable" };
+  }
+  const snapshot = snapshotResponse.snapshot;
+  if (snapshot.services.length > 0) return { status: "already_configured" };
+  const services = starterServicesForTrade(snapshot.workspace.trade);
+  const result = await configureOnboarding("replace_services", {
+    tenant_id: snapshot.workspace.id,
+    request_id: crypto.randomUUID(),
+    expected_config_revision: snapshot.config_revision,
+    payload: { items: services },
+  });
+  if (result.status === "saved" || result.status === "replayed") return { status: result.status, service_count: services.length };
+  if (result.status === "retryable_failure") return { status: "retryable_failure" };
+  return { status: "unavailable" };
 }
 export async function acceptOnboardingAccess(input:unknown) {
   const result=await acceptOnboardingInvitation(input);

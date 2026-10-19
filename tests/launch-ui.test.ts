@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn() }));
+const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn(), retellHealth: vi.fn() }));
 vi.mock('@/lib/server/queries', () => ({ getWorkspace: harness.workspace }));
 vi.mock('@/lib/server/onboarding-rpc', () => ({ getOnboardingSnapshot: harness.onboarding }));
 vi.mock('@/lib/server/automation-control-queries', () => ({ getAutomationControls: harness.automation }));
+vi.mock('@/app/actions/retell-provisioning', () => ({ getRetellAgentMappingHealth: harness.retellHealth }));
 
 import { AUTOMATION_CONTROL_DEFINITIONS, defaultAutomationControl } from '@/lib/automation-controls';
 import LaunchReadiness from '@/app/workspaces/[tenantId]/launch/page';
@@ -15,6 +16,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'owner' });
   harness.automation.mockResolvedValue({ ready: true, canManage: true, controls: AUTOMATION_CONTROL_DEFINITIONS.map(definition => defaultAutomationControl(tenant, definition)) });
+  harness.retellHealth.mockResolvedValue({ status: 'active' });
   harness.onboarding.mockResolvedValue({
     status: 'available',
     snapshot: {
