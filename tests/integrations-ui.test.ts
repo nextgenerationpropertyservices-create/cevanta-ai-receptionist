@@ -2,9 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AUTOMATION_CONTROL_DEFINITIONS, defaultAutomationControl } from '@/lib/automation-controls';
 
-const harness = vi.hoisted(() => ({ workspace: vi.fn(), automationControls: vi.fn() }));
+const harness = vi.hoisted(() => ({ workspace: vi.fn(), automationControls: vi.fn(), retellHealth: vi.fn() }));
 vi.mock('@/lib/server/queries', () => ({ getWorkspace: harness.workspace }));
 vi.mock('@/lib/server/automation-control-queries', () => ({ getAutomationControls: harness.automationControls }));
+vi.mock('@/app/actions/retell-provisioning', () => ({ getRetellAgentMappingHealth: harness.retellHealth, registerRetellAgentMapping: vi.fn(), pauseRetellAgentMapping: vi.fn() }));
 
 import IntegrationsReadiness from '@/app/workspaces/[tenantId]/integrations/page';
 
@@ -17,6 +18,7 @@ beforeEach(() => {
     canManage: true,
     controls: AUTOMATION_CONTROL_DEFINITIONS.map(definition => defaultAutomationControl(tenant, definition)),
   });
+  harness.retellHealth.mockResolvedValue({ status: 'not_mapped' });
 });
 
 async function html() {
@@ -47,6 +49,15 @@ describe('integrations readiness page', () => {
     expect(output).toContain('Owner approved after reviewing scope, risk, and provider requirements');
     expect(output).toContain('Open Go Live to see the complete setup, test, approval and rollback path');
     expect(output).toContain(`/workspaces/${tenant}/go-live`);
+    expect(output).toContain('Pause Retell routing');
+    expect(output).toContain('does not delete the Retell agent, change phone routing, or revoke the API key');
+    expect(output).toContain('Route status:');
+    expect(output).toContain('Not mapped');
+    expect(output).toContain('Connect this client’s receptionist');
+    expect(output).toContain('Assign the client phone number in Retell');
+    expect(output).toContain('Connect receptionist');
+    expect(output).toContain('Make one fictional test call');
+    expect(output).toContain('Make webhook is already configured once on the server');
   });
 
   it('shows catalog-only messaging for non-manager roles', async () => {
