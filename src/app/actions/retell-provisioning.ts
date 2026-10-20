@@ -33,20 +33,16 @@ export async function registerRetellAgentMapping(tenantId: string, rawAgentId: s
     if (!agent.success) return { status: "invalid_agent" };
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
 
-    const db = createServiceClient().schema("integration_private");
-    const existing = await db.from("retell_connections").select("tenant_id,enabled").eq("connection_id", connection.data).eq("provider_account_id", agent.data).maybeSingle();
-    if (existing.error) return { status: "unavailable" };
-    if (existing.data && existing.data.tenant_id !== tenantId) return { status: "conflict" };
-    if (existing.data?.enabled) return { status: "already_mapped", agent_id: agent.data };
-
-    const { error } = await db.from("retell_connections").upsert({
-      tenant_id: tenantId,
-      connection_id: connection.data,
-      provider_account_id: agent.data,
-      enabled: true,
-    }, { onConflict: "connection_id,provider_account_id" });
-    if (error) return { status: "unavailable" };
-    return { status: existing.data ? "mapped" : "mapped", agent_id: agent.data };
+    const { data, error } = await createServiceClient().rpc("retell_mapping_register", {
+      p_tenant_id: tenantId,
+      p_connection_id: connection.data,
+      p_provider_account_id: agent.data,
+    });
+    if (error || !data || typeof data !== "object") return { status: "unavailable" };
+    if (data.status === "conflict") return { status: "conflict" };
+    if (data.status === "already_mapped") return { status: "already_mapped", agent_id: agent.data };
+    if (data.status === "mapped") return { status: "mapped", agent_id: agent.data };
+    return { status: "invalid_agent" };
   } catch {
     return { status: "unavailable" };
   }
@@ -63,16 +59,12 @@ export async function pauseRetellAgentMapping(tenantId: string): Promise<RetellM
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
 
-    const db = createServiceClient().schema("integration_private");
-    const { data, error } = await db
-      .from("retell_connections")
-      .update({ enabled: false })
-      .eq("tenant_id", tenantId)
-      .eq("connection_id", connection.data)
-      .eq("enabled", true)
-      .select("provider_account_id");
-    if (error) return { status: "unavailable" };
-    return { status: data?.length ? "paused" : "not_mapped" };
+    const { data, error } = await createServiceClient().rpc("retell_mapping_pause", {
+      p_tenant_id: tenantId,
+      p_connection_id: connection.data,
+    });
+    if (error || !data || typeof data !== "object") return { status: "unavailable" };
+    return data.status === "paused" ? { status: "paused" } : { status: "not_mapped" };
   } catch {
     return { status: "unavailable" };
   }
@@ -85,15 +77,14 @@ export async function getRetellAgentMappingHealth(tenantId: string): Promise<Ret
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
 
-    const db = createServiceClient().schema("integration_private");
-    const { data, error } = await db
-      .from("retell_connections")
-      .select("enabled")
-      .eq("tenant_id", tenantId)
-      .eq("connection_id", connection.data);
-    if (error) return { status: "unavailable" };
-    if (!data?.length) return { status: "not_mapped" };
-    return { status: data.some(row => row.enabled) ? "active" : "paused" };
+    const { data, error } = await createServiceClient().rpc("retell_mapping_health", {
+      p_tenant_id: tenantId,
+      p_connection_id: connection.data,
+    });
+    if (error || !data || typeof data !== "object") return { status: "unavailable" };
+    if (data.status === "active") return { status: "active" };
+    if (data.status === "paused") return { status: "paused" };
+    return { status: "not_mapped" };
   } catch {
     return { status: "unavailable" };
   }
