@@ -9,6 +9,7 @@ const harness = vi.hoisted(() => ({
 
 vi.mock('@/lib/server/authorization', () => ({ requireMembership: harness.membership }));
 vi.mock('@/lib/supabase/config', () => ({ isSupabaseConfigured: harness.configured }));
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('@/lib/supabase/service', () => ({
   createServiceClient: () => ({
     rpc: (name: string, args: unknown) => {

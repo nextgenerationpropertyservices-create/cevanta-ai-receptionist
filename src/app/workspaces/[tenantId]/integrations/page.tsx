@@ -6,6 +6,8 @@ import { RetellMappingForm } from './retell-mapping-form';
 import { RetellPauseForm } from './retell-pause-form';
 import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
 
+export const dynamic = 'force-dynamic';
+
 const integrations = [
   {
     name: 'Retell voice agent',
