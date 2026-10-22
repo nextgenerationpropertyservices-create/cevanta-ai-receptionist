@@ -86,6 +86,10 @@ WHY: The official Make plugin is connected, and a separate webhook-to-Make-data-
 DO THIS: add a proper duplicate branch/response in Make, then retest duplicate retry without execution errors before any live Retell/Twilio/Cevanta connection.
 SUCCESS LOOKS LIKE: duplicate and non-analyzed events produce clean successful runs without creating extra review records, while valid fictional analyzed calls create exactly one safe review record.
 
+## 2026-10-21 onboarding operations progress
+
+CEV-ONBOARD-OPS-152A prepared an owner-controlled `client_onboarding_milestones` contract, server action, local migration, and SQL isolation test. After coordinator review and owner approval, the migration was applied to hosted Supabase and verified with RLS/policy/index catalog checks. CEV-ONBOARD-OPS-153A now uses those milestones to classify internal client workspaces consistently as Setup, Testing, Live, or Paused and shows the same recorded state on Launch Readiness. Focused checks pass. The standard production build remains blocked by the existing Windows/OneDrive Turbopack CSS worker panic; no application deployment was performed.
+
 
 
 
@@ -916,3 +920,69 @@ Owner approved release. GitHub `main` was pushed at commit `0bcccdf`. Vercel pro
 - 2026-10-15: CEV-CLIENT-INVITE-124A implemented a secure internal client invitation flow. Cevanta internal owners/admins can issue a seven-day one-time link for an existing confirmed client account; the token is hashed at rest and no membership is added until the invited user signs in and accepts. The client lands in Setup after acceptance. The internal Clients page shows a copy-once private link control; provider email delivery remains intentionally unconfigured. Embedded onboarding command tests passed with issuance authorization, duplicate, unknown-account, early-membership and non-member denial cases; typecheck, lint and 44 files / 850 Vitest tests passed. Turbopack and Webpack production builds were blocked by local OneDrive process/filesystem permissions. No production deployment was made.
 
 - 2026-10-15: CEV-CLIENT-INVITE-124A preview release. Supabase migration `client_invitation_issuance` applied to project `rafiksklbrfgefkypvkn`. Hosted privilege check confirmed `issue_client_invitation` is executable by `authenticated` and not by `anon`. The pushed preview branch serves the private invitation route at `https://cevant-git-245e81-nextgenerationpropertyservices-1486s-projects.vercel.app/invite`, verified in the browser. Production was not changed.
+
+- 2026-10-19: CEV-DASHBOARD-132A implemented locally. Overview now includes manually added new leads in the summary, attention banner, and queue. Technician editing now supports common skills via multi-select plus custom skills, with existing tenant and owner/admin checks preserved. Typecheck, lint, and 44 files / 855 tests passed. Local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. Awaiting preview review and owner release approval.
+
+- 2026-10-19: Lead cleanup follow-up added visible Archive and Delete actions directly in the lead list. Archive safely moves a lead to Closed; Delete remains tenant-scoped and reports linked-record blockers. Typecheck, lint, and 44 files / 860 tests passed; production build remains blocked by the known OneDrive/Turbopack globals.css worker panic.
+
+- 2026-10-19: CEV-MANAGED-CLIENT-133A implemented locally. Internal owner/admin users can remove managed client workspaces from the Clients page or the authorized internal view inside a client workspace by typing `DELETE WORKSPACE`. Removal archives the relation, revokes the internal support membership, hides the workspace from the active client list, and preserves records for audit. Typecheck, lint, and focused tests passed (44 files / 865 tests). The hosted Supabase migration and production deployment remain pending owner approval.
+
+## CEV-MANAGED-CLIENT-133A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. Supabase migration `managed_client_workspace_archive` was applied to project `rafiksklbrfgefkypvkn`. GitHub `main` was updated at commit `9b9349b`; Vercel production deployment `cevanta-ai-receptionist-3aqm3m2es.vercel.app` reached Ready and was assigned the production alias `cevanta-ai-receptionist.vercel.app`.
+
+The release adds owner/admin-only workspace archive controls in the internal Clients page and the authorized internal view of a client workspace. It requires the exact `DELETE WORKSPACE` confirmation, removes the workspace from active client operations, revokes the internal support membership, and preserves records for audit. Live provider accounts and automation settings are unchanged.
+
+- 2026-10-19: CEV-INTERNAL-OPS-134A implemented locally. Internal workspaces now use a Cevanta operations command center with managed-client portfolio counts, onboarding/pilot/live/paused status, owner shortcuts, and a clear boundary that sends trade-specific work to client workspaces. Client workspace overviews remain unchanged. Typecheck, lint, and 44 files / 866 tests passed. Production build remains blocked by the known OneDrive/Turbopack `globals.css` worker panic. Awaiting owner review and release approval.
+
+## CEV-INTERNAL-OPS-134A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved release. GitHub `main` was updated at commit `dbcb5ed`; Vercel production deployment `cevanta-ai-receptionist-ptadn8jwy.vercel.app` reached Ready and was assigned the canonical production alias `cevanta-ai-receptionist.vercel.app`.
+
+Production now presents the internal workspace as a Cevanta operations command center, while client workspaces retain the trade-service front office. No provider, billing, messaging, calendar, booking, payment, or dispatch side effects were added.
+
+- 2026-10-19: CEV-TECH-138A implemented locally. Technician management now supports name-first roster entries with optional email, an accessible checkbox skill picker, service areas, and pending-link status. Linking a confirmed Cevanta account is owner/admin-only, tenant-scoped, and copies skills/availability into the existing assignment profile; unlinked entries cannot be assigned to jobs. Typecheck, lint, full Vitest suite (46 files / 871 tests), embedded migration/RLS checks, and focused roster tests passed. Local production output remains blocked by the known OneDrive/Turbopack CSS panic and Webpack `.next` EPERM. Hosted Supabase migration, independent security review, preview smoke, and production approval remain pending.
+
+- 2026-10-19: CEV-TECH-139A prepared locally. Technician roster cards now show the technician name prominently, capture/display an optional phone number, and use the dark card surface consistently. Hosted migration `technician_roster_phone` is applied. Typecheck, lint, focused roster tests (47 files / 874 tests), and embedded migration/RLS checks passed. Local production build remains blocked by the known OneDrive/Turbopack CSS worker panic. Awaiting owner approval before pushing this follow-up to production.
+
+- 2026-10-19: CEV-THEME-140A prepared locally. Authenticated workspace pages now have a persistent light/dark mode switch in the header; dark remains the default and light mode restores readable navigation, cards, forms, and roster surfaces. No database or provider side effects. Awaiting final checks and owner approval before the combined roster/theme production push.
+
+## CEV-TECH-139A and CEV-THEME-140A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. GitHub `main` was pushed at commit `72bce71`, containing the technician roster readability/phone update and the persistent light/dark mode switch. Vercel Git integration was triggered for the production target. No database or provider side effects were added by the theme work; the roster phone migration was already applied to `rafiksklbrfgefkypvkn`.
+
+Production verification through the connected Vercel tool is unavailable because the project/team authorization is not mapped to the current Vercel connection. The owner should refresh the canonical production site, sign in, and verify the Technicians page and header theme switch after the Vercel build finishes.
+
+- 2026-10-19: CEV-ACCOUNT-141A prepared locally. Workspace Settings now includes an Account section showing the signed-in email and a secure Change password link. Passwords are never displayed or stored. Typecheck, lint, and the configured 47-file / 874-test run passed. Awaiting owner approval before pushing this follow-up.
+
+- 2026-10-19: CEV-STARTUP-142A implemented locally. The workspace picker now has a clear welcome area, separate internal/client sections, stronger card actions, a first-run create-workspace form, and a page-by-page quick tour with examples for Setup, Leads, Jobs & calendar, Technicians, Notifications, and Reports. Typecheck, lint, and the configured 47-file / 874-test run passed. The local production build remains blocked by the known OneDrive/Turbopack `globals.css` worker panic. No production deployment was made.
+
+- 2026-10-19: CEV-ONBOARD-WIZARD-143A implemented locally. Client owner/admin setup now flips through one section at a time with Back/Next controls, a compact progress strip, and an expandable blueprint. Existing save actions, validation, role projections, and provider side-effect boundaries are unchanged. Onboarding tests, typecheck, lint, and the configured 47-file / 874-test run passed. No production deployment was made.
+
+## CEV-TECH-138A production release
+
+Date: 2026-10-19 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. Supabase migration `technician_roster` was applied to project `rafiksklbrfgefkypvkn`. GitHub `main` was pushed at commit `ee62f2c`; Vercel production deployment `cevanta-ai-receptionist-lx8fwgqki.vercel.app` reached Ready and was assigned the canonical production alias `cevanta-ai-receptionist.vercel.app`.
+
+The release adds name-first technician roster entries, optional email linking, checkbox skills, service areas, availability fields, and pending-link safeguards. Unlinked roster entries cannot be assigned to jobs; linking a confirmed account remains owner/admin-only and copies approved profile data into the assignment profile. No SMS/email, booking, payment, calendar-write, or dispatch automation was enabled.
+
+The connected Vercel fetch tool denied an independent health request because project authorization is not mapped, but deployment metadata reports `READY`, production target, the expected commit SHA, and the canonical alias. The owner should refresh the live Technicians and Jobs pages in an authenticated browser session to confirm the signed-in visual flow.
+
+- 2026-10-19: CEV-ONBOARD-REQUIRED-144A aligned required setup guidance and readiness. Required for office-review readiness: business identity, contact name plus one office email or phone, one enabled named service, at least one open-hours block, acknowledged request/never-promise notes, and one enabled escalation contact with a name and email or phone. Optional date overrides, timing preferences, and extra contacts do not block readiness. Partial profile drafts remain saveable. Focused onboarding/provisioning run passed 47 files / 875 tests; typecheck and lint passed. Local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. Awaiting owner approval before production release.
+
+- 2026-10-21: CEV-ATTENTION-155A and CEV-HISTORY-156A implemented locally. The notification center now groups new leads, urgent work, callbacks due, missing contact information, unassigned jobs, and urgent assigned jobs with direct links and shortcut counts. It also shows a data-health panel that distinguishes available Cevanta records from unavailable workspace tables. Lead detail now includes a recorded opportunity history for captured, office-review, job, and visit states. Full lint, typecheck, and 49-file / 885-test suite passed. The local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. No database, provider, messaging, booking, payment, calendar-write, or dispatch side effects were added. Preview/production release is not approved in this turn.
+
+
+- 2026-10-21: CEV-ONBOARD-EASE-157A implemented locally. Optional onboarding sections are now visibly labeled and skippable, and the Quick start/setup guide opens by default so trade starter services are easier to apply. Full lint, typecheck, and 49-file / 885-test suite passed. The local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. No database or provider side effects were added.
+- 2026-10-21: CEV-ONBOARD-EASE-157A follow-up clarified the wizard progress strip with Required/Optional labels and updated the setup summary to prioritize required sections. Focused onboarding tests (79), typecheck, and lint passed.

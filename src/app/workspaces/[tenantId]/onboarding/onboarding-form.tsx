@@ -1,11 +1,12 @@
 'use client';
 
-import { useId, useRef, useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
+import { applyIndustryStarterTemplate, saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
 import { ONBOARDING_STEPS, ONBOARDING_TIMEZONES } from '@/lib/onboarding-contracts';
 import { validateConfiguration, validateResume } from '@/lib/onboarding-validation';
 import type { ConfigurationInput, ConfigurationPayloads, ConfigurationResult, ServiceInput, HoursDay, EscalationInput, OnboardingStep, ResumeInput, SavedHoursException } from '@/lib/onboarding-contracts';
+import { useOnboardingWizard } from './onboarding-wizard';
 
 type Profile = ConfigurationPayloads['save_business_profile'];
 type Attempt = ConfigurationInput<'save_business_profile'>;
@@ -34,9 +35,42 @@ export function RefreshSetupButton() {
   return <button className="button secondary" type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())}>{pending ? 'Loading setup…' : 'Try again'}</button>;
 }
 
-export function SheetSyncForm({ tenantId }: { tenantId: string }) {
+export function StarterTemplateForm({ tenantId, hasServices }: { tenantId: string; hasServices: boolean }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
+  function apply() {
+    if (pending || hasServices) return;
+    setMessage('');
+    setError(false);
+    startTransition(async () => {
+      try {
+        const result = await applyIndustryStarterTemplate(tenantId);
+        if (result.status === 'saved' || result.status === 'replayed') {
+          setMessage(`Added ${result.service_count} starter services. Review and edit them below.`);
+          router.refresh();
+        } else if (result.status === 'already_configured') {
+          setMessage('Services are already saved. No existing client data was replaced.');
+          router.refresh();
+        } else {
+          setError(true);
+          setMessage('The starter template could not be confirmed. Refresh Setup and try again.');
+        }
+      } catch {
+        setError(true);
+        setMessage('The starter template could not be confirmed. Refresh Setup and try again.');
+      }
+    });
+  }
+  return <div className="button-row"><button className="button secondary" type="button" onClick={apply} disabled={pending || hasServices}>{pending ? 'Applying starter services…' : hasServices ? 'Starter services already reviewed' : 'Apply starter services'}</button>{message && <p className={error ? 'form-error' : 'notice'} role={error ? 'alert' : 'status'}>{message}</p>}</div>;
+}
+
+export function SheetSyncForm({ tenantId, configRevision }: { tenantId: string; configRevision: number }) {
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<SheetSyncResult | null>(null);
+  const wizard = useOnboardingWizard();
+  const syncMarker = `cevanta:onboarding-sheet-sync:${tenantId}:${configRevision}`;
   const message = result?.status === 'sent'
     ? 'Sent to the Cevanta Client Intake Responses sheet.'
     : result?.status === 'not_configured'
@@ -46,18 +80,29 @@ export function SheetSyncForm({ tenantId }: { tenantId: string }) {
         : result?.status === 'failed'
           ? 'The sheet sync could not be confirmed. No success was reported; review Make before retrying.'
           : '';
-  async function send() {
+  async function send(automatic = false) {
     if (pending) return;
     setPending(true);
-    try { setResult(await syncOnboardingToSheet(tenantId)); }
+    try {
+      const response = await syncOnboardingToSheet(tenantId);
+      setResult(response);
+      if (automatic && response.status === 'sent') window.localStorage.setItem(syncMarker, 'sent');
+    }
     catch { setResult({ status: 'failed' }); }
     finally { setPending(false); }
   }
+  useEffect(() => {
+    if (!wizard || wizard.active !== wizard.stepCount - 1 || window.localStorage.getItem(syncMarker) === 'sent') return;
+    const timer = window.setTimeout(() => void send(true), 0);
+    // The marker is scoped to this tenant and saved setup revision.
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wizard?.active, wizard?.stepCount, syncMarker]);
   return <section className="panel setup-editor-panel" aria-labelledby="sheet-sync-title">
     <h2 id="sheet-sync-title">Send completed intake to your sheet</h2>
-    <p>After reviewing all setup sections, send one complete snapshot to the private Cevanta intake sheet. Saving sections above does not send anything automatically.</p>
-    <button className="button" type="button" onClick={() => void send()} disabled={pending}>{pending ? 'Sending…' : 'Send to Google Sheet'}</button>
-    <p className={result?.status === 'sent' ? 'notice' : result ? 'form-error' : 'small'} aria-live="polite">{pending ? 'Waiting for Make to confirm the row…' : message || 'Use this once after the client has reviewed the complete intake.'}</p>
+    <p>When the required setup is complete, Cevanta automatically sends one snapshot for this saved revision to the private intake sheet. You can retry below if setup is incomplete or the connection needs attention.</p>
+    <button className="button secondary" type="button" onClick={() => void send()} disabled={pending}>{pending ? 'Sending…' : 'Send again'}</button>
+    <p className={result?.status === 'sent' ? 'notice' : result ? 'form-error' : 'small'} aria-live="polite">{pending ? 'Waiting for Make to confirm the row…' : message || 'Automatic sync runs when this final step opens.'}</p>
   </section>;
 }
 
@@ -202,10 +247,10 @@ export function BusinessProfileForm({ tenantId, revision, values }: { tenantId: 
   }
 
   return <>
-    <p>Business name, trade and time zone are required. Contact information can be added later. For a phone number, include the country code starting with +, followed by digits only.</p>
+    <p>Business name, trade, time zone, contact name, and at least one office email or phone are required before readiness review. For a phone number, include the country code starting with +, followed by digits only.</p>
     <form className="form onboarding-profile" onSubmit={event => { event.preventDefault(); if (!stopped && !uncertain) void save(); }} aria-busy={pending}>
       <fieldset disabled={pending || stopped || uncertain}><legend className="visually-hidden">Business profile</legend>
-        {(Object.keys(labels) as (keyof Profile)[]).map(field => <label className="field" key={field} htmlFor={`${id}-${field}`}><span>{labels[field]}{['name', 'trade', 'timezone'].includes(field) ? ' *' : ' (optional)'}</span>{field === 'timezone' ? <select id={`${id}-${field}`} name={field} value={draft[field]} onChange={event => setDraft({ ...draft, [field]: event.target.value })} required aria-invalid={validationFields.has(field)} aria-describedby={`${id}-${field}-hint`}><option value="" disabled>Choose a time zone</option>{!ONBOARDING_TIMEZONES.includes(draft.timezone) && draft.timezone && <option value={draft.timezone} disabled>Current time zone needs correction</option>}{ONBOARDING_TIMEZONES.map(zone => <option key={zone} value={zone}>{zone.replaceAll('_', ' ')}</option>)}</select> : <input id={`${id}-${field}`} name={field} type={field === 'business_email' ? 'email' : field === 'business_phone' ? 'tel' : 'text'} value={draft[field] ?? ''} required={field === 'name' || field === 'trade'} onChange={event => setDraft({ ...draft, [field]: event.target.value })} aria-invalid={validationFields.has(field)} aria-describedby={validationFields.has(field) ? `${id}-${field}-hint` : undefined}/>} {(field === 'timezone' || validationFields.has(field)) && <small id={`${id}-${field}-hint`}>{validationFields.has(field) ? `Check ${labels[field].toLowerCase()}; this value could not be saved.` : 'Choose the time zone used by your business. This does not change the calendar’s UTC display.'}</small>}</label>)}
+        {(Object.keys(labels) as (keyof Profile)[]).map(field => <label className="field" key={field} htmlFor={`${id}-${field}`}><span>{labels[field]}{['name', 'trade', 'timezone', 'business_contact_name'].includes(field) ? ' *' : ['business_email', 'business_phone'].includes(field) ? ' (one required)' : ' (optional)'}</span>{field === 'timezone' ? <select id={`${id}-${field}`} name={field} value={draft[field]} onChange={event => setDraft({ ...draft, [field]: event.target.value })} required aria-invalid={validationFields.has(field)} aria-describedby={`${id}-${field}-hint`}><option value="" disabled>Choose a time zone</option>{!ONBOARDING_TIMEZONES.includes(draft.timezone) && draft.timezone && <option value={draft.timezone} disabled>Current time zone needs correction</option>}{ONBOARDING_TIMEZONES.map(zone => <option key={zone} value={zone}>{zone.replaceAll('_', ' ')}</option>)}</select> : <input id={`${id}-${field}`} name={field} type={field === 'business_email' ? 'email' : field === 'business_phone' ? 'tel' : 'text'} value={draft[field] ?? ''} required={['name', 'trade', 'business_contact_name'].includes(field)} onChange={event => setDraft({ ...draft, [field]: event.target.value })} aria-invalid={validationFields.has(field)} aria-describedby={`${id}-${field}-hint`}/>} {(field === 'timezone' || field === 'business_email' || field === 'business_phone' || validationFields.has(field)) && <small id={`${id}-${field}-hint`}>{validationFields.has(field) ? (field === 'business_email' && !draft.business_email && !draft.business_phone ? 'Add an office email or phone; one is required for readiness.' : `Check ${labels[field].toLowerCase()}; this value could not be saved.`) : field === 'timezone' ? 'Choose the time zone used by your business. This does not change the calendar’s UTC display.' : 'Add at least one office contact method; email and phone are both optional individually.'}</small>}</label>)}
         <button className="button" type="submit">{pending ? 'Saving…' : 'Save business details'}</button>
       </fieldset>
       <div aria-live="polite" role={result && !['saved', 'replayed'].includes(result.status) ? 'alert' : 'status'}>{message && <p className={result && !['saved', 'replayed'].includes(result.status) ? 'form-error' : 'notice'}>{message}</p>}</div>

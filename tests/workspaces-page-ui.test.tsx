@@ -27,6 +27,8 @@ describe("workspace picker", () => {
     expect(html).toContain("Open clients dashboard");
     expect(html).toContain("Northstar HVAC");
     expect(html).toContain("Client workspace");
+    expect(html).toContain("workspace-section-internal");
+    expect(html.indexOf("workspace-section-internal")).toBeLessThan(html.indexOf("workspace-welcome"));
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });
 });

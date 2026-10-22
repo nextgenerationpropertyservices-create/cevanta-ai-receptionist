@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-OPS-151A
+- Work completed: Added a URL-addressable client search field to the internal onboarding monitor. Search matches business name, trade, or timezone and composes with the Setup/Testing/Live/Paused stage filter; clear and empty-result states are included.
+- Files changed: `src/app/workspaces/[tenantId]/clients/page.tsx`, `src/app/globals.css`, `tests/managed-clients.test.ts`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/managed-clients.test.ts` PASS (49 files, 884 tests under the configured runner); `pnpm typecheck` PASS; `pnpm lint` PASS. Production build remains limited by the known local OneDrive/Turbopack CSS worker panic and Webpack `.next` EPERM during prerender.
+- Known limitations: Search is an in-memory filter over the authorized managed-client result; it does not alter database query behavior or add server-side pagination.
+- Risks: None beyond the existing local build environment limitation.
+- Rollback notes: Revert the search query/filter, styles, and test additions in the three files above. No records or provider state are changed.
+- Exact next action: Preview the internal Clients page with multiple fictional workspaces, then implement persisted payment/test-call/launch events as the next automation milestone.

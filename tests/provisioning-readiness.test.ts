@@ -37,6 +37,14 @@ describe('provisioning readiness', () => {
     expect(JSON.stringify(readiness)).not.toMatch(/webhook|api key|sk_live_|Bearer /i);
   });
 
+  it('marks the trusted route ready only when the tenant mapping is active', () => {
+    const readiness = buildProvisioningReadiness(snapshot(), [], 'active');
+    const gate = readiness.gates.find(item => item.key === 'trusted_route');
+    expect(gate?.state).toBe('ready');
+    expect(gate?.summary).toContain('active tenant-scoped Retell route');
+    expect(JSON.stringify(readiness)).not.toMatch(/agent_[A-Za-z0-9_-]+|webhook|api key/i);
+  });
+
   it('shows setup needed when required client onboarding details are missing', () => {
     const readiness = buildProvisioningReadiness(snapshot({ profile: null, services: [], weekly_hours: [], booking: null, escalation: [] }), []);
     expect(readiness.readyCount).toBe(0);

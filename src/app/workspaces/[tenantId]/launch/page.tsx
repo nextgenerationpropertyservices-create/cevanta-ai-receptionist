@@ -4,6 +4,10 @@ import { buildProvisioningReadiness, provisioningStateLabel } from '@/lib/provis
 import { getAutomationControls } from '@/lib/server/automation-control-queries';
 import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
 import { getWorkspace } from '@/lib/server/queries';
+import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
+import type { RetellRouteReadiness } from '@/lib/provisioning-readiness';
+import { getOnboardingMilestones } from '@/lib/server/onboarding-milestones';
+import { defaultOnboardingMilestones, milestoneLabel } from '@/lib/onboarding-milestones';
 
 const readinessRows = [
   {
@@ -57,9 +61,11 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
   const { tenant, role } = await getWorkspace(tenantId);
   const base = `/workspaces/${tenant.id}`;
   const template = templateForTrade(tenant.trade);
-  const [onboarding, automation] = await Promise.all([getOnboardingSnapshot(tenant.id), getAutomationControls(tenant.id)]);
+  const [onboarding, automation, milestoneMap] = await Promise.all([getOnboardingSnapshot(tenant.id), getAutomationControls(tenant.id), getOnboardingMilestones([tenant.id])]);
   const ownerSnapshot = onboarding.status === 'available' && onboarding.snapshot.projection === 'owner_setup' ? onboarding.snapshot : null;
-  const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls);
+  const retellRoute: RetellRouteReadiness = role === 'owner' || role === 'admin' ? (await getRetellAgentMappingHealth(tenant.id)).status : 'not_configured';
+  const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls, retellRoute);
+  const milestones = milestoneMap.get(tenant.id) ?? defaultOnboardingMilestones();
 
   return (
     <>
@@ -160,6 +166,23 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
             <tbody>{SELF_SERVICE_ONBOARDING_STEPS.map(step => <tr key={step.title}><td><strong>{step.title}</strong><p className="small muted">{step.systemUse}</p></td><td>{step.ownerAction}</td><td>{step.gate}</td></tr>)}</tbody>
           </table>
         </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">STORED ONBOARDING STATE</span>
+            <h2>What has been recorded for this workspace</h2>
+          </div>
+          <span className="pill">Owner review</span>
+        </div>
+        <p>These milestones summarize setup progress. They are review records only; saving a status never enables a provider or sends an external message.</p>
+        <div className="client-milestone-strip" aria-label="Stored onboarding milestones">
+          {Object.entries(milestones).filter(([key]) => key !== 'updated_at').map(([key, value]) => (
+            <span key={key} className={`milestone-${value}`}><b>{milestoneLabel(key.replace('_status', '').replace('launch_approval', 'launch'))}</b>{milestoneLabel(value ?? '')}</span>
+          ))}
+        </div>
+        <p className="small muted">Update these from the internal Clients page after you confirm payment, setup, test-call, integration, and launch evidence.</p>
       </section>
 
       <section className="panel">

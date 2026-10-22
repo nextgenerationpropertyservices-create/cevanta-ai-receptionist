@@ -8,6 +8,9 @@ import { getOnboardingSnapshot } from "@/lib/server/onboarding-rpc";
 import { InvitationLinkForm } from "@/components/invitation-link";
 import type { OwnerOnboardingSnapshot } from "@/lib/onboarding-contracts";
 import { createStripePaymentRequest } from "@/app/actions/stripe-payment-links";
+import { saveOnboardingMilestones } from "@/app/actions/onboarding-milestones";
+import { getOnboardingMilestones } from "@/lib/server/onboarding-milestones";
+import { milestoneLabel, type OnboardingMilestones } from "@/lib/onboarding-milestones";
 
 type SetupGate = { label: string; ready: boolean; openHref: string };
 type IntakeDetail = { label: string; value: string; ready: boolean };
@@ -29,7 +32,9 @@ type ClientOps = ManagedClientWorkspace & {
   calendarHref: string;
   gates: SetupGate[];
   intakeDetails: IntakeDetail[];
+  milestones: OnboardingMilestones;
 };
+type ClientStage = "all" | "setup" | "testing" | "live" | "paused";
 
 function ownerSnapshot(value: unknown): value is OwnerOnboardingSnapshot {
   return !!value && typeof value === "object" && "projection" in value && value.projection === "owner_setup";
@@ -105,6 +110,7 @@ async function clientOps(client: ManagedClientWorkspace): Promise<ClientOps> {
       integrationStatus: "Provider writes off",
       supportStatus: "Confirm account access and setup availability",
       nextAction: "Open the client workspace and confirm setup access before live calls.",
+      milestones: { payment_status: "not_started", setup_status: "not_started", test_call_status: "not_started", retell_status: "not_connected", make_status: "not_connected", launch_approval_status: "not_requested", updated_at: null },
     };
   }
 
@@ -144,6 +150,7 @@ async function clientOps(client: ManagedClientWorkspace): Promise<ClientOps> {
     integrationStatus: setupComplete ? "Ready for controlled Retell/Make test" : "Keep provider writes off",
     supportStatus: setupComplete ? "Review test call and go-live notes" : `Collect ${missing.slice(0, 2).join(" and ") || "remaining setup"}`,
     nextAction: setupComplete ? "Run the launch checklist, then place one fictional test call before live client calls." : `Finish ${missing.slice(0, 3).join(", ")}.`,
+    milestones: { payment_status: "not_started", setup_status: setupComplete ? "complete" : completed ? "in_progress" : "not_started", test_call_status: "not_started", retell_status: "not_connected", make_status: "not_connected", launch_approval_status: "not_requested", updated_at: null },
   };
 }
 
@@ -154,24 +161,46 @@ function statusTone(value: string) {
   return "Needs work";
 }
 
-export default async function ClientWorkspaces({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams?: Promise<{ payment_link?: string; payment_client?: string; payment_type?: string; payment_amount?: string }> }) {
+function clientStage(client: ClientOps): Exclude<ClientStage, "all"> {
+  if (client.status === "paused") return "paused";
+  const milestones = client.milestones;
+  const launchReady = milestones.payment_status === "paid" && milestones.test_call_status === "passed" && milestones.retell_status === "verified" && milestones.make_status === "verified" && milestones.launch_approval_status === "approved";
+  if (client.status === "active" || launchReady) return "live";
+  if (milestones.setup_status === "complete" && (milestones.test_call_status === "passed" || milestones.retell_status === "mapped" || milestones.make_status === "mapped")) return "testing";
+  if (client.readinessScore === 100) return "testing";
+  return "setup";
+}
+
+export default async function ClientWorkspaces({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams?: Promise<{ payment_link?: string; payment_client?: string; payment_type?: string; payment_amount?: string; stage?: string; q?: string }> }) {
   const { tenantId } = await params;
   const query = searchParams ? await searchParams : {};
   const { operator, role, clients, allowed } = await getManagedClientWorkspaces(tenantId);
   const opsClients = allowed ? await Promise.all(clients.map(clientOps)) : [];
+  const persistedMilestones = allowed ? await getOnboardingMilestones(opsClients.map(client => client.id)) : new Map<string, OnboardingMilestones>();
+  for (const client of opsClients) {
+    const saved = persistedMilestones.get(client.id);
+    if (saved) client.milestones = saved;
+  }
+  const requestedStage = query.stage;
+  const stage: ClientStage = requestedStage === "setup" || requestedStage === "testing" || requestedStage === "live" || requestedStage === "paused" ? requestedStage : "all";
+  const search = typeof query.q === "string" ? query.q.trim() : "";
+  const searchNeedle = search.toLowerCase();
+  const stageClients = stage === "all" ? opsClients : opsClients.filter(client => clientStage(client) === stage);
+  const visibleClients = searchNeedle ? stageClients.filter(client => [client.name, client.trade, client.timezone].some(value => value.toLowerCase().includes(searchNeedle))) : stageClients;
+  const stageCounts = { all: opsClients.length, setup: opsClients.filter(client => clientStage(client) === "setup").length, testing: opsClients.filter(client => clientStage(client) === "testing").length, live: opsClients.filter(client => clientStage(client) === "live").length, paused: opsClients.filter(client => clientStage(client) === "paused").length };
   const activeClients = opsClients.filter(client => client.status === "pilot" || client.status === "active").length;
   const readyForTest = opsClients.filter(client => client.readinessScore === 100).length;
   const needsSetup = opsClients.filter(client => client.readinessScore < 100).length;
-  const priorityClients = [...opsClients].sort((a, b) => a.readinessScore - b.readinessScore || a.name.localeCompare(b.name)).slice(0, 4);
+  const priorityClients = [...visibleClients].sort((a, b) => a.readinessScore - b.readinessScore || a.name.localeCompare(b.name)).slice(0, 4);
 
   return <>
     <div className="page-heading"><span className="eyebrow">CEVANTA BACK OFFICE</span><h1>Internal owner operations dashboard.</h1><p>Monitor every client workspace, onboarding file, paperwork state, launch gate, payment check, integration status, and support next action from {operator.name}.</p></div>
     {!allowed ? <section className="panel"><h2>Internal access required</h2><p className="notice">Your {role} access can use this workspace, but only Cevanta internal owner/admin access can create and monitor managed client workspaces.</p><Link className="button secondary" href={`/workspaces/${tenantId}`}>Return to dashboard ↗</Link></section> : <>
       <div className="stat-grid"><div className="panel stat"><span>Managed clients</span><strong className="role-value">{opsClients.length}</strong><p>Total client workspaces connected to this Cevanta operator dashboard.</p></div><div className="panel stat"><span>Ready for test call</span><strong className="role-value">{readyForTest}</strong><p>Clients with core intake, services, hours, call rules and escalation contacts saved.</p></div><div className="panel stat"><span>Need setup work</span><strong className="role-value">{needsSetup}</strong><p>Clients missing paperwork or onboarding gates before live pilot calls.</p></div></div>
 
-      <section className="panel"><div className="section-heading"><div><span className="eyebrow">OWNER PRIORITY QUEUE</span><h2>What needs your attention first</h2></div><span className="pill">{activeClients} active or pilot</span></div>{priorityClients.length ? <div className="table-scroll"><table><thead><tr><th>Client</th><th>Readiness</th><th>Next action</th><th>Open</th></tr></thead><tbody>{priorityClients.map(client => <tr key={client.id}><td><strong>{client.name}</strong><p className="small muted">{client.trade} · {client.status}</p></td><td><strong>{client.readinessScore}%</strong><p className="small muted">{client.setupStatus}</p></td><td>{client.nextAction}</td><td><div className="button-row"><Link className="card-link" href={client.setupHref}>Setup ↗</Link><Link className="card-link" href={client.launchHref}>Launch ↗</Link></div></td></tr>)}</tbody></table></div> : <Empty title="No client workspaces yet">Create the first trade-service client workspace when a prospect says yes to the managed pilot.</Empty>}</section>
+      <section className="panel"><div className="section-heading"><div><span className="eyebrow">OWNER PRIORITY QUEUE</span><h2>What needs your attention first</h2></div><span className="pill">{activeClients} active or pilot</span></div><form className="client-monitor-search" method="get"><label htmlFor="client-search">Find a client</label><div><input id="client-search" name="q" type="search" defaultValue={search} placeholder="Business name, trade, or timezone"/><input type="hidden" name="stage" value={stage}/><button className="button secondary" type="submit">Search</button>{search && <Link className="card-link" href={`/workspaces/${tenantId}/clients${stage === "all" ? "" : `?stage=${stage}`}`}>Clear</Link>}</div></form><nav className="client-stage-filter" aria-label="Filter clients by onboarding stage">{([['all','All'],['setup','Setup'],['testing','Testing'],['live','Live'],['paused','Paused']] as const).map(([value,label]) => { const params = new URLSearchParams(); if (value !== "all") params.set("stage", value); if (search) params.set("q", search); const suffix = params.toString(); return <Link key={value} className={stage === value ? "active" : ""} href={`/workspaces/${tenantId}/clients${suffix ? `?${suffix}` : ""}`} aria-current={stage === value ? "page" : undefined}>{label}<span>{stageCounts[value]}</span></Link>; })}</nav>{priorityClients.length ? <div className="table-scroll"><table><thead><tr><th>Client</th><th>Readiness</th><th>Next action</th><th>Open</th></tr></thead><tbody>{priorityClients.map(client => <tr key={client.id}><td><strong>{client.name}</strong><p className="small muted">{client.trade} · {client.status}</p></td><td><strong>{client.readinessScore}%</strong><p className="small muted">{client.setupStatus}</p></td><td>{client.nextAction}</td><td><div className="button-row"><Link className="card-link" href={client.setupHref}>Setup ↗</Link><Link className="card-link" href={client.launchHref}>Launch ↗</Link></div></td></tr>)}</tbody></table></div> : <Empty title={search ? `No clients match “${search}”` : `No ${stage === "all" ? "client" : stage} workspaces`}>Try another search or select a different stage.</Empty>}</section>
 
-<section className="panel"><div className="section-heading"><div><span className="eyebrow">CLIENT INTAKE DETAILS</span><h2>What each client has filled out</h2></div><span className="pill">Internal review</span></div>{opsClients.length ? <div className="client-intake-grid">{opsClients.map(client => <details key={client.id} className="client-intake-card client-intake-details"><summary><span><strong>{client.name}</strong><small>{client.trade} · {client.status}</small></span><span className={client.readinessScore === 100 ? "intake-summary-ready" : "intake-summary-review"}>{client.readinessScore}% ready</span></summary><dl>{client.intakeDetails.map(detail => <div key={detail.label} className={detail.ready ? "intake-ready" : "intake-missing"}><dt>{detail.label}</dt><dd>{detail.value}</dd></div>)}</dl><div className="button-row"><Link className="card-link" href={client.setupHref}>Open setup ↗</Link><Link className="card-link" href={client.workspaceHref}>Open workspace ↗</Link></div></details>)}</div> : <Empty title="No intake files yet">When a client fills out Setup, their saved answers will summarize here for your review.</Empty>}<p className="small muted">This section reads saved onboarding information only. It does not send SMS or email, write calendars, collect payments, auto-book, or dispatch technicians.</p></section>
+<section className="panel"><div className="section-heading"><div><span className="eyebrow">CLIENT INTAKE DETAILS</span><h2>What each client has filled out</h2></div><span className="pill">{visibleClients.length} shown · Internal review</span></div>{visibleClients.length ? <div className="client-intake-grid">{visibleClients.map(client => <details key={client.id} className="client-intake-card client-intake-details"><summary><span><strong>{client.name}</strong><small>{client.trade} · {client.status}</small></span><span className={client.readinessScore === 100 ? "intake-summary-ready" : "intake-summary-review"}>{client.readinessScore}% ready</span></summary><dl>{client.intakeDetails.map(detail => <div key={detail.label} className={detail.ready ? "intake-ready" : "intake-missing"}><dt>{detail.label}</dt><dd>{detail.value}</dd></div>)}</dl><div className="client-milestone-strip" aria-label={`${client.name} onboarding milestones`}>{Object.entries(client.milestones).filter(([key]) => key !== "updated_at").map(([key,value]) => <span key={key} className={`milestone-${value}`}><b>{milestoneLabel(key.replace("_status", "").replace("launch_approval", "launch"))}</b>{milestoneLabel(value ?? "")}</span>)}</div><ActionForm action={saveOnboardingMilestones} submitLabel="Save milestones" hidden={{ tenantId: client.id }}><div className="client-milestone-form"><label>Payment<select name="payment_status" defaultValue={client.milestones.payment_status}><option value="not_started">Not started</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option></select></label><label>Setup<select name="setup_status" defaultValue={client.milestones.setup_status}><option value="not_started">Not started</option><option value="in_progress">In progress</option><option value="complete">Complete</option></select></label><label>Test call<select name="test_call_status" defaultValue={client.milestones.test_call_status}><option value="not_started">Not started</option><option value="passed">Passed</option><option value="failed">Failed</option></select></label><label>Retell<select name="retell_status" defaultValue={client.milestones.retell_status}><option value="not_connected">Not connected</option><option value="mapped">Mapped</option><option value="verified">Verified</option></select></label><label>Make<select name="make_status" defaultValue={client.milestones.make_status}><option value="not_connected">Not connected</option><option value="mapped">Mapped</option><option value="verified">Verified</option></select></label><label>Launch<select name="launch_approval_status" defaultValue={client.milestones.launch_approval_status}><option value="not_requested">Not requested</option><option value="approved">Approved</option><option value="revoked">Revoked</option></select></label></div></ActionForm><div className="button-row"><Link className="card-link" href={client.setupHref}>Open setup ↗</Link><Link className="card-link" href={client.workspaceHref}>Open workspace ↗</Link></div></details>)}</div> : <Empty title="No intake files yet">When a client fills out Setup, their saved answers will summarize here for your review.</Empty>}<p className="small muted">Milestones are owner-controlled records. Saving them does not connect providers, send messages, book appointments, collect payments, write calendars, or dispatch technicians.</p></section>
 
 <section className="panel"><div className="section-heading"><div><span className="eyebrow">PRIVATE CLIENT ACCESS</span><h2>Invite a client owner</h2></div><span className="pill">One-time link</span></div><p>First have the client create and confirm their Cevanta account. Then issue a private seven-day link for the matching email. They will accept it and land in Setup; you keep internal review access.</p>{opsClients.length ? <div className="client-intake-grid">{opsClients.map(client => <details key={client.id} className="client-intake-card client-access-details"><summary><span><strong>{client.name}</strong><small>Owner access is added only after acceptance</small></span><span className="card-link">Open access ▾</span></summary><InvitationLinkForm operatorTenantId={tenantId} clientTenantId={client.id} /></details>)}</div> : <Empty title="Create a client workspace first">The invitation control appears here after you create a managed client workspace.</Empty>}<p className="small muted">Cevanta does not email this link yet. Copy it once and send it through your approved business channel. Never post it publicly.</p></section>
 

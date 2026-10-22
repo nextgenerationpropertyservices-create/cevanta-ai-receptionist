@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn() }));
+const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn(), retellHealth: vi.fn(), milestones: vi.fn() }));
 vi.mock('@/lib/server/queries', () => ({ getWorkspace: harness.workspace }));
 vi.mock('@/lib/server/onboarding-rpc', () => ({ getOnboardingSnapshot: harness.onboarding }));
 vi.mock('@/lib/server/automation-control-queries', () => ({ getAutomationControls: harness.automation }));
+vi.mock('@/app/actions/retell-provisioning', () => ({ getRetellAgentMappingHealth: harness.retellHealth }));
+vi.mock('@/lib/server/onboarding-milestones', () => ({ getOnboardingMilestones: harness.milestones }));
 
 import { AUTOMATION_CONTROL_DEFINITIONS, defaultAutomationControl } from '@/lib/automation-controls';
 import LaunchReadiness from '@/app/workspaces/[tenantId]/launch/page';
@@ -15,6 +17,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'owner' });
   harness.automation.mockResolvedValue({ ready: true, canManage: true, controls: AUTOMATION_CONTROL_DEFINITIONS.map(definition => defaultAutomationControl(tenant, definition)) });
+  harness.retellHealth.mockResolvedValue({ status: 'active' });
+  harness.milestones.mockResolvedValue(new Map());
   harness.onboarding.mockResolvedValue({
     status: 'available',
     snapshot: {
@@ -43,6 +47,8 @@ describe('launch readiness page', () => {
   it('shows the controlled self-service client path and shared onboarding boundaries', async () => {
     const output = await html();
     expect(output).toContain('PROVISIONING READINESS');
+    expect(output).toContain('STORED ONBOARDING STATE');
+    expect(output).toContain('What has been recorded for this workspace');
     expect(output).toContain('Client go-live checklist');
     expect(output).toContain('Client setup data');
     expect(output).toContain('Trusted tenant route');

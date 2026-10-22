@@ -68,6 +68,10 @@ This is a required outcome, not a claim that it already exists. Preserve all cur
 
 Current guided journey task: CEV-ONBOARD-38. Atlas is assigned to design invitation-based first access, setup data contracts, saved progress and backend-derived readiness before implementation. CEV-JOURNEY-GAP-37 is accepted as a gap audit only; it does not mean the journey is complete.
 
+2026-10-19: Added the first safe onboarding automation slice. New owner workspaces can apply a trade-specific starter service list from Setup. The server action uses the existing tenant-scoped onboarding RPC, refuses to replace any existing service list, and does not connect providers or enable live writes. Focused blueprint and integrations UI tests passed; full typecheck without incremental output, lint, and 877 application tests passed. Secure provider connection authorization and hosted multi-client routing remain future gates.
+
+2026-10-19: Added CEV-ONBOARD-AUTO-146A. Owner/admins can register an existing Retell agent ID to the shared Make connection for a tenant through a server-only mapping action. Cross-workspace reassignment is refused; no agent publishing, phone routing, or live writers are enabled. Full Vitest suite now passes with 49 files / 878 tests; typecheck and lint pass. Retell draft creation still needs an approved API contract and server-only key.
+
 ## Guided onboarding database commands
 
 CEV-ONBOARD-RPC-46 and CEV-ONBOARD-COMMAND-TESTS-47 are accepted with limitations. `pnpm check` now includes onboarding storage and command SQL embedded suites. Remaining gates are live Auth/JWT/PostgREST, genuine concurrency, hosted migration/advisors, backend server actions, UI and provider/production readiness.
@@ -197,3 +201,6 @@ Current recommended launch path: managed pilot with office review. Use `docs/bus
 - 2026-10-14: CEV-LEAD-NOTIFY-114A was released to GitHub main at dceeab6 after owner approval. Production health returned ok/databaseConfigured true; protected Notifications and Lead Detail routes returned HTTP 200. Signed-in visual verification remains owner/browser-session based.
 
 2026-10-14: Released CEV-CLIENTS-TAB-115A and CEV-DELETE-LEADS-JOBS-116A to GitHub main at 82e77fd. Internal workspaces now show Clients; owner/admin/dispatcher users can delete lead/job records from detail pages. Production smoke checks returned 200 for home, health, workspaces and protected leads route. No live provider side effects were enabled.
+
+- 2026-10-19: Added a reversible owner/admin Retell routing pause, non-sensitive route health summary, and Launch readiness consumption for the client Integrations page. It changes only the tenant-scoped private Make mapping and leaves Retell agents, phone routing, and credentials unchanged. Focused direct authorization/scope tests, typecheck, lint, and 882 application tests passed; hosted tenant-isolation and production release remain open.
+- 2026-10-19: Hosted prerequisite inventory found production Vercel has the private Supabase/Make routing variables, and the replacement `RETELL_API_KEY` is now stored privately as Production and Preview Secrets. A deployment created after the update is READY and the deployed sign-in page loads, but it is based on connected `main` commit `76bb78e`, which predates the latest local routing changes. Protected deployment fetch is unavailable through the connected Vercel authorization. See `docs/project/handoffs/CEV-ONBOARD-AUTO-148A.md`.
