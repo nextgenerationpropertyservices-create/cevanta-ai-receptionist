@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const leads = [
   { name: 'Sam Carter', issue: 'No heat upstairs', location: 'Maple Ridge neighborhood', urgency: 'High', window: 'Today after 2 PM', status: 'Needs review', value: '$650 potential job' },
   { name: 'Pine Street Market', issue: 'Walk-in cooler running warm', location: 'Auburn commercial district', urgency: 'Urgent', window: 'First available today', status: 'New lead', value: '$1,200 potential job' },
@@ -34,6 +36,10 @@ const roiRows = [
 export default function DemoDashboard() {
   return (
     <main className="demo-dashboard demo-meet" aria-labelledby="demo-title">
+      <header className="demo-client-bar">
+        <Link className="demo-brand" href="/" aria-label="Cevanta home"><span className="demo-brand-mark">C</span><strong>Cevanta</strong></Link>
+        <span className="demo-client-badge">PRIVATE PROSPECT PREVIEW · FICTIONAL DATA</span>
+      </header>
       <section className="demo-hero panel">
         <div>
           <span className="eyebrow">GOOGLE MEET SALES DEMO · FICTIONAL HVAC COMPANY</span>
@@ -45,6 +51,10 @@ export default function DemoDashboard() {
             <span className="pill">Office reviews</span>
             <span className="pill">No automatic booking</span>
           </div>
+          <div className="button-row demo-hero-actions">
+            <a className="button primary" href="mailto:nextgenerationpropertyservices@gmail.com?subject=Cevanta%20pilot%20fit%20call">Request a 10-minute fit call ↗</a>
+            <a className="button secondary" href="#pilot-details">See what is included ↓</a>
+          </div>
         </div>
         <aside className="demo-safe-card">
           <span className="eyebrow">PILOT OFFER</span>
@@ -52,6 +62,12 @@ export default function DemoDashboard() {
           <p>Managed pilot for HVAC owners who miss calls or need front-office backup.</p>
           <small>Boundary: no automatic booking, SMS/email, calendar writes, payment collection or dispatch automation unless separately approved and tested.</small>
         </aside>
+      </section>
+
+      <section className="demo-value-strip" aria-label="Client value">
+        <article><strong>Recover missed opportunities</strong><span>Every call becomes a clear office next step.</span></article>
+        <article><strong>Keep your team in control</strong><span>Review requests before booking, messaging or dispatch.</span></article>
+        <article><strong>Start with a managed pilot</strong><span>Get setup help, a clean workflow and measured outcomes.</span></article>
       </section>
 
       <section className="demo-meet-alert panel" aria-label="New lead alert">
@@ -69,7 +85,7 @@ export default function DemoDashboard() {
         <article className="panel stat"><span>Pilot mode</span><strong className="role-value">Office review</strong><p>AI captures preferences, office confirms</p></article>
       </section>
 
-      <section className="split-layout demo-grid">
+      <section className="split-layout demo-grid" id="pilot-details">
         <div className="panel">
           <div className="section-heading"><div><span className="eyebrow">LEAD INBOX</span><h2>AI receptionist leads</h2></div><span className="pill">Fictional data</span></div>
           <div className="demo-card-list">
@@ -143,11 +159,14 @@ export default function DemoDashboard() {
           </ul>
         </div>
         <aside className="panel demo-close">
-          <span className="eyebrow">CLOSE</span>
-          <h2>Use this close on the call</h2>
-          <p>“For the first pilot, Cevanta answers calls, captures the details, and gives your office a clean review queue. Your team stays in control before anything is booked. Setup is $497, then $297 per month.”</p>
+          <span className="eyebrow">READY WHEN YOU ARE</span>
+          <h2>Turn the next missed call into a next step.</h2>
+          <p>“For the first pilot, Cevanta answers calls, captures the details, and gives your office a clean review queue. Your team stays in control before anything is booked.”</p>
+          <p className="demo-offer-line"><strong>$497 setup</strong> · <strong>$297/month</strong> · managed pilot</p>
+          <a className="button primary demo-cta" href="mailto:nextgenerationpropertyservices@gmail.com?subject=Cevanta%20pilot%20fit%20call">Request your fit call ↗</a>
         </aside>
       </section>
+      <footer className="demo-footer-note">Cevanta · Managed AI receptionist pilots for service businesses · Examples on this page are fictional.</footer>
     </main>
   );
 }
