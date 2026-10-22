@@ -5,6 +5,9 @@ import { getWorkspace } from '@/lib/server/queries';
 import { RetellMappingForm } from './retell-mapping-form';
 import { RetellPauseForm } from './retell-pause-form';
 import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
+import { MakeAuthorizationForm } from './make-authorization-form';
+
+export const dynamic = 'force-dynamic';
 
 const integrations = [
   {
@@ -145,6 +148,13 @@ export default async function IntegrationsReadiness({ params }: { params: Promis
         <RetellMappingForm tenantId={tenantId}/>
         <RetellPauseForm tenantId={tenantId}/>
         <p className="small muted">Pausing is reversible and affects only this workspace’s trusted route. It does not delete the Retell agent, change phone routing, or revoke the API key.</p>
+      </section>}
+
+      {canManage && <section className="panel" aria-labelledby="make-authorization-title">
+        <div className="section-heading"><div><span className="eyebrow">CLIENT CONNECTIONS</span><h2 id="make-authorization-title">Create a client authorization link</h2></div><span className="pill">Owner/admin only</span></div>
+        <p>Enter the client’s name and email once. Cevanta creates a private Make request for the client’s approved Gmail and Google Calendar connections and lets you check its status here.</p>
+        <p className="notice">The link does not activate booking, SMS, email, calendar writes or dispatch. Those remain separate approval-gated options.</p>
+        <MakeAuthorizationForm tenantId={tenantId} />
       </section>}
 
       <section className="panel">
