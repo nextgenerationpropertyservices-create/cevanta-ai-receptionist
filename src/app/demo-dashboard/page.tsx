@@ -52,7 +52,7 @@ export default function DemoDashboard() {
             <span className="pill">No automatic booking</span>
           </div>
           <div className="button-row demo-hero-actions">
-            <a className="button primary" href="mailto:nextgenerationpropertyservices@gmail.com?subject=Cevanta%20pilot%20fit%20call">Request a 10-minute fit call ↗</a>
+            <Link className="button primary" href="/sign-up">Start your setup ↗</Link>
             <a className="button secondary" href="#pilot-details">See what is included ↓</a>
           </div>
         </div>
@@ -163,7 +163,8 @@ export default function DemoDashboard() {
           <h2>Turn the next missed call into a next step.</h2>
           <p>“For the first pilot, Cevanta answers calls, captures the details, and gives your office a clean review queue. Your team stays in control before anything is booked.”</p>
           <p className="demo-offer-line"><strong>$497 setup</strong> · <strong>$297/month</strong> · managed pilot</p>
-          <a className="button primary demo-cta" href="mailto:nextgenerationpropertyservices@gmail.com?subject=Cevanta%20pilot%20fit%20call">Request your fit call ↗</a>
+          <Link className="button primary demo-cta" href="/sign-up">Start setup without a sales call ↗</Link>
+          <p className="small muted demo-cta-note">Create your account, complete the guided setup, and review the next steps. You can ask questions by email whenever you need help.</p>
         </aside>
       </section>
       <footer className="demo-footer-note">Cevanta · Managed AI receptionist pilots for service businesses · Examples on this page are fictional.</footer>
