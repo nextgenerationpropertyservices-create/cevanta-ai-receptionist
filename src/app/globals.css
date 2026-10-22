@@ -424,6 +424,19 @@ html[data-theme="light"] .internal-ops-stats span,html[data-theme="light"] .inte
 html[data-theme="light"] .internal-ops-stats strong{color:var(--ink)}
 html[data-theme="light"] .internal-client-list>a:hover,html[data-theme="light"] .internal-shortcuts>a:hover{background:#f1fafb;border-color:#9bd7de}
 
+/* Setup readability: the light theme must also reset the onboarding editor,
+   while the dark theme keeps quick-fill surfaces in the same contrast system. */
+.setup-quick-add{background:#10283b;border-color:#2a7186;color:var(--ink)}.setup-quick-add p,.setup-quick-add .small{color:#a7d6e8}.setup-quick-add .field select{background:#0a1427;border-color:#2b405f;color:var(--ink)}.setup-checkbox-group{border-color:#35617a!important}.setup-checkbox-group legend,.setup-checkbox-group .setup-checkbox{color:var(--ink)}
+html[data-theme="light"] main .panel,html[data-theme="light"] main .setup-editor-row,html[data-theme="light"] main .onboarding-review,html[data-theme="light"] main .setup-progress,html[data-theme="light"] main .setup-readiness,html[data-theme="light"] main .setup-operations{background:#fff;color:#143a38;border-color:#dce4dc}
+html[data-theme="light"] main .setup-editor-row p,html[data-theme="light"] main .onboarding-review p,html[data-theme="light"] main .setup-progress p,html[data-theme="light"] main .setup-readiness p,html[data-theme="light"] main .setup-operations p{color:#687b76}
+html[data-theme="light"] main .field input,html[data-theme="light"] main .field textarea,html[data-theme="light"] main .field select,html[data-theme="light"] main .setup-quick-add .field select{background:#fff;border-color:#cbd7ce;color:#143a38}
+html[data-theme="light"] main .field option{background:#fff;color:#143a38}
+html[data-theme="light"] main .setup-quick-add{background:#f1f8ef;border-color:#c9dcb8;color:#143a38}
+html[data-theme="light"] main .setup-quick-add p,html[data-theme="light"] main .setup-quick-add .small{color:#687b76}
+html[data-theme="light"] main .setup-checkbox-group{border-color:#cbd7ce!important}
+html[data-theme="light"] main .setup-checkbox-group legend,html[data-theme="light"] main .setup-checkbox-group .setup-checkbox{color:#143a38}
+html[data-theme="light"] main .notice{background:#f1f6e7;border-color:#dee8c7;color:#435738}
+
 .payment-request-panel{border-color:#2a7186;background:linear-gradient(145deg,#0d1e31,#0d172b)}
 .payment-request-panel .section-heading{margin-bottom:18px}
 .payment-link-result{display:grid;gap:5px;margin:18px 0;border-color:#1593aa;background:#103448;color:#d8fbff}

@@ -998,6 +998,8 @@ The connected Vercel fetch tool denied an independent health request because pro
 
 - 2026-10-21: CEV-ONBOARD-SPEED-163A added quick common-service insertion and quick weekly-hour presets plus copy-hours-to-selected-days controls. Manual editing, validation, explicit save, and provider approval boundaries remain unchanged. Full suite (49 files / 886 tests), typecheck, lint, and production build passed. No database, provider, messaging, booking, calendar-write, payment, or dispatch side effects were added. Awaiting owner approval before production release.
 
+- 2026-10-21: CEV-ONBOARD-COLOR-164A restored setup-page contrast in both themes. Dark mode now keeps quick-fill surfaces readable, and light mode resets setup panels, rows, controls, checkbox groups, notices, and saved-review areas to light readable surfaces. Onboarding UI tests (49 files / 886 tests), typecheck, lint, and production build passed. No database, provider, messaging, booking, calendar-write, payment, or dispatch side effects were added. Awaiting owner approval before production release.
+
 ## CEV-ONBOARD-SPEED-163A production release
 
 Date: 2026-10-21 (America/New_York)
