@@ -2,12 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const harness = vi.hoisted(() => ({
-  workspace: vi.fn(), managedClients: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(),
+  workspace: vi.fn(), managedClients: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(), onboarding: vi.fn(),
 }));
 vi.mock("@/lib/server/queries", () => ({ getWorkspace: harness.workspace, getManagedClientWorkspaces: harness.managedClients }));
 vi.mock("@/lib/server/intake-queries", () => ({ getLeads: harness.leads }));
 vi.mock("@/lib/server/jobs-queries", () => ({ getJobs: harness.jobs, getTechnicians: harness.technicians }));
 vi.mock("@/lib/server/appointments-queries", () => ({ getAppointments: harness.appointments }));
+vi.mock("@/lib/server/onboarding-rpc", () => ({ getOnboardingSnapshot: harness.onboarding }));
 
 import Dashboard from "@/app/workspaces/[tenantId]/page";
 
@@ -30,6 +31,7 @@ beforeEach(() => {
   harness.jobs.mockResolvedValue({ ready: true, jobs: [] });
   harness.appointments.mockResolvedValue({ ready: true, appointments: [] });
   harness.technicians.mockResolvedValue({ ready: true, technicians: [{ user_id: techId, display_name: "Casey Field Tech" }] });
+  harness.onboarding.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ enabled: true, name: "Water heater repair" }], weekly_hours: [{ closed: false, intervals: [{ start_minute: 480, end_minute: 1020 }] }], booking: { acknowledged: true }, escalation: [{ enabled: true, contact_name: "Fictional Office", email: "office@example.invalid", phone: null }] } });
 });
 
 async function html(leads = [aiLead]) {
@@ -52,6 +54,11 @@ describe("workspace overview front office dashboard", () => {
 
   it("shows ROI, field team workload, and calendar pulse from existing data", async () => {
     const output = await html();
+    expect(output).toContain("SYSTEM STATUS");
+    expect(output).toContain("SETUP PROGRESS");
+    expect(output).toContain("Get the workspace ready for office review");
+    expect(output).toContain("Know what the receptionist can prove");
+    expect(output).toContain("Lead intake");
     expect(output).toContain("RECOVERED LOSS SNAPSHOT");
     expect(output).toContain("Estimated recovered revenue");
     expect(output).toContain("Adjust the numbers below to match your business.");
@@ -88,6 +95,17 @@ describe("workspace overview front office dashboard", () => {
     expect(output).toContain(`/workspaces/${tenant}/leads/${manualLead.id}`);
   });
 
+  it("makes empty states actionable", async () => {
+    harness.leads.mockResolvedValue({ ready: true, leads: [] });
+    harness.jobs.mockResolvedValue({ ready: true, jobs: [] });
+    harness.appointments.mockResolvedValue({ ready: true, appointments: [] });
+    harness.technicians.mockResolvedValue({ ready: true, technicians: [] });
+    const output = renderToStaticMarkup(await Dashboard({ params: Promise.resolve({ tenantId: tenant }) }));
+    expect(output).toContain("Open lead inbox");
+    expect(output).toContain("Add a field tech");
+    expect(output).toContain("Open calendar");
+  });
+
   it("gives the internal workspace an owner operations command center", async () => {
     const internalTenant = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
     harness.workspace.mockResolvedValue({ tenant: { id: internalTenant, name: "Cevanta Operations", trade: "Internal Operations", timezone: "America/New_York", account_type: "internal" }, role: "owner" });
@@ -100,6 +118,7 @@ describe("workspace overview front office dashboard", () => {
     expect(markup).toContain("CLIENT PORTFOLIO");
     expect(markup).toContain("Fictional Plumbing");
     expect(markup).toContain("Trade tools stay with the client");
+    expect(markup).toContain("Review onboarding queue");
     expect(markup).not.toContain("RECOVERED LOSS SNAPSHOT");
     expect(harness.leads).not.toHaveBeenCalled();
   });

@@ -6,7 +6,7 @@ import { automationStateLabel, AUTOMATION_STATES, type AutomationControl } from 
 
 export function AutomationControlForm({ control, canManage }: { control: AutomationControl; canManage: boolean }) {
   return (
-    <article className="panel automation-control-card">
+    <article id={`automation-${control.capability}`} className="panel automation-control-card">
       <div className="section-heading">
         <div>
           <span className="eyebrow">{control.provider}</span>

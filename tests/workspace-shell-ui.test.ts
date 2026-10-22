@@ -14,6 +14,8 @@ describe("workspace shell attention badges", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "owner", attention: { aiLeads: 2, urgentAiLeads: 1, unassignedJobs: 3, newestAiLeadId: "33333333-3333-4333-8333-333333333333" } }, createElement("div", null, "Dashboard body")));
     expect(html).toContain("5</strong> need attention");
     expect(html).toContain("Notifications");
+    expect(html).toContain("Client workspace");
+    expect(html).toContain("Open attention queue");
     expect(html).toContain(`/workspaces/${tenant.id}/notifications`);
     expect(html).toContain("Leads");
     expect(html).toContain("Jobs");
@@ -42,6 +44,7 @@ describe("workspace shell attention badges", () => {
     const internalTenant = { ...tenant, account_type: "internal", name: "Cevanta Internal Operations", trade: "AI Receptionist Operations" } as const;
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant: internalTenant, role: "owner" }, createElement("div", null, "Dashboard body")));
     expect(html).toContain("Clients");
+    expect(html).toContain("Internal operations");
     expect(html).toContain(`/workspaces/${tenant.id}/clients`);
     expect(html).not.toContain("Back office");
     expect(html).not.toContain("Start setup");

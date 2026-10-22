@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-HISTORY-156A
+- Work completed: Added an opportunity-history timeline to lead detail using recorded lead, job, and appointment records. The timeline labels captured, office-review, job, and visit states and links to related jobs.
+- Files changed: `src/app/workspaces/[tenantId]/leads/[leadId]/page.tsx`, `docs/project/tasks/CEV-HISTORY-156A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm typecheck` PASS; `pnpm exec vitest run tests/leads-ui.test.ts --run` PASS (8 tests). Full suite and lint will be rerun with the combined work; build remains subject to the known local OneDrive/Turbopack CSS worker panic.
+- Known limitations: The current schema does not retain a separate provider delivery or office-acknowledgement event stream, so the timeline only shows persisted lead/job/appointment records and does not infer delivery or resolution.
+- Risks: A job or visit can be created outside the lead path; this timeline includes only records linked to this lead's job.
+- Rollback notes: Revert the lead detail page; no migration or provider rollback is needed.
+- Exact next action: Add a verified receptionist/integration status summary to the workspace overview, then consider a durable event history contract before claiming full lifecycle reporting.

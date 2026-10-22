@@ -30,6 +30,10 @@ describe("notification center", () => {
     expect(html).toContain("NOTIFICATION CENTER");
     expect(html).toContain("Notification shortcuts");
     expect(html).toContain("New AI leads");
+    expect(html).toContain("Callbacks due");
+    expect(html).toContain("Missing info");
+    expect(html).toContain("SYSTEM HEALTH");
+    expect(html).toContain("Know what is ready before you act");
     expect(html).toContain("Open the newest lead for office review.");
     expect(html).toContain(`/workspaces/${tenant}/leads/${lead.id}`);
     expect(html).toContain("Urgent AI lead");
@@ -48,3 +52,4 @@ describe("notification center", () => {
     expect(html).not.toMatch(/service-role|secret|webhook|api key/i);
   });
 });
+

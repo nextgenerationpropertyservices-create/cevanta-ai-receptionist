@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-OPS-150A
+- Work completed: Added URL-addressable onboarding stage filters to the internal Clients monitor. The owner can switch between All, Setup, Testing, Live, and Paused, see counts on each filter, and review an explicit empty state when a stage has no clients. Priority and intake sections now respect the selected stage while portfolio totals remain visible.
+- Files changed: `src/app/workspaces/[tenantId]/clients/page.tsx`, `src/app/globals.css`, `tests/managed-clients.test.ts`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/managed-clients.test.ts` PASS (49 files, 883 tests under the configured runner); `pnpm typecheck` PASS; `pnpm lint` PASS. The prior production build limitation remains: Turbopack panics on the global stylesheet in this OneDrive environment and the Webpack fallback reaches prerender before a Windows/OneDrive `.next` EPERM.
+- Known limitations: Stage values are derived from current readiness and workspace status; payment is still a manual check and provider setup remains gated. No automation was enabled.
+- Risks: A client with complete intake but pilot status appears in Testing until a future provider/test-call state is persisted.
+- Rollback notes: Revert the stage filter additions in the three files above. No records or provider state are changed.
+- Exact next action: Review the internal Clients page at `/workspaces/{internalTenantId}/clients`, then move to persisted payment/test-call/launch events for true onboarding automation.

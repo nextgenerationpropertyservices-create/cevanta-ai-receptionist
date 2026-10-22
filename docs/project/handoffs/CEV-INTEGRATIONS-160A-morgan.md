@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-INTEGRATIONS-160A
+- Work completed: Added a Quick Setup section for email follow-up, SMS follow-up, and live booking. Each card explains the simplest safe preparation path and jumps to the matching existing gated control. Automation cards now have stable anchors for direct navigation.
+- Files changed: `src/app/workspaces/[tenantId]/integrations/page.tsx`, `src/app/workspaces/[tenantId]/integrations/automation-control-form.tsx`, `tests/integrations-ui.test.ts`, `docs/project/tasks/CEV-INTEGRATIONS-160A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run tests/integrations-ui.test.ts --run` PASS (3 tests); `pnpm test` PASS (49 files, 886 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS (Next.js 16.3.8 Turbopack).
+- Known limitations: The cards simplify navigation and wording; provider connection, message sending, booking, and calendar writes remain gated and are not enabled by this work.
+- Risks: None beyond existing provider approval and tenant access controls.
+- Rollback notes: Remove the Quick Setup section, stable card IDs, and focused assertions; no migration or provider rollback is needed.
+- Exact next action: Review the Integrations page in an authenticated preview. Production release requires explicit owner approval.

@@ -100,3 +100,13 @@ export function templateForTrade(trade: string | null | undefined): ClientIndust
   const normalized = (trade ?? "").toLowerCase();
   return CLIENT_INDUSTRY_TEMPLATES.find(template => template.tradeMatches.some(match => normalized.includes(match))) ?? CLIENT_INDUSTRY_TEMPLATES[CLIENT_INDUSTRY_TEMPLATES.length - 1];
 }
+
+export function starterServicesForTrade(trade: string | null | undefined) {
+  return templateForTrade(trade).defaultServices.map((name, position) => ({
+    id: null,
+    name,
+    description: `Office-review intake for ${name.toLowerCase()} requests.`,
+    enabled: true,
+    position,
+  }));
+}

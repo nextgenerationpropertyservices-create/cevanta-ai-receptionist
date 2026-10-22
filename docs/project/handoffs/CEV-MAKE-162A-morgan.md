@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-MAKE-162A
+- Work completed: Added a reusable Make handoff pattern to Integrations: Receive, Map, Act, Prove. The page explains trusted server-side client mapping, approved-only actions, duplicate prevention, result logging, and failure return to office review. It links to the operating manual for the repeatable client process.
+- Files changed: `src/app/workspaces/[tenantId]/integrations/page.tsx`, `tests/integrations-ui.test.ts`, `docs/project/tasks/CEV-MAKE-162A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run tests/integrations-ui.test.ts --run` PASS (3 tests); `pnpm test` PASS (49 files, 886 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS (Next.js 16.3.8 Turbopack).
+- Known limitations: This is a reusable handoff and safety pattern; it does not create or activate Make scenarios, connect provider accounts, send email, write calendars, or book appointments.
+- Risks: None beyond existing tenant mapping and approval controls.
+- Rollback notes: Remove the Make Handoff panel and focused assertions; no migration or provider rollback is needed.
+- Exact next action: Review the Integrations page in an authenticated preview, then configure provider-specific Make connections when a client authorizes them. Production release requires explicit owner approval.

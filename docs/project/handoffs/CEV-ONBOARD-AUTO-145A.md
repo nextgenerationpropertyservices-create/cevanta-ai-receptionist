@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ONBOARD-AUTO-145A
+- Work completed: Added a tenant-scoped starter-template action to the owner Setup flow. A new workspace can apply the services from its selected trade template. The action refuses to overwrite any existing service list and does not connect provider accounts or enable live writes.
+- Files changed: `src/lib/client-onboarding-blueprint.ts`, `src/app/actions/onboarding.ts`, `src/app/workspaces/[tenantId]/onboarding/onboarding-form.tsx`, `src/app/workspaces/[tenantId]/onboarding/page.tsx`, `tests/client-onboarding-blueprint.test.ts`, `MEMORY.md`.
+- Database changes: None. Existing onboarding RPC and tenant membership checks are reused.
+- API or contract changes: No public API. Added the server action `applyIndustryStarterTemplate(tenantId)` and the pure `starterServicesForTrade` helper.
+- Verification commands and results: Focused Vitest tests passed (5 tests including integrations UI); `pnpm exec tsc --noEmit --incremental false` passed; `pnpm lint` passed; full Vitest suite passed with 48 files and 877 tests. `pnpm check` and `pnpm build` were blocked by Windows EPERM locks on existing `tsconfig.tsbuildinfo` and `.next/trace`.
+- Known limitations: This does not authorize Gmail, Outlook, Google Calendar, CRM, Make, or Retell accounts. Hosted browser/Auth/RLS evidence and production release remain open.
+- Risks: Applying the starter list is intentionally limited to empty service lists. It must not be changed to overwrite client-entered services without a separate migration and UX review.
+- Rollback notes: Revert the application changes; no database rollback is needed. Existing client data is unchanged by the action.
+- Exact next action: Design and review the provider-neutral integration connection contract, then implement one real OAuth provider with an authorized fictional test account. Keep the connection state tenant-scoped and store secrets only in the approved provider connection/secret system.

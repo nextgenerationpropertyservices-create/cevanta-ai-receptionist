@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-STATUS-158A
+- Work completed: Added a System Status overview widget and an onboarding progress widget for client workspaces. The status card shows lead intake, dispatch, and calendar record availability. The setup card shows required setup progress, enabled services, and saved escalation contacts, with a direct link to continue setup. Both explain the boundary around provider delivery and optional external writes.
+- Files changed: `src/app/workspaces/[tenantId]/page.tsx`, `tests/dashboard-ui.test.ts`, `docs/project/tasks/CEV-STATUS-158A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run tests/dashboard-ui.test.ts --run` PASS (5 tests); `pnpm test` PASS (49 files, 885 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS (Next.js 16.3.8 Turbopack).
+- Known limitations: Setup progress uses the existing onboarding snapshot and required fields; it does not prove provider delivery, live booking, external calendar writes, or payment status.
+- Risks: A missing or unavailable onboarding snapshot hides the setup card for that role, while the system-status card still reports application record availability.
+- Rollback notes: Remove the `setup` and `status` widget entries and their focused assertions; no migration or provider rollback is needed.
+- Exact next action: Review the two cards in an authenticated preview. Production release requires explicit owner approval.

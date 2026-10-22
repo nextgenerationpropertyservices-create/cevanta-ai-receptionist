@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-EMPTY-159A
+- Work completed: Added direct next-step links to overview empty states. A clear queue now links to the lead inbox, an empty field-team state links to technician setup, and an empty calendar state links to the calendar.
+- Files changed: `src/app/workspaces/[tenantId]/page.tsx`, `tests/dashboard-ui.test.ts`, `docs/project/tasks/CEV-EMPTY-159A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run tests/dashboard-ui.test.ts --run` PASS (6 tests); `pnpm test` PASS (49 files, 886 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS (Next.js 16.3.8 Turbopack).
+- Known limitations: Links navigate to existing pages; they do not create records automatically.
+- Risks: None beyond existing tenant access checks on destination routes.
+- Rollback notes: Remove the three links from the empty-state text and the focused empty-state test; no migration or provider rollback is needed.
+- Exact next action: Review the empty states in an authenticated preview. Production release requires explicit owner approval.

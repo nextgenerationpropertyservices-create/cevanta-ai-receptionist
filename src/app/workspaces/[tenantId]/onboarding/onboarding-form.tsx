@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
+import { applyIndustryStarterTemplate, saveOnboardingConfiguration, saveOnboardingProgress, syncOnboardingToSheet, type SheetSyncResult } from '@/app/actions/onboarding';
 import { ONBOARDING_STEPS, ONBOARDING_TIMEZONES } from '@/lib/onboarding-contracts';
 import { validateConfiguration, validateResume } from '@/lib/onboarding-validation';
 import type { ConfigurationInput, ConfigurationPayloads, ConfigurationResult, ServiceInput, HoursDay, EscalationInput, OnboardingStep, ResumeInput, SavedHoursException } from '@/lib/onboarding-contracts';
@@ -33,6 +33,37 @@ export function RefreshSetupButton() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return <button className="button secondary" type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())}>{pending ? 'Loading setup…' : 'Try again'}</button>;
+}
+
+export function StarterTemplateForm({ tenantId, hasServices }: { tenantId: string; hasServices: boolean }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
+  function apply() {
+    if (pending || hasServices) return;
+    setMessage('');
+    setError(false);
+    startTransition(async () => {
+      try {
+        const result = await applyIndustryStarterTemplate(tenantId);
+        if (result.status === 'saved' || result.status === 'replayed') {
+          setMessage(`Added ${result.service_count} starter services. Review and edit them below.`);
+          router.refresh();
+        } else if (result.status === 'already_configured') {
+          setMessage('Services are already saved. No existing client data was replaced.');
+          router.refresh();
+        } else {
+          setError(true);
+          setMessage('The starter template could not be confirmed. Refresh Setup and try again.');
+        }
+      } catch {
+        setError(true);
+        setMessage('The starter template could not be confirmed. Refresh Setup and try again.');
+      }
+    });
+  }
+  return <div className="button-row"><button className="button secondary" type="button" onClick={apply} disabled={pending || hasServices}>{pending ? 'Applying starter services…' : hasServices ? 'Starter services already reviewed' : 'Apply starter services'}</button>{message && <p className={error ? 'form-error' : 'notice'} role={error ? 'alert' : 'status'}>{message}</p>}</div>;
 }
 
 export function SheetSyncForm({ tenantId, configRevision }: { tenantId: string; configRevision: number }) {

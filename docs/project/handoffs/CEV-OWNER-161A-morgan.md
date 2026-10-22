@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-OWNER-161A
+- Work completed: Added an owner-side four-step quick path to Integrations and an automation map. The quick path covers workspace creation, private access, Retell testing, and choosing one optional feature. The automation map distinguishes automatic setup tracking/readiness checks from manual approval for messages, booking, calendar writes, payments, and dispatch.
+- Files changed: `src/app/workspaces/[tenantId]/integrations/page.tsx`, `tests/integrations-ui.test.ts`, `docs/project/tasks/CEV-OWNER-161A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm exec vitest run tests/integrations-ui.test.ts --run` PASS (3 tests); `pnpm test` PASS (49 files, 886 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` PASS (Next.js 16.3.8 Turbopack).
+- Known limitations: The quick path and automation map document and link existing flows; they do not provision providers or send invitations automatically.
+- Risks: None beyond existing tenant access and approval controls.
+- Rollback notes: Remove the owner quick-path and automation-map sections plus focused assertions; no migration or provider rollback is needed.
+- Exact next action: Review the Integrations page in an authenticated preview. Production release requires explicit owner approval.

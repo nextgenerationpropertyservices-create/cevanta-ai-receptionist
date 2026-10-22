@@ -1,6 +1,7 @@
 "use server";
 
 import "server-only";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireMembership } from "@/lib/server/authorization";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -40,8 +41,14 @@ export async function registerRetellAgentMapping(tenantId: string, rawAgentId: s
     });
     if (error || !data || typeof data !== "object") return { status: "unavailable" };
     if (data.status === "conflict") return { status: "conflict" };
-    if (data.status === "already_mapped") return { status: "already_mapped", agent_id: agent.data };
-    if (data.status === "mapped") return { status: "mapped", agent_id: agent.data };
+    if (data.status === "already_mapped") {
+      revalidatePath(`/workspaces/${tenantId}/integrations`);
+      return { status: "already_mapped", agent_id: agent.data };
+    }
+    if (data.status === "mapped") {
+      revalidatePath(`/workspaces/${tenantId}/integrations`);
+      return { status: "mapped", agent_id: agent.data };
+    }
     return { status: "invalid_agent" };
   } catch {
     return { status: "unavailable" };
@@ -64,7 +71,11 @@ export async function pauseRetellAgentMapping(tenantId: string): Promise<RetellM
       p_connection_id: connection.data,
     });
     if (error || !data || typeof data !== "object") return { status: "unavailable" };
-    return data.status === "paused" ? { status: "paused" } : { status: "not_mapped" };
+    if (data.status === "paused") {
+      revalidatePath(`/workspaces/${tenantId}/integrations`);
+      return { status: "paused" };
+    }
+    return { status: "not_mapped" };
   } catch {
     return { status: "unavailable" };
   }

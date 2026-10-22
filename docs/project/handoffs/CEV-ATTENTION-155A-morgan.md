@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-ATTENTION-155A
+- Work completed: Expanded the in-app attention center with callback-due and missing-contact queues, shortcut counts, direct record links, and a system-health panel for lead, job, calendar, and technician data availability.
+- Files changed: `src/app/workspaces/[tenantId]/notifications/page.tsx`, `tests/notifications-ui.test.ts`, `docs/project/tasks/CEV-ATTENTION-155A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test` PASS (49 files, 885 tests); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` BLOCKED by the known local OneDrive/Turbopack CSS worker panic while processing `src/app/globals.css`.
+- Known limitations: Callback due uses the workspace date from the server process and existing `follow_up_date`; missing-info flags leads with neither parsed phone nor email. Provider delivery is not inferred from this panel.
+- Risks: The queue is still computed from current records and has no durable event history yet. External messaging, booking, payment, calendar-write, and dispatch side effects remain disabled.
+- Rollback notes: Revert the notification route and focused test changes; no migration or provider rollback is needed.
+- Exact next action: Review the queue in an authenticated preview/production session, then proceed to the opportunity history/status slice.
