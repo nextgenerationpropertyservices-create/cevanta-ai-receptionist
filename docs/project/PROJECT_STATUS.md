@@ -1000,6 +1000,13 @@ The connected Vercel fetch tool denied an independent health request because pro
 
 - 2026-10-21: CEV-ONBOARD-COLOR-164A restored setup-page contrast in both themes. Dark mode now keeps quick-fill surfaces readable, and light mode resets setup panels, rows, controls, checkbox groups, notices, and saved-review areas to light readable surfaces. Onboarding UI tests (49 files / 886 tests), typecheck, lint, and production build passed. No database, provider, messaging, booking, calendar-write, payment, or dispatch side effects were added. Awaiting owner approval before production release.
 
+## CEV-ONBOARD-COLOR-164A production release
+
+Date: 2026-10-21 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved deployment. Vercel production deployment `cevanta-ai-receptionist-9jpbou9z3.vercel.app` reached Ready and retained the canonical alias `cevanta-ai-receptionist.vercel.app`. The release only changes setup-page contrast and does not add database or provider side effects.
+
 ## CEV-ONBOARD-SPEED-163A production release
 
 Date: 2026-10-21 (America/New_York)
