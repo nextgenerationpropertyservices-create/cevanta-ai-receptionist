@@ -42,10 +42,10 @@ export default function DemoDashboard() {
       </header>
       <section className="demo-hero panel">
         <div>
-          <span className="eyebrow">GOOGLE MEET SALES DEMO · FICTIONAL HVAC COMPANY</span>
+          <span className="eyebrow">CLIENT PREVIEW · FICTIONAL HVAC COMPANY</span>
           <h1 id="demo-title">See how Cevanta turns missed calls into office-ready leads.</h1>
           <p className="lede">This clean demo dashboard is built for screen sharing. Every name, address, job, lead and dollar example is fictional. The first pilot keeps the office in control before anything is confirmed.</p>
-          <div className="button-row demo-hero-points" aria-label="Demo talking points">
+          <div className="button-row demo-hero-points" aria-label="Product capabilities">
             <span className="pill">AI answers</span>
             <span className="pill">Lead captured</span>
             <span className="pill">Office reviews</span>
@@ -74,7 +74,7 @@ export default function DemoDashboard() {
         <div>
           <span className="eyebrow">IMPOSSIBLE-TO-MISS ALERT</span>
           <h2>3 AI receptionist leads need office review</h2>
-          <p>Use this first on Google Meet: show the owner that every missed call becomes a clear next action for the office.</p>
+          <p>Every missed call becomes a clear next action for your office to review.</p>
         </div>
         <strong>$2,039</strong>
       </section>
@@ -85,7 +85,7 @@ export default function DemoDashboard() {
         <article className="panel stat"><span>Pilot mode</span><strong className="role-value">Office review</strong><p>AI captures preferences, office confirms</p></article>
       </section>
 
-      <section className="split-layout demo-grid" id="pilot-details">
+      <section className="demo-grid" id="pilot-details">
         <div className="panel">
           <div className="section-heading"><div><span className="eyebrow">LEAD INBOX</span><h2>AI receptionist leads</h2></div><span className="pill">Fictional data</span></div>
           <div className="demo-card-list">
@@ -104,16 +104,6 @@ export default function DemoDashboard() {
           </div>
         </div>
 
-        <aside className="panel demo-script-card">
-          <span className="eyebrow">TALK TRACK</span>
-          <h2>What to say while sharing</h2>
-          <ol>
-            <li>“This is the dashboard your office opens each morning.”</li>
-            <li>“The AI captures the caller’s need and urgency.”</li>
-            <li>“Your office reviews before confirming anything.”</li>
-            <li>“The pilot is intentionally safe while we prove the workflow.”</li>
-          </ol>
-        </aside>
       </section>
 
       <section className="panel demo-flow-panel">
