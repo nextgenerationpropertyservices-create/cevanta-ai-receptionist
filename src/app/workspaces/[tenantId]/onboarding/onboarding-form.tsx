@@ -330,6 +330,19 @@ function EditorOutcome({ editor, latest }: { editor: Pick<ReturnType<typeof useS
 }
 
 const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const quickServicePresets = [
+  { name: 'Service call', description: 'General service visit and troubleshooting.' },
+  { name: 'Preventive maintenance', description: 'Routine maintenance and seasonal tune-ups.' },
+  { name: 'Repair', description: 'Repair or replace a failed part or system.' },
+  { name: 'Installation', description: 'New equipment installation or replacement.' },
+  { name: 'Emergency service', description: 'Urgent requests for review by the office.' },
+] as const;
+const quickHoursPresets: readonly { value: string; label: string; weekdays: readonly number[] }[] = [
+  { value: 'weekdays', label: 'Weekdays · 8:00–17:00', weekdays: [0, 1, 2, 3, 4] },
+  { value: 'everyday', label: 'Every day · 8:00–17:00', weekdays: [0, 1, 2, 3, 4, 5, 6] },
+  { value: 'weekday-saturday', label: 'Weekdays + Saturday · 8:00–13:00', weekdays: [0, 1, 2, 3, 4, 5] },
+] as const;
+const standardHoursInterval = { start_minute: 480, end_minute: 1020 };
 function prepareHours(values: { days: HoursDay[] }): { days: HoursDay[] } {
   return { days: dayNames.map((_, weekday) => {
     const day = values.days.find(item => item.weekday === weekday);
@@ -486,11 +499,33 @@ export function HoursExceptionsForm({ tenantId, revision, timezone, values }: { 
 export function ServicesForm({ tenantId, revision, values }: { tenantId: string; revision: number; values: { items: ServiceInput[] } }) {
   const id = useId();
   const editor = useSetupEditor('replace_services', tenantId, revision, values);
+  const [quickService, setQuickService] = useState('');
+  const [quickMessage, setQuickMessage] = useState('');
   function change(index: number, update: Partial<ServiceInput>) { editor.setDraft(previous => ({ items: previous.items.map((item, i) => i === index ? { ...item, ...update } : item) })); }
+  function addQuickService() {
+    const preset = quickServicePresets.find(item => item.name === quickService);
+    if (!preset) return;
+    if (editor.draft.items.some(item => item.name.trim().toLowerCase() === preset.name.toLowerCase())) {
+      setQuickMessage(`${preset.name} is already in your list.`);
+      return;
+    }
+    editor.setDraft(previous => ({ items: [...previous.items, { id: null, name: preset.name, description: preset.description, enabled: true, position: Math.min(9999, Math.max(-1, ...previous.items.map(item => Number.isFinite(item.position) ? item.position : -1)) + 1) }] }));
+    setQuickMessage(`${preset.name} added. You can edit it below.`);
+    setQuickService('');
+  }
   return <>
     <p>Add the services your business offers. Enable services you want listed. Position controls their order, starting at 0. Saving replaces this service list and does not enable live bookings.</p>
     <form className="form setup-editor" aria-busy={editor.pending} onSubmit={event => { event.preventDefault(); if (!editor.locked) editor.save(); }}>
       <fieldset disabled={editor.locked}><legend className="visually-hidden">Services</legend>
+        <section className="setup-quick-add" aria-labelledby={`${id}-quick-services`}>
+          <h3 id={`${id}-quick-services`}>Quick add a common service</h3>
+          <p className="small">Choose a starter service to add it enabled. You can edit the name and description before saving.</p>
+          <div className="button-row">
+            <label className="field" htmlFor={`${id}-quick-service`}><span className="visually-hidden">Common service</span><select id={`${id}-quick-service`} value={quickService} onChange={event => { setQuickService(event.target.value); setQuickMessage(''); }}><option value="">Choose a service…</option>{quickServicePresets.map(preset => <option key={preset.name} value={preset.name}>{preset.name}</option>)}</select></label>
+            <button className="button secondary" type="button" onClick={addQuickService} disabled={!quickService || editor.draft.items.length >= 100}>Add selected service</button>
+          </div>
+          {quickMessage && <p className="small" role="status">{quickMessage}</p>}
+        </section>
         {!editor.draft.items.length && <p>No services added. Add a service below, or save an empty list to remove existing services.</p>}
         {editor.draft.items.map((item, index) => <fieldset className="setup-editor-row" key={item.id ?? `new-${index}`}><legend>Service {index + 1}</legend>
           <label className="field" htmlFor={`${id}-${index}-name`}><span>Service {index + 1} name</span><input id={`${id}-${index}-name`} value={item.name} onChange={event => change(index, { name: event.target.value })} aria-invalid={editor.invalid(`items.${index}.name`)}/></label>
@@ -511,11 +546,40 @@ export function ServicesForm({ tenantId, revision, values }: { tenantId: string;
 export function WeeklyHoursForm({ tenantId, revision, timezone, values }: { tenantId: string; revision: number; timezone: string; values: { days: HoursDay[] } }) {
   const id = useId();
   const editor = useSetupEditor('replace_weekly_hours', tenantId, revision, values, prepareHours);
+  const [copyFrom, setCopyFrom] = useState('');
+  const [copyTargets, setCopyTargets] = useState<number[]>([]);
+  const [hoursMessage, setHoursMessage] = useState('');
   function changeDay(index: number, update: Partial<HoursDay>) { editor.setDraft(previous => ({ days: previous.days.map((day, i) => i === index ? { ...day, ...update } : day) })); }
+  function applyQuickPreset(value: string) {
+    const preset = quickHoursPresets.find(item => item.value === value);
+    if (!preset) return;
+    editor.setDraft(previous => ({ days: previous.days.map(day => ({ weekday: day.weekday, closed: !preset.weekdays.includes(day.weekday), intervals: preset.weekdays.includes(day.weekday) ? [{ ...standardHoursInterval }] : [] })) }));
+    setHoursMessage(`${preset.label} applied. Review any exceptions before saving.`);
+  }
+  function copyHours() {
+    const sourceIndex = Number(copyFrom);
+    const source = editor.draft.days[sourceIndex];
+    if (!source || !copyTargets.length) return;
+    editor.setDraft(previous => ({ days: previous.days.map(day => copyTargets.includes(day.weekday) ? { ...day, closed: source.closed, intervals: source.intervals.map(interval => ({ ...interval })) } : day) }));
+    setHoursMessage(`Copied ${dayNames[sourceIndex]} hours to ${copyTargets.length} day${copyTargets.length === 1 ? '' : 's'}. Review and save when ready.`);
+    setCopyTargets([]);
+  }
   return <>
     <p>Hours use your business time zone: <strong>{timezone}</strong>. Review all seven days before saving. Days without saved hours start closed. Changing a day to closed removes its intervals from this draft. Use 24-hour times (HH:MM); an end time of 24:00 means midnight at the end of that day. Intervals must not overlap or cross midnight. Saving does not reserve appointments or enable live booking.</p>
     <form className="form setup-editor" aria-busy={editor.pending} onSubmit={event => { event.preventDefault(); if (!editor.locked) editor.save(); }}>
       <fieldset disabled={editor.locked}><legend className="visually-hidden">Weekly hours</legend>
+        <section className="setup-quick-add" aria-labelledby={`${id}-quick-hours`}>
+          <h3 id={`${id}-quick-hours`}>Quick set or repeat hours</h3>
+          <div className="button-row">
+            <label className="field" htmlFor={`${id}-hours-preset`}><span className="visually-hidden">Hours preset</span><select id={`${id}-hours-preset`} defaultValue="" onChange={event => applyQuickPreset(event.target.value)}><option value="">Apply a common schedule…</option>{quickHoursPresets.map(preset => <option key={preset.value} value={preset.value}>{preset.label}</option>)}</select></label>
+          </div>
+          <div className="setup-preference-grid">
+            <label className="field" htmlFor={`${id}-copy-from`}><span>Copy hours from</span><select id={`${id}-copy-from`} value={copyFrom} onChange={event => setCopyFrom(event.target.value)}><option value="">Choose a day…</option>{editor.draft.days.map(day => <option key={day.weekday} value={day.weekday}>{dayNames[day.weekday]}</option>)}</select></label>
+            <fieldset className="setup-checkbox-group"><legend>Copy to</legend>{dayNames.map((name, weekday) => <label className="setup-checkbox" key={name}><input type="checkbox" checked={copyTargets.includes(weekday)} onChange={event => setCopyTargets(previous => event.target.checked ? [...previous, weekday] : previous.filter(item => item !== weekday))}/>{name}</label>)}</fieldset>
+          </div>
+          <button className="button secondary" type="button" onClick={copyHours} disabled={copyFrom === '' || !copyTargets.length}>Copy hours to selected days</button>
+          {hoursMessage && <p className="small" role="status">{hoursMessage}</p>}
+        </section>
         {editor.draft.days.map((day, index) => <fieldset className="setup-editor-row" key={day.weekday}><legend>{dayNames[day.weekday]}</legend>
           <label className="setup-checkbox"><input type="checkbox" checked={day.closed} onChange={event => changeDay(index, { closed: event.target.checked, intervals: [] })}/>{dayNames[day.weekday]} closed</label>
           {!day.closed && <>

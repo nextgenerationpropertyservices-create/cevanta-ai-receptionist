@@ -241,6 +241,7 @@ describe('services and seven-day hours editors', () => {
     expect(html).toContain('Service 1 name'); expect(html).toContain('Service 1 description');
     expect(html).toContain('Enable service 1'); expect(html).toContain('position (0–9999)');
     expect(html).toContain('Remove service 1'); expect(html).toContain('Add service');
+    expect(html).toContain('Quick add a common service'); expect(html).toContain('Preventive maintenance'); expect(html).toContain('Add selected service');
     expect(html).toContain('Synthetic service only'); expect(html).toContain('type="checkbox"');
     expect(html).not.toMatch(/request_id|receipt|token|expected_config_revision/);
   });
@@ -248,6 +249,7 @@ describe('services and seven-day hours editors', () => {
     const html = renderToStaticMarkup(createElement(WeeklyHoursForm, { tenantId: tenant, revision: 4, timezone: 'America/New_York', values: { days: days.map(day => day.weekday === 0 ? { ...day, intervals: [{ start_minute: 0, end_minute: 600 }, { start_minute: 660, end_minute: 1440 }] } : day) } }));
     for (const name of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']) expect(html).toContain(`${name} closed`);
     expect(html).toContain('Monday interval 2 end'); expect(html).toContain('value="24:00"');
+    expect(html).toContain('Quick set or repeat hours'); expect(html).toContain('Apply a common schedule'); expect(html).toContain('Copy hours from'); expect(html).toContain('Copy hours to selected days');
     expect(html).toContain('America/New_York'); expect(html).toContain('does not reserve appointments');
     expect(html).toContain('for='); expect(html).toContain('legend');
   });

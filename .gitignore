@@ -15,3 +15,4 @@ docs/**/*.png
 docs/**/*.jpg
 docs/**/*.jpeg
 docs/**/*.webp
+.vercel
