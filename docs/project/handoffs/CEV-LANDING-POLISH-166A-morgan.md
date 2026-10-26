@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-LANDING-POLISH-166A
+- Work completed: Reviewed the public funnel preview and added a final contrast guard for the light landing page. Hero and section headings now explicitly stay dark, body copy remains muted but readable, and secondary buttons keep dark text on a light surface even when dashboard dark-theme variables are loaded.
+- Files changed: `src/app/globals.css`, `tests/landing-page.test.ts`, `docs/project/tasks/CEV-LANDING-POLISH-166A.md`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/landing-page.test.ts` PASS (configured run: 53 files / 898 tests); `pnpm typecheck` PASS; `pnpm lint` PASS. `pnpm build` was not re-run for this CSS-only polish after the prior OneDrive `.next` EPERM/Turbopack worker limitation; the limitation is recorded in the preceding release handoffs.
+- Known limitations: The browser tab reviewed was an already-built preview, so the contrast fix requires a new preview or production build to become visible. The preview also showed a missing logo asset from that older deployment; the source asset exists in `public/cevanta-logo-v1.png`.
+- Risks: None beyond the need to verify the refreshed preview at desktop and mobile widths.
+- Rollback notes: Revert the contrast-guard CSS block and the landing-page test assertion; no data rollback is needed.
+- Exact next action: Create a preview deployment, open the public root at desktop and mobile widths, and verify the headline, Watch the call button, logo, video, and CTA before production approval.

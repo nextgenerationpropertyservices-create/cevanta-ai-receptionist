@@ -4,6 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Cevanta · Service starts here',
   description: 'AI receptionist and CRM dashboard for HVAC service businesses.',
+  verification: { google: 'jEseTcl4qjZkSyPA12bZNG8IyjbaPyPo7jj3WPntXOs' },
   manifest: '/manifest.webmanifest',
   applicationName: 'Cevanta',
   appleWebApp: { capable: true, title: 'Cevanta', statusBarStyle: 'black-translucent' },

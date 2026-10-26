@@ -100,6 +100,7 @@ describe("workspace overview front office dashboard", () => {
     expect(markup).toContain("CLIENT PORTFOLIO");
     expect(markup).toContain("Fictional Plumbing");
     expect(markup).toContain("Trade tools stay with the client");
+    expect(markup).toContain("Review onboarding queue");
     expect(markup).not.toContain("RECOVERED LOSS SNAPSHOT");
     expect(harness.leads).not.toHaveBeenCalled();
   });

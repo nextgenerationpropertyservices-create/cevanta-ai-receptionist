@@ -1,5 +1,7 @@
 # Project status
 
+- 2026-10-25: CEV-LANDING-POLISH-166A implemented locally after a visual preview review found public funnel contrast regressions. Added explicit light-surface contrast guards for the hero headings, body copy, and secondary buttons so dashboard dark-theme variables cannot make the public page hard to read. Typecheck, lint, and configured Vitest (53 files / 898 tests) passed. A refreshed preview is required for visual verification; production was not changed.
+
 Date: 2026-10-04 (America/New_York)
 Coordinator: Morgan — Product Manager and Orchestrator
 Current work: Guided onboarding storage, RPCs, permanent SQL checks, backend-only actions, transport preparation, first Setup UI, anonymous browser protection, all narrowed setup storage editors, and the setup status/readiness shell are accepted with limitations. Phoenix55, Atlas56, Blake57 and Echo58 planning documents are accepted as planning only. ENV59 and LOCK60 are accepted with limitations; SETTINGS65A is accepted with limitations; SETTINGS65B is accepted with limitations; SETTINGS65C is accepted with limitations; RESUME66A is accepted with limitations; EXCEPTIONS67A is accepted with limitations; HISTORY68A is accepted with limitations; HISTORY68B is accepted with limitations; HISTORY68C is accepted with limitations; HISTORY68D is accepted with limitations after cursor fix and re-review; PILOT69A is accepted with limitations as the first-client intake package; PILOT69B is accepted with limitations as demo script and local walkthrough documentation. Credentialed browser/live HTTP gates remain open. CEV-JOURNEY-GAP-37 accepted as a gap audit; M5 final contract accepted for future implementation planning. Retell hosted/provider gates still await owner-authorized host or provider clarification. Earlier app and production gates remain open.
@@ -58,6 +60,8 @@ Reviewed migration003 dispatch was applied once by Morgan to hosted Cevanta Deve
 
 ## Agent specialization and ownership
 
+CEV-TEAM-ONCALL-163A marks Atlas Architecture/Data and Phoenix DevOps/Release as on-call roles. Morgan, Nova, Blake, Echo and Quinn remain the normal active team for day-to-day product work; Atlas is engaged for schema/RLS/shared-contract review and Phoenix for build/release/operations work. This organizational change does not remove either role or change application, database, provider or deployment state.
+
 Owner requested existing separate specialist chats. Morgan sent task-ledger-scoped CEV-COORD-23 assignments to Atlas Architecture/Data, Blake Backend, Nova Frontend/UX, Quinn Quality/Security, Echo Voice/Integrations and Phoenix DevOps/Release. Each stayed in its specialty and wrote only its assigned handoff. All six responded. The combined result blocks live parent Retell/Make booking integration until a no-writer provenance, datetime, trusted live-clock, tenant-routing, dedupe, availability and confirmation contract task is completed and reviewed. Morgan owns integration and final acceptance.
 
 Under CEV-AUTO-16, internal specialist waves subsequently completed Architect, Backend, Frontend, Voice, Quality and DevOps assignments. Their new handoffs approve local recovery implementation and operations changes, with external gates explicit. This does not imply the earlier named chats resumed.
@@ -85,6 +89,14 @@ CURRENT STEP: Make MCP fictional dry-run passed with limitations; duplicate retr
 WHY: The official Make plugin is connected, and a separate webhook-to-Make-data-store-to-response scenario processed fictional Retell-style payloads with no live Gmail, Calendar, SMS, Twilio call or Cevanta write. Wrong-event handling stopped safely. Duplicate call IDs did not create duplicate records, but Make still logs duplicate-key execution errors.
 DO THIS: add a proper duplicate branch/response in Make, then retest duplicate retry without execution errors before any live Retell/Twilio/Cevanta connection.
 SUCCESS LOOKS LIKE: duplicate and non-analyzed events produce clean successful runs without creating extra review records, while valid fictional analyzed calls create exactly one safe review record.
+
+## 2026-10-21 onboarding operations progress
+
+## 2026-10-24 public landing page progress
+
+CEV-LANDING-161A is implemented locally. The root route is now a public, plain-language landing page with a fictional call/demo video, three-step workflow, and direct setup, demo, and sign-in actions. It does not change the dashboard, database, provider integrations, or automation boundaries. Focused landing tests, typecheck, targeted lint, and a webpack production build in the non-OneDrive copy passed. Production deployment remains pending owner approval.
+
+CEV-ONBOARD-OPS-152A prepared an owner-controlled `client_onboarding_milestones` contract, server action, local migration, and SQL isolation test. After coordinator review and owner approval, the migration was applied to hosted Supabase and verified with RLS/policy/index catalog checks. CEV-ONBOARD-OPS-153A now uses those milestones to classify internal client workspaces consistently as Setup, Testing, Live, or Paused and shows the same recorded state on Launch Readiness. Focused checks pass. The standard production build remains blocked by the existing Windows/OneDrive Turbopack CSS worker panic; no application deployment was performed.
 
 
 
@@ -976,3 +988,26 @@ The release adds name-first technician roster entries, optional email linking, c
 The connected Vercel fetch tool denied an independent health request because project authorization is not mapped, but deployment metadata reports `READY`, production target, the expected commit SHA, and the canonical alias. The owner should refresh the live Technicians and Jobs pages in an authenticated browser session to confirm the signed-in visual flow.
 
 - 2026-10-19: CEV-ONBOARD-REQUIRED-144A aligned required setup guidance and readiness. Required for office-review readiness: business identity, contact name plus one office email or phone, one enabled named service, at least one open-hours block, acknowledged request/never-promise notes, and one enabled escalation contact with a name and email or phone. Optional date overrides, timing preferences, and extra contacts do not block readiness. Partial profile drafts remain saveable. Focused onboarding/provisioning run passed 47 files / 875 tests; typecheck and lint passed. Local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. Awaiting owner approval before production release.
+
+- 2026-10-21: CEV-ATTENTION-155A and CEV-HISTORY-156A implemented locally. The notification center now groups new leads, urgent work, callbacks due, missing contact information, unassigned jobs, and urgent assigned jobs with direct links and shortcut counts. It also shows a data-health panel that distinguishes available Cevanta records from unavailable workspace tables. Lead detail now includes a recorded opportunity history for captured, office-review, job, and visit states. Full lint, typecheck, and 49-file / 885-test suite passed. The local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. No database, provider, messaging, booking, payment, calendar-write, or dispatch side effects were added. Preview/production release is not approved in this turn.
+
+
+- 2026-10-21: CEV-ONBOARD-EASE-157A implemented locally. Optional onboarding sections are now visibly labeled and skippable, and the Quick start/setup guide opens by default so trade starter services are easier to apply. Full lint, typecheck, and 49-file / 885-test suite passed. The local production build remains blocked by the known OneDrive/Turbopack globals.css worker panic. No database or provider side effects were added.
+- 2026-10-21: CEV-ONBOARD-EASE-157A follow-up clarified the wizard progress strip with Required/Optional labels and updated the setup summary to prioritize required sections. Focused onboarding tests (79), typecheck, and lint passed.
+
+- 2026-10-22: Dashboard completion verification. The current local dashboard candidate includes the Needs Attention queue and data-health panel, lead opportunity history, faster required/optional onboarding, internal operations context, theme polish, technician roster improvements, and existing client workspace controls. Focused and configured Vitest run passed 50 files / 888 tests; `pnpm typecheck` passed; `pnpm lint` passed. The normal OneDrive build remains blocked by filesystem EPERM, but a complete non-OneDrive copy built successfully with Next.js webpack and generated all application routes. No production deploy occurred in this step. Release candidate is ready for owner release approval.
+
+- 2026-10-24: CEV-LANDING-161A preview ready. The root route now presents a client-facing, plain-language sales page with a fictional call video, clear setup/demo CTAs, and a simple three-step explanation. Preview deployment `cevanta-ai-receptionist-8mvcmlax0.vercel.app` reached Ready. Visual review fixed hero and light-panel contrast, restored the logo asset, and widened the story copy for readability. Production was not changed; owner approval is still required before promotion.
+
+## CEV-LANDING-161A production release
+
+Date: 2026-10-24 (America/New_York)
+Coordinator: Morgan — Product Manager and Orchestrator
+
+Owner approved publishing. Vercel production deployment `dpl_A8r8s9cRE2ryavhiSW5kTWCH9Ey3` reached Ready and was assigned the canonical alias `https://cevanta-ai-receptionist.vercel.app/`. The public root now presents the client-facing landing page with the reviewed contrast, restored logo, fictional demo video, simple story, workflow explanation, and setup/demo CTAs. The available 30-minute Vercel error scan returned zero error records. No database or provider changes were made.
+
+- 2026-10-24: CEV-SEO-162A completed. The Google Search Console URL-prefix property for `https://cevanta-ai-receptionist.vercel.app/` was created and verified using an HTML meta tag added to the root layout. Production deployment `dpl_5ER2AnBYZC5gyTfqPspMpMzjWDGV` reached Ready. Search Console reported Ownership verified. No database or provider changes were made.
+
+- 2026-10-25: CEV-REACTIVATION-164A implemented locally. Added a tenant-safe Seasonal Maintenance Reactivator with spring/fall/manual campaign drafts, 12-month service-history targeting, personalized office-review drafts, approve/dismiss controls, and internal Cevanta visit creation after approval. Outbound email/SMS, weather lookups, external calendar writes, automatic booking, payment collection, and dispatch remain off. Embedded migration/RLS checks, typecheck, lint, and configured Vitest (53 files / 897 tests) passed. Hosted migration, independent Architect/Quality review, provider testing, and production release remain pending.
+
+- 2026-10-25: CEV-PRODUCTS-165A implemented locally. Added an office Products catalog for No-Leak Quote Follow-Up, Commercial Maintenance Reactivator, and Blueprint & Scope Intake. Each is presented as a stand-alone or receptionist add-on offer with client inputs, safe readiness state, and a controlled next step. No provider, document-processing, messaging, booking, calendar, payment, or dispatch side effects were added. Typecheck, lint, configured Vitest, and embedded migration checks passed. Production deployment was not made.

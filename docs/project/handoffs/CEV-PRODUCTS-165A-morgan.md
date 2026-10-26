@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-PRODUCTS-165A
+- Work completed: Added a Products catalog for three Cevanta offers: No-Leak Quote Follow-Up, Commercial Maintenance Reactivator, and Blueprint & Scope Intake. Each card explains the outcome, workflow, required client inputs, safe readiness state, and whether it can be sold stand-alone or as a receptionist add-on. The catalog links the Reactivator to its guarded workflow and sends the other products to integration/readiness gates.
+- Files changed: `src/lib/product-catalog.ts`, `src/app/workspaces/[tenantId]/products/page.tsx`, `src/components/workspace-shell.tsx`, `src/app/globals.css`, `tests/products-ui.test.ts`, `docs/project/tasks/CEV-PRODUCTS-165A.md`.
+- Database changes: None.
+- API or contract changes: None; this is a read-only product catalog and entry-point page.
+- Verification commands and results: `pnpm test -- tests/products-ui.test.ts` PASS; configured Vitest run PASS (53 files, 897 tests); `pnpm typecheck` PASS; `pnpm lint` PASS. `pnpm build` and `pnpm exec next build --webpack` were attempted for this candidate and are blocked by the checkout's OneDrive/Turbopack worker and `.next` EPERM filesystem errors. No successful production build is claimed for this candidate.
+- Known limitations: Quote follow-up and blueprint/scope intake are product packaging and readiness entry points, not live provider workflows. No quote-source connector, document processor, AI reply loop, or outbound send was added.
+- Risks: Product marketing must not claim automatic booking, guaranteed recovered revenue, or verified document extraction until those systems have provider tests and client-approved controls.
+- Rollback notes: Remove the Products navigation entry, catalog route, catalog helper, CSS block, and UI test; no data migration rollback is needed.
+- Exact next action: Review the catalog wording and pricing separately, then create provider-specific implementation tasks for quote source ingestion, approved messaging, and document intake. Do not deploy until the owner approves the release candidate.
