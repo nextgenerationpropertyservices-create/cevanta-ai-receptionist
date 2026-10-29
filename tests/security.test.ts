@@ -9,6 +9,7 @@ const harness = vi.hoisted(() => ({
   responses: [] as { data: unknown; error: unknown }[],
   calls: [] as { table: string; method: string; args: unknown[] }[],
   revalidate: vi.fn(),
+  inviteCookie: false,
   signIn: vi.fn(),
   signUp: vi.fn(),
   rpc: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
 }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); }, unstable_rethrow: (error: unknown) => { if (error instanceof Error && error.message.startsWith("REDIRECT:")) throw error; } }));
 vi.mock("next/cache", () => ({ revalidatePath: harness.revalidate }));
+vi.mock("next/headers", () => ({ cookies: async () => ({ has: () => harness.inviteCookie }) }));
 
 import { requireMembership, requireUser } from "@/lib/server/authorization";
 import { createCustomer, createContact, updateCustomer, updateContact, createEquipment, createServiceLocation, updateServiceLocation, updateEquipment, updateTenantSettings } from "@/app/actions/workspace";
@@ -43,7 +45,7 @@ const form = (fields: Record<string, string>) => { const value = new FormData();
 const respond = (...data: unknown[]) => { harness.responses = data.map(value => ({ data: value, error: null })); };
 const writes = () => harness.calls.filter(call => ["insert", "update"].includes(call.method));
 
-beforeEach(() => { process.env.APP_ORIGIN = "https://cevanta.example.invalid"; harness.configured = true; harness.user = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }; harness.authError = null; harness.responses = []; harness.calls = []; harness.signIn.mockReset(); harness.signUp.mockReset(); harness.rpc.mockReset(); });
+beforeEach(() => { process.env.APP_ORIGIN = "https://cevanta.example.invalid"; harness.configured = true; harness.user = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }; harness.authError = null; harness.responses = []; harness.calls = []; harness.inviteCookie = false; harness.signIn.mockReset(); harness.signUp.mockReset(); harness.rpc.mockReset(); });
 
 describe("permission and input boundaries", () => {
   it.each(ROLES)("restricts %s according to office/settings capabilities", role => {
@@ -133,6 +135,14 @@ describe("actual sign-in failure handling", () => {
   it("redirects to workspace selection after successful authentication", async () => {
     harness.signIn.mockResolvedValueOnce({ error: null });
     await expect(signIn(idle, form({ email: "qa@example.invalid", password: "synthetic-test-input" }))).rejects.toThrow("REDIRECT:/workspaces");
+    expect(warning).not.toHaveBeenCalled();
+  });
+  it("uses only the named server cookie to choose the fixed invitation continuation route", async () => {
+    harness.inviteCookie = true;
+    harness.signIn.mockResolvedValueOnce({ error: null });
+    const hostile = credentials();
+    hostile.set("next", "https://evil.example.invalid/steal");
+    await expect(signIn(idle, hostile)).rejects.toThrow("REDIRECT:/invite/continue");
     expect(warning).not.toHaveBeenCalled();
   });
 });

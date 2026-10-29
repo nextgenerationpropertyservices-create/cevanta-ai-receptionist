@@ -2,12 +2,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 export function Brand() { return <Link className="brand brand-logo" href="/" aria-label="Cevanta home"><Image className="brand-logo-image" src="/cevanta-logo-v1.png" alt="Cevanta" width={210} height={70} priority /></Link>; }
 export function Empty({title, children}: {title: string; children: React.ReactNode}) { return <div className="empty"><span aria-hidden="true" className="empty-icon">↗</span><h3>{title}</h3><p>{children}</p></div>; }
-export function LandingPage() {
+type LandingFaq = readonly {question: string; answer: string}[];
+export function LandingPage({faq = []}: {faq?: LandingFaq}) {
   return <main id="main" className="landing-page">
     <header className="landing-nav">
       <Brand />
       <nav aria-label="Main navigation" className="landing-nav-links">
         <a href="#how-it-works">How it works</a>
+        <a href="#who-it-is-for">Who it is for</a>
         <a href="#watch">See it in action</a>
         <Link href="/sign-in">Sign in</Link>
         <Link className="button landing-nav-cta" href="/sign-up">Get started</Link>
@@ -18,7 +20,7 @@ export function LandingPage() {
       <div className="landing-hero-copy">
         <span className="eyebrow">AI ANSWERING FOR SERVICE BUSINESSES</span>
         <h1 id="landing-title">Stop routing customers to your competitors.</h1>
-        <p className="landing-hero-lede">Our AI answering machine turns missed calls into booked-job opportunities 24/7. It listens, captures the details, and gives your team a clear next step before the lead goes cold.</p>
+        <p className="landing-hero-lede">Our AI answering service helps turn missed calls into office-ready lead opportunities, including after-hours coverage when configured. It listens, captures the details, and gives your team a clear next step before the lead goes cold.</p>
         <div className="landing-actions">
           <Link className="button landing-primary-cta" href="/sign-up">Start your setup <span aria-hidden="true">↗</span></Link>
           <a className="button secondary" href="#watch">Watch the call <span aria-hidden="true">↓</span></a>
@@ -36,7 +38,7 @@ export function LandingPage() {
     </section>
 
     <section className="landing-proof-strip" aria-label="Cevanta benefits">
-      <div><strong>Answer every opportunity</strong><span>Even when your team is on a job.</span></div>
+      <div><strong>Capture more call opportunities</strong><span>Including after-hours coverage when configured.</span></div>
       <div><strong>Capture the right details</strong><span>Name, number, issue, urgency and timing.</span></div>
       <div><strong>Keep your team in control</strong><span>Review before anything is confirmed.</span></div>
     </section>
@@ -69,6 +71,20 @@ export function LandingPage() {
         <article><span className="landing-step-number">03</span><h3>Your office takes over</h3><p>Your team chooses the next action. Nothing is promised or booked without your approval.</p></article>
       </div>
     </section>
+
+    <section id="who-it-is-for" className="landing-audience" aria-labelledby="audience-title">
+      <div className="landing-section-heading"><span className="eyebrow">BUILT FOR BUSY SERVICE TEAMS</span><h2 id="audience-title">A clear front door for service calls.</h2><p>Cevanta is designed for HVAC, plumbing, electrical, roofing, and similar field-service businesses whose teams cannot always stop working to answer the phone.</p></div>
+      <div className="landing-answer-grid">
+        <article><h3>What Cevanta does today</h3><p>It answers service calls, captures the caller&apos;s name and contact details, summarizes the request, records urgency and preferred timing, and places the lead in an office-review dashboard.</p></article>
+        <article><h3>What your office controls</h3><p>Your team reviews each request and chooses whether to call back, schedule, assign, or close it. Cevanta does not promise a time, collect payment, or dispatch a technician by default.</p></article>
+        <article><h3>How you can evaluate it</h3><p>Watch the fictional call example, open the sample dashboard, and complete a guided setup before deciding whether a managed pilot fits your business.</p></article>
+      </div>
+    </section>
+
+    {faq.length > 0 ? <section id="faq" className="landing-faq" aria-labelledby="faq-title">
+      <div className="landing-section-heading"><span className="eyebrow">COMMON QUESTIONS</span><h2 id="faq-title">Straight answers before you start.</h2><p>What the service does, who it serves, and where your office stays in control.</p></div>
+      <div className="landing-faq-list">{faq.map(item => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
+    </section> : null}
 
     <section className="landing-cta" aria-labelledby="landing-cta-title">
       <div><span className="eyebrow">READY WHEN YOU ARE</span><h2 id="landing-cta-title">Stop losing good calls to voicemail.</h2><p>Start with a guided setup and see how Cevanta fits your business before you commit to a live pilot.</p></div>

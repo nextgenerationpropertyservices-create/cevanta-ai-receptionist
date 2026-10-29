@@ -46,9 +46,35 @@ beforeEach(() => {
   vi.spyOn(Date, "now").mockReturnValue(now);
   mocks.rpc.mockReset();
 });
-afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe("Make Retell lead bridge", () => {
+  it("interrupts a never-ending body read at the total five-second deadline", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({ cancel });
+    const input = new Request("http://localhost/api/integrations/make/retell-lead", {
+      method: "POST",
+      body: stream,
+      duplex: "half",
+      headers: { "content-type": "application/json", "x-cevanta-make-signature": sign() },
+    } as RequestInit);
+    let finished = false;
+    const pending = POST(input).then(result => { finished = true; return result; });
+
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(finished).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    const result = await pending;
+    expect(result.status).toBe(408);
+    expect(await result.json()).toEqual({ status: "request_timeout", persisted: false, bookingCreated: false });
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(stream.locked).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
   it("stays disabled unless explicitly enabled", async () => {
     vi.stubEnv("MAKE_RETELL_INGRESS_ENABLED", "");
     const response = await POST(request());

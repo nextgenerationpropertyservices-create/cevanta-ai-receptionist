@@ -2,6 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
+const MAKE_API_TIMEOUT_MS = 5000;
+
 const makeRequestSchema = z.object({
   name: z.string().trim().min(1).max(255),
   email: z.email().max(256),
@@ -38,13 +40,37 @@ function config() {
 async function makeFetch(path: string, init?: RequestInit) {
   const settings = config();
   if (!settings) return { kind: "config_missing" as const };
-  const response = await fetch(`${settings.baseUrl}${path}`, {
-    ...init,
-    headers: { Authorization: `Token ${settings.token}`, "Content-Type": "application/json", Accept: "application/json", ...init?.headers },
-    cache: "no-store",
+  const controller = new AbortController();
+  let timedOut = false;
+  let stopRequest: () => void = () => {};
+  const stopped = new Promise<never>((_resolve, reject) => {
+    stopRequest = () => reject(new Error("Make request stopped."));
   });
-  if (!response.ok) return { kind: "provider_error" as const, status: response.status };
-  return { kind: "ok" as const, response };
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+    stopRequest();
+  }, MAKE_API_TIMEOUT_MS);
+  try {
+    const response = await Promise.race([fetch(`${settings.baseUrl}${path}`, {
+      ...init,
+      headers: { Authorization: `Token ${settings.token}`, "Content-Type": "application/json", Accept: "application/json", ...init?.headers },
+      cache: "no-store",
+      signal: controller.signal,
+    }), stopped]);
+    if (!response.ok) return { kind: "provider_error" as const, status: response.status };
+    let body: unknown = null;
+    try {
+      body = await Promise.race([response.json(), stopped]);
+    } catch {
+      if (timedOut) return { kind: "provider_error" as const };
+    }
+    return { kind: "ok" as const, body };
+  } catch {
+    return { kind: "provider_error" as const };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export type MakeAuthorizationResult =
@@ -69,8 +95,7 @@ export async function createMakeAuthorization(input: { name: string; email: stri
     }),
   });
   if (result.kind !== "ok") return { status: result.kind };
-  const body = await result.response.json().catch(() => null);
-  const response = responseSchema.safeParse(body);
+  const response = responseSchema.safeParse(result.body);
   if (!response.success) return { status: "invalid_response" };
   return { status: "created", requestId: response.data.request.id, publicUri: response.data.publicUri, providerStatus: response.data.request.status };
 }

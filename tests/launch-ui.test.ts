@@ -71,4 +71,32 @@ describe('launch readiness page', () => {
     expect(output).toContain('does not expose webhook URLs, API keys, provider secrets');
     expect(output).not.toMatch(/booking confirmed|payment collected|dispatch confirmed|sk_live_|Bearer /i);
   });
+
+  it('does not reuse another workspace’s provider test claims', async () => {
+    const output = await html();
+    expect(output).toContain('Mapped — test needed');
+    expect(output).toContain('No client-specific Make connection is recorded');
+    expect(output).toContain('Not ready for live activation');
+    expect(output).not.toContain('Live phone test passed');
+    expect(output).not.toContain('Safe dry run passed');
+  });
+
+  it('shows verified wording only when this workspace has matching evidence', async () => {
+    harness.milestones.mockResolvedValueOnce(new Map([[tenant, {
+      payment_status: 'paid', setup_status: 'complete', test_call_status: 'passed', retell_status: 'verified', make_status: 'verified', launch_approval_status: 'approved', updated_at: '2026-10-26T00:00:00.000Z',
+    }]]));
+    const output = await html();
+    expect(output).toContain('Verification evidence recorded');
+    expect(output).toContain('Verified evidence recorded');
+    expect(output).toContain('Operator verification required');
+    expect(output).toContain('provisioning activation gate remains blocked');
+  });
+
+  it('does not diagnose server configuration for roles that cannot view route health', async () => {
+    harness.workspace.mockResolvedValueOnce({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'dispatcher' });
+    const output = await html();
+    expect(output).toContain('Status unavailable');
+    expect(output).not.toContain('Server setup needed');
+    expect(harness.retellHealth).not.toHaveBeenCalled();
+  });
 });

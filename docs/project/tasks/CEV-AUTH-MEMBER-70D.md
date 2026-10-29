@@ -10,12 +10,12 @@ Give an existing hosted Supabase Auth user owner access to the fictional Cevanta
 
 ## Change made
 
-Supabase email invitation for `jhherrick80@gmail.com` failed with `email rate limit exceeded`. To continue testing without waiting for email delivery, Morgan provisioned the already-existing Auth user `nextgenerationpropertyservices@gmail.com` as owner of the demo tenant.
+A Supabase test invitation failed with `email rate limit exceeded`. To continue testing without waiting for email delivery, Morgan provisioned an already-existing confirmed Auth account as owner of the demo tenant. Exact account identifiers remain only in the private provider console.
 
 Inserted or confirmed this membership:
 
 - tenant_id: `10000000-0000-4000-8000-000000000001`
-- user_id: `dea739e1-2fb9-44a3-8605-b5b7565effb5`
+- user_id: private provider-console record
 - role: `owner`
 
 ## Evidence
@@ -24,19 +24,13 @@ Supabase SQL Editor returned one row with the expected tenant ID, user ID and ro
 
 ## Limitations
 
-- This does not create or invite `jhherrick80@gmail.com`; Supabase email rate limit blocked that invite.
-- The owner still needs to sign in with `nextgenerationpropertyservices@gmail.com` and its password or use Supabase dashboard reset once rate limit clears.
+- This does not create the separately requested test account; the provider email rate limit blocked that invite.
+- The owner still needs to sign in with the confirmed development account or use the provider dashboard reset flow once the rate limit clears.
 - Authenticated browser/backend journey testing remains pending until sign-in succeeds.
 
 ## Rollback
 
-A trusted administrator can remove only this exact membership row if needed:
-
-```sql
-delete from public.memberships
-where tenant_id = '10000000-0000-4000-8000-000000000001'::uuid
-  and user_id = 'dea739e1-2fb9-44a3-8605-b5b7565effb5'::uuid;
-```
+A trusted administrator can remove only the exact development membership identified in the private provider console. Do not copy a real Auth user ID back into source control.
 
 ## Acceptance decision
 

@@ -47,4 +47,15 @@ describe('installable app shell', () => {
     expect(serviceWorker).toContain("url.pathname.startsWith('/auth/')");
     expect(serviceWorker).toContain('return;');
   });
+
+  it('bypasses exact and nested invitation documents before any fetch interception', () => {
+    const serviceWorker = readFileSync('public/sw.js', 'utf8');
+    const exactInvite = "url.pathname === '/invite'";
+    const nestedInvite = "url.pathname.startsWith('/invite/')";
+
+    expect(serviceWorker).toContain(exactInvite);
+    expect(serviceWorker).toContain(nestedInvite);
+    expect(serviceWorker.indexOf(exactInvite)).toBeLessThan(serviceWorker.indexOf('event.respondWith'));
+    expect(serviceWorker.indexOf(nestedInvite)).toBeLessThan(serviceWorker.indexOf('event.respondWith'));
+  });
 });

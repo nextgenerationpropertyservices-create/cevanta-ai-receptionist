@@ -1,4 +1,5 @@
 export type ProductAvailability = 'standalone' | 'addon' | 'both';
+export type ProductReadiness = 'available_now' | 'setup_required' | 'planned';
 
 export interface CevantaProduct {
   slug: string;
@@ -6,6 +7,7 @@ export interface CevantaProduct {
   eyebrow: string;
   oneLine: string;
   availability: ProductAvailability;
+  readiness: ProductReadiness;
   pricing: string;
   outcome: string;
   workflow: string[];
@@ -18,11 +20,32 @@ export interface CevantaProduct {
 
 export const cevantaProducts: CevantaProduct[] = [
   {
+    slug: 'lead-rescue-starter',
+    name: 'Lead Rescue Starter',
+    eyebrow: 'LOW-RISK STARTER',
+    oneLine: 'Show the office which open opportunities deserve attention first.',
+    availability: 'standalone',
+    readiness: 'available_now',
+    pricing: 'Introductory: complimentary 25-record review for qualified prospects',
+    outcome: 'A small, client-approved lead list becomes a clear office-review queue with priorities and recommended next actions. No customer outreach is sent.',
+    workflow: [
+      'Review up to 25 open leads, estimates, or past inquiries approved by the client.',
+      'Sort each record into needs attention, follow up, or close out.',
+      'Give the office a prioritized action list and a practical upgrade recommendation.',
+    ],
+    needs: ['Up to 25 client-approved records', 'One office reviewer', 'A definition of a qualified opportunity', 'No provider connection required'],
+    readyState: 'Available now as a manual, office-review starter · no automated outreach',
+    nextStep: 'Open Leads to review or manually add the approved starter records.',
+    href: tenantId => `/workspaces/${tenantId}/leads`,
+    cta: 'Open lead rescue workspace',
+  },
+  {
     slug: 'quote-follow-up',
     name: 'No-Leak Quote Follow-Up',
     eyebrow: 'QUOTE RECOVERY',
     oneLine: 'Keep open estimates from disappearing after the visit.',
     availability: 'both',
+    readiness: 'planned',
     pricing: 'Suggested: $1,500/month per location',
     outcome: 'A focused follow-up queue for quotes that have been waiting for a response, with a human approving every customer message.',
     workflow: [
@@ -42,6 +65,7 @@ export const cevantaProducts: CevantaProduct[] = [
     eyebrow: 'RECURRING SERVICE',
     oneLine: 'Turn old service history into a seasonal maintenance review queue.',
     availability: 'both',
+    readiness: 'setup_required',
     pricing: 'Suggested: $1,000/month + booked-visit fee, or $2,000/month flat',
     outcome: 'Spring and fall campaigns identify accounts beyond the 12-month service window and prepare personalized drafts for office approval.',
     workflow: [
@@ -61,6 +85,7 @@ export const cevantaProducts: CevantaProduct[] = [
     eyebrow: 'COMMERCIAL BIDDING',
     oneLine: 'Give estimators a clean starting point for large bid packages.',
     availability: 'both',
+    readiness: 'planned',
     pricing: 'Suggested: $3,000–$5,000/month for commercial estimating teams',
     outcome: 'A controlled intake workspace for organizing blueprint and RFP files, review questions, equipment counts, and scope notes before an estimator signs off.',
     workflow: [
@@ -80,4 +105,10 @@ export function availabilityLabel(value: ProductAvailability): string {
   if (value === 'both') return 'Stand-alone or add-on';
   if (value === 'standalone') return 'Stand-alone product';
   return 'Optional add-on';
+}
+
+export function readinessLabel(value: ProductReadiness): string {
+  if (value === 'available_now') return 'Available now';
+  if (value === 'setup_required') return 'Setup & approval required';
+  return 'Planned — not live';
 }

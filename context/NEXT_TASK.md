@@ -50,7 +50,7 @@ Recent local fix:
 Recent hosted access setup:
 
 - CEV-AUTH-MEMBER-70D accepted with limitations: existing Auth user 
-extgenerationpropertyservices@gmail.com has owner membership in the demo workspace. jhherrick80@gmail.com invite was blocked by Supabase email rate limit. Next step is local sign-in and backend journey testing.
+A confirmed development owner account has owner membership in the demo workspace. A separate test invitation was blocked by the provider email rate limit. The exact private account identifiers belong in the provider console, not this repository. Next step is local sign-in and backend journey testing.
 
 Recent browser evidence:
 

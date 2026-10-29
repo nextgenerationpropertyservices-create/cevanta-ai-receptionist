@@ -22,6 +22,19 @@ const request = (path: string) => new NextRequest(`http://localhost${path}`, {
   method: "POST", body: ' { "fictional": "café" }\n',
   headers: { "content-type": "application/json", cookie: "fictional-session=fictional-value" },
 });
+const documentRequest = (path: string) => new NextRequest(`http://localhost${path}`);
+const invitationPrivacyHeaders = {
+  "cache-control": "private, no-store, max-age=0",
+  "cdn-cache-control": "no-store",
+  "vercel-cdn-cache-control": "no-store",
+  pragma: "no-cache",
+  expires: "0",
+  "referrer-policy": "no-referrer",
+  "x-robots-tag": "noindex, nofollow, noarchive",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "permissions-policy": "camera=(), microphone=(), geolocation=()",
+} as const;
 
 describe("narrow machine ingress proxy exclusion", () => {
   it.each(["/api/integrations/retell", "/api/integrations/retell/", "/api/integrations/retell?fictional=1", "/api/integrations/make/retell-lead", "/api/integrations/make/retell-lead/", "/api/integrations/make/retell-lead?fictional=1"])("excludes only the ingress endpoint: %s", async path => {
@@ -50,6 +63,67 @@ describe("narrow machine ingress proxy exclusion", () => {
     await proxy(request(path));
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.getUser).not.toHaveBeenCalled();
+  });
+
+  it.each(["/invite", "/invite/continue", "/invite/nested"])("protects invitation documents without hosted auth lookup: %s", async path => {
+    expect(matches(path)).toBe(true);
+    const response = await proxy(documentRequest(path));
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.getUser).not.toHaveBeenCalled();
+    const csp = response.headers.get("content-security-policy") ?? "";
+    const nonce = csp.match(/'nonce-([^']+)'/)?.[1] ?? "";
+    expect(Buffer.from(nonce, "base64")).toHaveLength(16);
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).toContain("'strict-dynamic'");
+    expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
+    for (const [name, value] of Object.entries(invitationPrivacyHeaders)) {
+      expect(response.headers.get(name)).toBe(value);
+    }
+    expect(response.headers.get("x-nonce")).toBeNull();
+  });
+
+  it("keeps the production invitation CSP free of script unsafe-inline and third-party origins", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const response = await proxy(documentRequest("/invite"));
+    const csp = response.headers.get("content-security-policy") ?? "";
+    const scriptDirective = csp.match(/(?:^|;\s*)script-src\s+([^;]+)/)?.[1] ?? "";
+    const styleDirective = csp.match(/(?:^|;\s*)style-src\s+([^;]+)/)?.[1] ?? "";
+
+    expect(scriptDirective).not.toContain("'unsafe-inline'");
+    expect(scriptDirective).not.toContain("'unsafe-eval'");
+    expect(styleDirective).not.toContain("'unsafe-inline'");
+    expect(csp).not.toMatch(/https?:\/\//i);
+  });
+
+  it("uses a fresh invitation nonce and passes the matching CSP upstream", async () => {
+    const first = await proxy(documentRequest("/invite"));
+    const second = await proxy(documentRequest("/invite"));
+    const firstCsp = first.headers.get("content-security-policy") ?? "";
+    const secondCsp = second.headers.get("content-security-policy") ?? "";
+    expect(firstCsp).not.toBe(secondCsp);
+    expect(first.headers.get("x-middleware-request-content-security-policy")).toBe(firstCsp);
+    const nonce = firstCsp.match(/'nonce-([^']+)'/)?.[1] ?? "";
+    expect(first.headers.get("x-middleware-request-x-nonce")).toBe(nonce);
+  });
+
+  it("bypasses hosted auth only for the exact continuation exchange path", async () => {
+    expect(matches("/api/invitations/continuations")).toBe(true);
+    await proxy(request("/api/invitations/continuations"));
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.getUser).not.toHaveBeenCalled();
+
+    vi.clearAllMocks();
+    mocks.create.mockReturnValue({ auth: { getUser: mocks.getUser } });
+    mocks.getUser.mockResolvedValue({ data: { user: null } });
+    await proxy(request("/api/invitations/continuations-other"));
+    expect(mocks.create).toHaveBeenCalledOnce();
+    expect(mocks.getUser).toHaveBeenCalledOnce();
+  });
+
+  it.each(["/invited", "/invite-other"])("does not apply invitation CSP to lookalikes: %s", async path => {
+    const response = await proxy(documentRequest(path));
+    expect(response.headers.has("content-security-policy")).toBe(false);
+    expect(mocks.create).toHaveBeenCalledOnce();
   });
 
   it("preserves normal session refresh cookies", async () => {

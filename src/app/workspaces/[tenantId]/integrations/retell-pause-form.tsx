@@ -9,12 +9,12 @@ export function RetellPauseForm({ tenantId }: { tenantId: string }) {
   const [pending, startTransition] = useTransition();
 
   function pause() {
-    if (!window.confirm('Pause this workspace’s Retell routing? You can map it again later.')) return;
+    if (!window.confirm('Pause this workspace’s Cevanta intake route? This will not change the Retell agent or phone number.')) return;
     setMessage('');
     setError(false);
     startTransition(async () => {
       const result = await pauseRetellAgentMapping(tenantId);
-      if (result.status === 'paused') setMessage('Retell routing is paused for this workspace.');
+      if (result.status === 'paused') setMessage('Cevanta intake routing is paused for this workspace. The Retell agent and phone configuration were not changed.');
       else if (result.status === 'not_mapped') setMessage('No active Retell mapping was found for this workspace.');
       else {
         setError(true);

@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-PROJECT-AUDIT-167E
+- Work completed: Replaced global and stale launch language with selected-workspace readiness derived from the existing Retell route-health action and that workspace's saved onboarding milestones. Launch and Integrations now distinguish active, paused, unmapped, unconfigured, and unavailable route states; Make remains a saved operator milestone rather than live telemetry; optional automations remain separate approval gates.
+- Files changed: `src/app/workspaces/[tenantId]/launch/page.tsx`; `src/app/workspaces/[tenantId]/integrations/page.tsx`; `tests/launch-ui.test.ts`; `tests/integrations-ui.test.ts`; this handoff.
+- Database changes: None.
+- API or contract changes: None. Existing route-health and onboarding-milestone projections are consumed without widening them.
+- Verification commands and results: Focused Launch and Integrations tests, typecheck, and lint passed during implementation. The parent CEV-PROJECT-AUDIT-167A handoff records the final combined candidate checks after all audit repairs are integrated.
+- Known limitations: Saved milestones are operator-entered records, not independent provider telemetry. They cannot by themselves certify launch, payment, Make delivery, or a successful test call.
+- Risks: A client or operator could misunderstand a saved milestone as live proof if future copy removes the explicit evidence warning. The UI must remain fail-closed when route health cannot be checked.
+- Rollback notes: Revert only the two page and focused test changes. Do not restore global proof claims or expose Retell agent IDs, connection IDs, webhook URLs, or credentials.
+- Exact next action: Complete the audited trusted-launch evidence contract before using milestone states to authorize activation. Until then, an internal operator must review the matching evidence and keep automatic booking, messaging, external calendar writes, payment collection, and dispatch off.

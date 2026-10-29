@@ -44,9 +44,9 @@ function form(overrides: Record<string, string> = {}) {
   return data;
 }
 
-async function renderClients(payload: unknown, stage?: string, q?: string) {
+async function renderClients(payload: unknown, stage?: string, q?: string, queryOverrides: Record<string, string> = {}) {
   harness.list.mockResolvedValue(payload);
-  return renderToStaticMarkup(await Page({ params: Promise.resolve({ tenantId: operatorTenant }), searchParams: Promise.resolve({ ...(stage ? { stage } : {}), ...(q ? { q } : {}) }) }));
+  return renderToStaticMarkup(await Page({ params: Promise.resolve({ tenantId: operatorTenant }), searchParams: Promise.resolve({ ...queryOverrides, ...(stage ? { stage } : {}), ...(q ? { q } : {}) }) }));
 }
 
 beforeEach(() => {
@@ -97,11 +97,33 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
     expect(html).toContain("does not connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
     expect(html).toContain("Create client workspace");
+    expect(html).toContain("MANUAL STRIPE REQUEST");
+    expect(html).toContain("Create Stripe payment link");
+    expect(html).toContain("one-time Stripe-hosted request");
     expect(html).toContain("Remove a client workspace");
     expect(html).toContain("Type DELETE WORKSPACE to confirm");
     expect(html).toContain("LAUNCH CONTROL");
     expect(html).toContain("Keep booking, SMS/email, calendar writes and dispatch automation off unless separately approved.");
     expect(html).not.toMatch(/service-role|secret|webhook|api key|billing started|booking confirmed/i);
+  });
+
+  it("ignores legacy payment-result query values instead of rendering them", async () => {
+    const html = await renderClients({
+      operator,
+      role: "owner",
+      allowed: true,
+      clients: [{ id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", status: "onboarding", created_at: "2026-10-11T00:00:00.000Z", updated_at: "2026-10-11T00:00:00.000Z" }],
+    }, undefined, undefined, {
+      payment_link: "https://buy.stripe.com/query-value-must-not-render",
+      payment_client: "Injected client name",
+      payment_type: "Injected payment label",
+      payment_amount: "999999.99",
+    });
+
+    expect(html).not.toContain("query-value-must-not-render");
+    expect(html).not.toContain("Injected client name");
+    expect(html).not.toContain("Injected payment label");
+    expect(html).not.toContain("999999.99");
   });
 
   it("filters the priority queue and intake cards by onboarding stage", async () => {

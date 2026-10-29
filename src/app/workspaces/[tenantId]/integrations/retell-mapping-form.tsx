@@ -15,7 +15,9 @@ export function RetellMappingForm({ tenantId }: { tenantId: string }) {
     startTransition(async () => {
       const result = await registerRetellAgentMapping(tenantId, agentId);
       if (result.status === 'mapped' || result.status === 'already_mapped') {
-        setMessage(result.status === 'already_mapped' ? 'This agent is already mapped to this workspace.' : 'Retell agent mapped. Keep the agent unpublished until the pilot approval checklist passes.');
+        setMessage(result.status === 'already_mapped'
+          ? 'This manually verified route is already mapped to this workspace. Mapping does not prove live delivery.'
+          : 'Route mapping saved. This did not publish the agent, configure the phone number, prove provider ownership, or prove live delivery.');
         setAgentId('');
       } else if (result.status === 'invalid_agent') {
         setError(true);
@@ -30,7 +32,7 @@ export function RetellMappingForm({ tenantId }: { tenantId: string }) {
     });
   }
   return <form className="form" onSubmit={submit} aria-busy={pending}>
-    <label className="field"><span>Retell agent ID</span><input value={agentId} onChange={event => setAgentId(event.target.value)} placeholder="agent_…" autoComplete="off" required pattern="agent_[A-Za-z0-9_-]{1,128}"/><small>Use the draft agent ID from Retell. Do not paste an API key or webhook URL.</small></label>
+    <label className="field"><span>Retell agent ID</span><input value={agentId} onChange={event => setAgentId(event.target.value)} placeholder="agent_…" autoComplete="off" required pattern="agent_[A-Za-z0-9_-]{1,128}"/><small>First verify in Retell that this draft agent belongs to the intended client. Do not paste an API key or webhook URL.</small></label>
     <button className="button" type="submit" disabled={pending}>{pending ? 'Connecting…' : 'Connect receptionist'}</button>
     {message && <p className={error ? 'form-error' : 'notice'} role={error ? 'alert' : 'status'}>{message}</p>}
   </form>;

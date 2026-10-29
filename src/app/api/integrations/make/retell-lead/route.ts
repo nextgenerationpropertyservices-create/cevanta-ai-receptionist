@@ -138,13 +138,25 @@ async function readBody(request: Request) {
   try { reader = request.body?.getReader(); } catch { return { error: response(400, "invalid_request") }; }
   if (!reader) return { error: response(400, "invalid_request") };
   const started = performance.now();
+  let timedOut = false;
+  let aborted = request.signal.aborted;
+  let stopRead: () => void = () => {};
+  const stopped = new Promise<never>((_resolve, reject) => {
+    stopRead = () => reject(new Error("Read stopped."));
+  });
+  const onAbort = () => { aborted = true; stopRead(); };
+  const timer = setTimeout(() => { timedOut = true; stopRead(); }, READ_DEADLINE_MS);
+  request.signal.addEventListener("abort", onAbort, { once: true });
   const chunks: Uint8Array[] = [];
   let length = 0;
   let completed = false;
   try {
     while (true) {
+      if (aborted || request.signal.aborted) return { error: response(400, "invalid_request") };
       if (performance.now() - started >= READ_DEADLINE_MS) return { error: response(408, "request_timeout") };
-      const { done, value } = await reader.read();
+      const { done, value } = await Promise.race([reader.read(), stopped]);
+      if (aborted || request.signal.aborted) return { error: response(400, "invalid_request") };
+      if (timedOut || performance.now() - started >= READ_DEADLINE_MS) return { error: response(408, "request_timeout") };
       if (done) { completed = true; break; }
       length += value.byteLength;
       if (length > MAX_BODY_BYTES) return { error: response(413, "payload_too_large") };
@@ -152,8 +164,10 @@ async function readBody(request: Request) {
     }
     return { body: Buffer.concat(chunks) };
   } catch {
-    return { error: response(400, "invalid_request") };
+    return { error: response(timedOut ? 408 : 400, timedOut ? "request_timeout" : "invalid_request") };
   } finally {
+    clearTimeout(timer);
+    request.signal.removeEventListener("abort", onAbort);
     if (!completed) {
       try { void reader.cancel().catch(() => {}); } catch { /* No payload/error logging. */ }
     }

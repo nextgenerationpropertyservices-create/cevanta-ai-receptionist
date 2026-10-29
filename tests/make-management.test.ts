@@ -6,6 +6,7 @@ const originalFetch = globalThis.fetch;
 const requestId = '11111111-1111-4111-8111-111111111111';
 
 afterEach(() => {
+  vi.useRealTimers();
   globalThis.fetch = originalFetch;
   delete process.env.MAKE_MANAGEMENT_API_TOKEN;
   delete process.env.MAKE_TEAM_ID;
@@ -35,5 +36,49 @@ describe('Make management API client', () => {
     process.env.MAKE_TEAM_ID = '2527764';
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('token=secret-token', { status: 403 }));
     await expect(createMakeAuthorization({ name: 'Fictional Trade', email: 'owner@example.test' })).resolves.toEqual({ status: 'provider_error' });
+  });
+
+  it('stops a non-responsive provider request after five seconds without retrying', async () => {
+    vi.useFakeTimers();
+    process.env.MAKE_MANAGEMENT_API_TOKEN = 'secret-token';
+    process.env.MAKE_TEAM_ID = '2527764';
+    const fetchMock = vi.fn((_url: string | URL | Request, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+    }));
+    globalThis.fetch = fetchMock as typeof fetch;
+    let finished = false;
+    const pending = createMakeAuthorization({ name: 'Fictional Trade', email: 'owner@example.test' })
+      .then(result => { finished = true; return result; });
+
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(finished).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).resolves.toEqual({ status: 'provider_error' });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect((fetchMock.mock.calls[0]?.[1] as RequestInit).signal?.aborted).toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('keeps the same five-second deadline while parsing a stalled provider response body', async () => {
+    vi.useFakeTimers();
+    process.env.MAKE_MANAGEMENT_API_TOKEN = 'secret-token';
+    process.env.MAKE_TEAM_ID = '2527764';
+    const json = vi.fn(() => new Promise<never>(() => {}));
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200, json });
+    globalThis.fetch = fetchMock as typeof fetch;
+    let finished = false;
+    const pending = createMakeAuthorization({ name: 'Fictional Trade', email: 'owner@example.test' })
+      .then(result => { finished = true; return result; });
+
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(finished).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).resolves.toEqual({ status: 'provider_error' });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(json).toHaveBeenCalledOnce();
+    expect((fetchMock.mock.calls[0]?.[1] as RequestInit).signal?.aborted).toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

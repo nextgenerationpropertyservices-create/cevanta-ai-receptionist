@@ -21,7 +21,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isPrivateAppRoute = url.pathname.startsWith('/workspaces/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
+  const isInvitationRoute = url.pathname === '/invite' || url.pathname.startsWith('/invite/');
+  const isPrivateAppRoute = isInvitationRoute || url.pathname.startsWith('/workspaces/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
   if (isPrivateAppRoute) {
     return;
   }

@@ -1,0 +1,37 @@
+# Agent handoff
+
+- **Task ID:** CEV-PROJECT-AUDIT-167M
+- **Work completed:** Added one narrow PostgreSQL command for deleting an unprotected job without granting direct table deletion. The command derives a confirmed, non-deleted actor from the authoritative Auth helper, locks and checks the actor's exact-tenant membership, permits only owner/admin/dispatcher, deletes by the composite tenant/job key, preserves all existing foreign-key blockers, and returns status-only results. Added durable job-isolation coverage for every permitted office role; anonymous, viewer, technician, unconfirmed, deleted, non-member, and cross-tenant denial; missing/wrong-tenant privacy; direct DELETE denial; appointment and Reactivation-candidate protection; successful delete audit attribution; and atomic rollback when the audit write fails. No hosted migration or deployment was performed.
+- **Files changed:**
+  - `supabase/migrations/202610260003_job_deletion_command.sql`
+  - `supabase/tests/jobs_isolation.sql`
+  - `docs/project/handoffs/CEV-PROJECT-AUDIT-167M-atlas.md`
+- **Database changes:**
+  - Added PostgreSQL-owned `public.delete_job(uuid,uuid) returns jsonb` as `SECURITY DEFINER` with `search_path=''`.
+  - Granted execute only to `authenticated`; explicitly revoked `PUBLIC`, `anon`, `authenticated`, and `service_role` before the narrow authenticated grant.
+  - Did not add a `DELETE` policy or table grant. Authenticated clients still cannot delete `public.jobs` directly.
+  - The actor is taken from `onboarding_private.current_identity()`, so an absent, unconfirmed, deleted, or email-less Auth identity fails closed. The exact `(tenant_id,user_id)` membership is locked `FOR SHARE` for the command transaction and must be owner/admin/dispatcher.
+  - The delete predicate requires both `jobs.tenant_id=target_tenant` and `jobs.id=target_job`. Missing, wrong-tenant, unauthorized, and unexpected-failure paths all return `unavailable` without record detail.
+  - An immediate foreign-key violation from an appointment or other linked record is caught inside a subtransaction and returns `protected`; the job, linked row, and audit state remain unchanged.
+  - The existing `public.record_audit_event()` trigger remains the source of successful `DELETE` evidence. Its actor is the authenticated `auth.uid()`. Any audit failure rolls back the delete before `unavailable` is returned.
+- **API or contract changes:**
+  - **167N adapter call:** after its existing signed-in user, office-role membership, and UUID validation, call the user's session client only: `client.rpc("delete_job", { target_tenant: tenantId, target_job: jobId })`. Do not use a service-role client and do not attempt `.from("jobs").delete()`.
+  - **Result envelope:** `{ status: "deleted" | "protected" | "unavailable" }` and no job/provider/private identifiers.
+  - Treat only `deleted` as success, then preserve the current Jobs/Calendar/Notifications revalidation and redirect.
+  - Treat `protected` as the existing safe linked-record error (the office must handle appointments/linked records first).
+  - Treat `unavailable`, null/corrupt data, PostgREST/RPC error, missing migration (`PGRST202`/equivalent), missing, already removed, wrong tenant, or unauthorized as a safe generic delete failure. Do not distinguish those cases to the caller.
+  - The database command is the final authorization boundary; the application membership check is retained for early UX failure but is not a substitute for the command checks.
+- **Verification commands and results:**
+  - `node scripts/test-jobs-embedded.mjs` — PASS. Covers function owner/grants/fixed path/qualified references, no DELETE policy/grant, owner/admin/dispatcher success, anon/viewer/technician/unconfirmed/deleted/non-member/cross-tenant denial, missing/wrong-tenant privacy, direct-delete denial, appointment and Reactivation linkage, successful actor-attributed audit rows, rejected-write audit absence, and audit-failure rollback.
+  - `node scripts/test-db-embedded.mjs` — PASS through migrations `202610260001`, `202610260002`, `202610260003`, and `202610260004`, seed, and maintained isolation assertions. This also proves the migration sorts after the Reactivation hardening it relies on and before the later Retell command migration.
+  - Installed `tsc --noEmit` (`node node_modules/typescript/bin/tsc --noEmit`) — PASS.
+  - Installed ESLint (`node node_modules/eslint/bin/eslint.js .`) — PASS.
+  - Installed Vitest (`node node_modules/vitest/vitest.mjs run`) — PASS: 56 files, 949 tests.
+  - `pnpm test:jobs:db`, `pnpm test:db:embedded`, `pnpm typecheck`, and `pnpm lint` wrapper invocations — BLOCKED before execution by the known OneDrive/sandbox `EPERM` while pnpm tried to create its project-registration symlink. The exact maintained scripts and installed binaries were run directly above.
+  - Installed Next production build (Turbopack) — BLOCKED by the sandbox worker-process failure while processing `globals.css`.
+  - Installed `next build --webpack` — compilation and TypeScript PASS; final static generation BLOCKED by the known OneDrive `EPERM` creating `.next/server/app/demo-dashboard.segments/demo-dashboard`.
+  - `git diff --check` for owned files — PASS, with only the existing Windows line-ending notice for the SQL test.
+- **Known limitations:** PGlite uses a compatibility Auth table and a single database connection; it does not prove hosted Supabase JWT/PostgREST execution or concurrent membership/deletion traffic. No hosted migration or multi-role browser test ran. The SQL command is not yet called by the application; current UI deletion remains intentionally nonfunctional until CEV-PROJECT-AUDIT-167N lands.
+- **Risks:** Deploying the migration alone is safe but does not fix the current direct-delete action. Deploying 167N before the hosted migration will fail closed because the RPC is absent. Catching an unexpected database/audit failure intentionally returns the same `unavailable` status as a missing or unauthorized record, so diagnosis belongs in private operational evidence rather than the client response. A job with any current or future restrictive foreign-key relationship will return `protected`, which is the conservative behavior.
+- **Rollback notes:** Before hosted application, withhold migration `202610260003`. After application, first hide/disable the app delete control or revert 167N so no caller depends on the RPC. If removal is necessary, revoke execute and drop `public.delete_job(uuid,uuid)` in a new forward migration; no table data or grants need reversal. Never recover by granting authenticated users direct `DELETE` or weakening the linked-record foreign keys/audit trigger.
+- **Exact next action:** Quinn independently reviews the final identity, role, tenant-isolation, grants, fixed search path, linked-row preservation, audit atomicity, and SQL evidence. After approval, Blake implements CEV-PROJECT-AUDIT-167N exactly against `delete_job({ target_tenant, target_job })`, reruns the action/Vitest/jobs DB checks, and hands the paired release to Morgan. Release order is coordinated app support plus hosted migration, followed by live confirmed owner/admin/dispatcher success, viewer/technician/cross-tenant denial, and linked-appointment failure verification before acceptance.

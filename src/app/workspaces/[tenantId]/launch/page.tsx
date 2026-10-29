@@ -7,53 +7,53 @@ import { getWorkspace } from '@/lib/server/queries';
 import { getRetellAgentMappingHealth } from '@/app/actions/retell-provisioning';
 import type { RetellRouteReadiness } from '@/lib/provisioning-readiness';
 import { getOnboardingMilestones } from '@/lib/server/onboarding-milestones';
-import { defaultOnboardingMilestones, milestoneLabel } from '@/lib/onboarding-milestones';
+import { defaultOnboardingMilestones, milestoneLabel, type OnboardingMilestones } from '@/lib/onboarding-milestones';
 
-const readinessRows = [
-  {
-    area: 'Dashboard and customer records',
-    status: 'Ready for managed pilot',
-    detail: 'Workspace, customers, leads, jobs, calendar and setup screens are available after sign-in.',
-  },
-  {
-    area: 'Retell phone answering',
-    status: 'Live phone test passed',
-    detail: 'A Retell inbound phone call reached the configured HVAC receptionist agent and ended successfully. Review is still needed before promising automatic booking.',
-  },
-  {
-    area: 'Make intake receiver',
-    status: 'Safe dry run passed',
-    detail: 'The Make test scenario accepts fictional Retell-style call analysis, avoids duplicate review records and ignores non-analysis events. It is inactive until intentionally connected.',
-  },
-  {
-    area: 'Lead notification inside Cevanta',
-    status: 'Ready in app',
-    detail: 'New AI receptionist leads show review notices in the workspace and Leads page. External SMS or email alerts are not enabled.',
-  },
-  {
-    area: 'Booking and client follow-up',
-    status: 'Office review required',
-    detail: 'Cevanta can track requests and appointments, but live calls should be reviewed by office staff before confirming a booking.',
-  },
-  {
-    area: 'Production launch',
-    status: 'Not approved yet',
-    detail: 'Production deployment, billing, always-on provider routing and public sales claims still need final owner approval and release checks.',
-  },
-];
+function retellReadiness(route: RetellRouteReadiness, milestones: OnboardingMilestones) {
+  if (route === 'active' && milestones.retell_status === 'verified' && milestones.test_call_status === 'passed') {
+    return { status: 'Verification evidence recorded', detail: 'An active trusted route plus verified Retell and passed fictional-test milestones are recorded for this client. These are operator records, not provider telemetry, and office review still applies.' };
+  }
+  if (route === 'active') return { status: 'Mapped — test needed', detail: 'A trusted route is active, but this workspace does not yet have both Retell verification and a passed fictional test call recorded.' };
+  if (route === 'paused') return { status: 'Paused', detail: 'The trusted route is paused. Resume it only after reviewing the client setup, test evidence, and rollback plan.' };
+  if (route === 'not_mapped') return { status: 'Not connected', detail: 'No trusted Retell route is mapped to this workspace.' };
+  if (route === 'not_configured') return { status: 'Server setup needed', detail: 'The server-side Retell mapping service is not configured for this workspace.' };
+  return { status: 'Status unavailable', detail: 'Retell route status could not be confirmed. Do not describe phone answering as live until it can be checked.' };
+}
+
+function makeReadiness(milestones: OnboardingMilestones) {
+  if (milestones.make_status === 'verified' && milestones.test_call_status === 'passed') return { status: 'Verified evidence recorded', detail: 'The saved client milestone records a verified Make route and passed fictional test call. This is an operator record, not live provider telemetry.' };
+  if (milestones.make_status === 'verified') return { status: 'Verification recorded — test needed', detail: 'Make is marked verified, but a passed fictional end-to-end test call is not recorded for this workspace.' };
+  if (milestones.make_status === 'mapped') return { status: 'Mapped — test needed', detail: 'A Make mapping is recorded. Run a fictional end-to-end call and confirm one correct office-review lead before launch.' };
+  return { status: 'Not connected', detail: 'No client-specific Make connection is recorded. Platform dry runs from another workspace do not prove this client route.' };
+}
+
+function readinessRows(route: RetellRouteReadiness, milestones: OnboardingMilestones) {
+  const retell = retellReadiness(route, milestones);
+  const make = makeReadiness(milestones);
+  const launchEvidenceRecorded = milestones.launch_approval_status === 'approved' && milestones.test_call_status === 'passed' && milestones.retell_status === 'verified' && milestones.make_status === 'verified' && route === 'active';
+  return [
+    { area: 'Dashboard and customer records', status: 'Available in Cevanta', detail: 'Workspace, customers, leads, jobs, calendar and setup screens are available to authorized members after sign-in.' },
+    { area: 'Retell phone answering', ...retell },
+    { area: 'Make intake receiver', ...make },
+    { area: 'Lead notification inside Cevanta', status: 'Available in app', detail: 'New AI receptionist leads can show review notices in the workspace after a verified intake reaches the correct tenant. External SMS or email alerts are not enabled by this page.' },
+    { area: 'Booking and client follow-up', status: 'Office review required', detail: 'Cevanta can track requests and appointments, but staff should confirm bookings and customer follow-up unless that exact integration has separate approval and test evidence.' },
+    { area: 'Client activation', status: launchEvidenceRecorded ? 'Operator verification required' : 'Not ready for live activation', detail: launchEvidenceRecorded ? 'All expected milestones are recorded, but the provisioning activation gate remains blocked until a trusted operator verifies the evidence and approved scope. Optional messages, booking, billing, calendar writes, and dispatch remain separate gates.' : 'Client activation still needs the missing route, integration, fictional test-call, and approval evidence shown on this page.' },
+  ];
+}
 
 const ownerItems = [
   'Keep Retell credits funded before demos or live calls.',
-  'Decide when to connect Retell webhooks to Make or directly to Cevanta.',
-  'Approve any always-on Make activation, future production release, SMS, email or calendar-writing workflow before it goes live.',
+  'Confirm the active Retell route belongs to this client before placing a test call.',
+  'Record Make, Retell, test-call, and launch milestones only after reviewing the matching evidence.',
+  'Approve any always-on Make activation, SMS, email or calendar-writing workflow before it goes live.',
   'Complete Twilio business/SMS registration later if SMS follow-up becomes part of the paid package.',
 ];
 
 const nextWork = [
-  'Finish fresh-owner signup and first-workspace browser proof with a test inbox.',
-  'Add a controlled provider-connection screen so each client sees what is connected and what is waiting.',
-  'Prepare a first-client demo script that uses managed-pilot language and avoids production claims.',
-  'Add production release evidence only after staging, environment and backup checks are complete.',
+  'Finish any missing required setup fields and review the saved receptionist rules.',
+  'Map the client-specific Retell route and connect approved Make credentials privately.',
+  'Run one fictional end-to-end call and confirm exactly one lead appears in this workspace.',
+  'Record the result, rollback path, and approved client scope before activation.',
 ];
 
 export default async function LaunchReadiness({ params }: { params: Promise<{ tenantId: string }> }) {
@@ -63,9 +63,10 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
   const template = templateForTrade(tenant.trade);
   const [onboarding, automation, milestoneMap] = await Promise.all([getOnboardingSnapshot(tenant.id), getAutomationControls(tenant.id), getOnboardingMilestones([tenant.id])]);
   const ownerSnapshot = onboarding.status === 'available' && onboarding.snapshot.projection === 'owner_setup' ? onboarding.snapshot : null;
-  const retellRoute: RetellRouteReadiness = role === 'owner' || role === 'admin' ? (await getRetellAgentMappingHealth(tenant.id)).status : 'not_configured';
+  const retellRoute: RetellRouteReadiness = role === 'owner' || role === 'admin' ? (await getRetellAgentMappingHealth(tenant.id)).status : 'unavailable';
   const provisioning = buildProvisioningReadiness(ownerSnapshot, automation.controls, retellRoute);
   const milestones = milestoneMap.get(tenant.id) ?? defaultOnboardingMilestones();
+  const verifiedRows = readinessRows(retellRoute, milestones);
 
   return (
     <>
@@ -73,15 +74,14 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
         <span className="eyebrow">LAUNCH READINESS</span>
         <h1>Sell the first version carefully.</h1>
         <p>
-          This page separates what is proven from what still needs owner approval before Cevanta runs as a live AI receptionist for HVAC clients.
+          This page separates what is recorded for this workspace from what still needs owner approval before Cevanta runs as a live AI receptionist for {tenant.trade.toLowerCase()} clients.
         </p>
       </div>
 
       <section className="notice" role="status" aria-labelledby="launch-current-position">
         <h2 id="launch-current-position">Current position</h2>
         <p>
-          {tenant.name} is ready to show as a managed pilot with office review. Retell phone answering and Make safe intake have been tested, but automatic live booking,
-          SMS, email, billing and future production releases are still gated.
+          {tenant.name} has {provisioning.readyCount} of {provisioning.totalCount} preparation gates marked ready. Retell is {retellReadiness(retellRoute, milestones).status.toLowerCase()}, Make is {makeReadiness(milestones).status.toLowerCase()}, and the saved fictional test-call milestone is {milestoneLabel(milestones.test_call_status).toLowerCase()}. Automatic booking, SMS, email, billing, calendar writes, and dispatch remain separate gates.
         </p>
       </section>
 
@@ -93,8 +93,8 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
         </div>
         <div className="panel stat">
           <span>First offer</span>
-          <strong className="role-value">Managed pilot</strong>
-          <p>Sell with human review and clear limits until production gates pass.</p>
+          <strong className="role-value">Office-review pilot</strong>
+          <p>Sell only the client scope supported by the recorded route and test evidence.</p>
         </div>
         <div className="panel stat">
           <span>Live automation</span>
@@ -121,7 +121,7 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
               </tr>
             </thead>
             <tbody>
-              {readinessRows.map(row => (
+              {verifiedRows.map(row => (
                 <tr key={row.area}>
                   <td><strong>{row.area}</strong></td>
                   <td>{row.status}</td>
@@ -200,7 +200,7 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
       <div className="split-layout">
         <section className="panel">
           <span className="eyebrow">NEEDS OWNER ATTENTION</span>
-          <h2>Save these decisions for Heath</h2>
+          <h2>Operator decisions to confirm</h2>
           <ul className="setup-readiness-list">
             {ownerItems.map(item => <li key={item}>{item}</li>)}
           </ul>
@@ -221,7 +221,7 @@ export default async function LaunchReadiness({ params }: { params: Promise<{ te
           <li>Open Setup and show business details, services, hours and office-review booking rules.</li>
           <li>Open Leads and explain that AI receptionist calls create office-review leads.</li>
           <li>Open Jobs and Calendar to show how staff turns a reviewed request into scheduled work.</li>
-          <li>Explain that Retell can answer live calls now, while automatic booking and messages remain approval-gated.</li>
+          <li>Show the recorded route and test-call status. Describe phone answering as verified only when this page says it is verified for this workspace.</li>
         </ol>
         <div className="button-row">
           <Link className="button secondary" href={`${base}/leads`}>Open leads ↗</Link>

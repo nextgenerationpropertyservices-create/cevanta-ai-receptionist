@@ -1,0 +1,21 @@
+# Agent handoff
+
+- **Task ID:** CEV-AI-SEARCH-168C
+- **Owner:** Nova (`frontend_ux`)
+- **Work completed:** Repaired all four findings from the independent 168B search review. Robots now excludes both the exact `/workspaces` route and nested workspace routes. The home page now provides complete page-level Open Graph and Twitter objects so Next.js shallow metadata merging retains site identity, locale, social image, card type, title, and description. The video sitemap now points to the public MP4 with `content_loc`. Public copy no longer promises universal 24/7 booked-job opportunities; it accurately describes office-ready leads and after-hours coverage only when configured. Regression assertions cover every repaired contract and prevent the two rejected claims from returning.
+- **Files changed:** `src/app/page.tsx`, `src/components/ui.tsx`, `src/app/robots.ts`, `src/app/sitemap.ts`, `tests/landing-page.test.ts`, `tests/seo-metadata.test.ts`, `docs/project/handoffs/CEV-AI-SEARCH-168C-nova.md`.
+- **Database changes:** None.
+- **API or contract changes:** Public discovery metadata changed only. `/robots.txt` adds exact `/workspaces`; `/sitemap.xml` adds the stable public video location; root social metadata is now complete at page level. No application API or authenticated contract changed.
+- **Verification commands and results:**
+  - `node node_modules/vitest/vitest.mjs run --configLoader native tests/landing-page.test.ts tests/seo-metadata.test.ts` — PASS, 2 files / 7 tests.
+  - `node node_modules/typescript/bin/tsc --noEmit` — PASS.
+  - `node node_modules/eslint/bin/eslint.js src/app/layout.tsx src/app/page.tsx src/components/ui.tsx src/app/robots.ts src/app/sitemap.ts tests/landing-page.test.ts tests/seo-metadata.test.ts` — PASS.
+  - `node node_modules/vitest/vitest.mjs run --configLoader native` — PASS, 58 files / 997 tests.
+  - `node node_modules/eslint/bin/eslint.js .` — PASS.
+  - Targeted old-claim scan — PASS: `turns missed calls into booked-job opportunities 24/7` and `Answer every opportunity` were not found in the repaired source.
+  - `node node_modules/next/dist/bin/next build --webpack` in the working copy — BLOCKED by Windows/OneDrive `EPERM` while Next created `.next` directories.
+  - Clean temporary-copy build with the same source — compiled and typechecked once, then was BLOCKED by a Windows `EPERM` during static page directory creation. A second clean attempt with one build worker was also BLOCKED by `EPERM`. This is environmental evidence, not a passing production build.
+- **Known limitations:** No live production or preview response was changed or inspected. Live `/robots.txt`, `/sitemap.xml`, resolved `<head>`, media fetchability, crawler access, Search Console, Bing Webmaster Tools, and AI-answer inclusion remain unverified. Search ranking or citation cannot be guaranteed. The production-build acceptance item remains blocked in this local Windows filesystem environment even though compilation and type checking completed before the filesystem failure.
+- **Risks:** The canonical host remains the stable Vercel production alias. If a custom primary domain is connected later, canonical, social, robots, sitemap, JSON-LD, and tests must change together. Robots directives are discovery guidance, not an authorization boundary.
+- **Rollback notes:** Revert the listed six source/test files to remove this repair. Do not remove authenticated route protection when changing robots rules.
+- **Exact next action:** Quinn must independently re-review the repaired metadata, robots, sitemap, and claims. Phoenix should rerun the production build in a filesystem/environment that permits Next.js to create its full `.next` tree before Morgan accepts or releases this slice.

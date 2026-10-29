@@ -12,7 +12,13 @@ insert into public.memberships(tenant_id,user_id,role) values('46000000-0000-400
 do $$
 declare target uuid:='46000000-0000-4000-8000-000000000001'; request uuid:='46000000-0000-4000-8002-000000000001'; input jsonb; payload jsonb; result jsonb; snapshot jsonb; revision integer:=0; service_id uuid; active_service_id uuid; exception_id uuid; inactive_exception_id uuid; audit_count bigint; n integer; weekday integer;
 begin
- if (select count(*) from pg_proc p join pg_namespace s on s.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where s.nspname='public' and p.proname in ('onboarding_configure','onboarding_save_resume','onboarding_snapshot','onboarding_accept_invitation','onboarding_history_list','onboarding_history_reenable','issue_client_invitation') and p.prosecdef and r.rolname='postgres' and 'search_path=""'=any(p.proconfig) and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'))<>7 then raise exception 'Guarded RPC ownership/search path/grants'; end if;
+ if (select count(*) from pg_proc p join pg_namespace s on s.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where s.nspname='public' and p.proname in ('onboarding_configure','onboarding_save_resume','onboarding_snapshot','onboarding_history_list','onboarding_history_reenable','issue_client_invitation') and p.prosecdef and r.rolname='postgres' and 'search_path=""'=any(p.proconfig) and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'))<>6 then raise exception 'Guarded RPC ownership/search path/grants'; end if;
+ if has_function_privilege('public','public.onboarding_accept_invitation(jsonb)'::regprocedure,'EXECUTE')
+    or has_function_privilege('anon','public.onboarding_accept_invitation(jsonb)'::regprocedure,'EXECUTE')
+    or has_function_privilege('authenticated','public.onboarding_accept_invitation(jsonb)'::regprocedure,'EXECUTE')
+    or has_function_privilege('service_role','public.onboarding_accept_invitation(jsonb)'::regprocedure,'EXECUTE') then
+  raise exception 'Retired raw-token invitation RPC remains executable';
+ end if;
  if exists(select 1 from pg_proc p join pg_namespace s on s.oid=p.pronamespace where s.nspname='onboarding_private' and has_function_privilege('authenticated',p.oid,'EXECUTE')) then raise exception 'Private helper execute grant'; end if;
  if onboarding_private.input_size('{"a":1.0,"b":[true,null,"😀"]}')<>octet_length(convert_to('{"a":1,"b":[true,null,"😀"]}','UTF8')) then raise exception 'Parsed compact body sizing parity'; end if;
  payload:='{"name":"Command demo A","trade":"HVAC","timezone":"America/New_York","business_contact_name":"","business_email":null,"business_phone":null}';
@@ -147,79 +153,9 @@ begin
  begin perform public.onboarding_snapshot(target); raise exception 'Anonymous RPC granted'; exception when insufficient_privilege then null; end;
  reset role;
 end; $$;
--- Fictional privately provisioned invitations, no issuance/delivery command.
-insert into onboarding_private.invitations(id,tenant_id,recipient_user_id,recipient_email,intended_role,token_digest,expires_at,creation_request_id,created_at)
-values
- ('46000000-0000-4000-8004-000000000001','46000000-0000-4000-8000-000000000001','46000000-0000-4000-8001-000000000007','command-7@example.invalid','dispatcher',onboarding_private.token_digest(repeat('A',43)),clock_timestamp()+interval '1 hour',gen_random_uuid(),clock_timestamp()-interval '2 hours'),
- ('46000000-0000-4000-8004-000000000002','46000000-0000-4000-8000-000000000001','46000000-0000-4000-8001-000000000007','command-7@example.invalid','dispatcher',onboarding_private.token_digest(repeat('B',42)||'A'),clock_timestamp()+interval '1 hour',gen_random_uuid(),clock_timestamp()-interval '2 hours'),
- ('46000000-0000-4000-8004-000000000003','46000000-0000-4000-8000-000000000001','46000000-0000-4000-8001-000000000008','command-8@example.invalid','viewer',onboarding_private.token_digest(repeat('C',42)||'A'),clock_timestamp()-interval '1 hour',gen_random_uuid(),clock_timestamp()-interval '2 hours'),
- ('46000000-0000-4000-8004-000000000004','46000000-0000-4000-8000-000000000001','46000000-0000-4000-8001-000000000009','command-9@example.invalid','technician',onboarding_private.token_digest(repeat('D',42)||'A'),clock_timestamp()+interval '1 hour',gen_random_uuid(),clock_timestamp()-interval '2 hours');
+-- Generic fault injection remains for configuration/history atomicity checks below.
 create function onboarding_private.test_receipt_fault() returns trigger language plpgsql set search_path='' as $$ begin raise exception 'Fictional receipt fault' using errcode='XX000'; end; $$;
 revoke all on function onboarding_private.test_receipt_fault() from public,anon,authenticated;
-do $$
-declare input jsonb:=jsonb_build_object('request_id','46000000-0000-4000-8005-000000000001','token',repeat('A',43)); result jsonb; original_time text; audits bigint; target uuid:='46000000-0000-4000-8000-000000000001'; token_input jsonb;
-begin
- perform set_config('request.jwt.claim.sub','46000000-0000-4000-8001-000000000008',true); set local role authenticated;
- result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Wrong recipient'; end if;
- result:=public.onboarding_accept_invitation(jsonb_build_object('request_id',gen_random_uuid(),'token',repeat('C',42)||'A')); if result->>'status'<>'unavailable' then raise exception 'Expired pending invite'; end if;
- reset role;
- perform set_config('request.jwt.claim.sub','46000000-0000-4000-8001-000000000007',true); set local role authenticated;
- result:=public.onboarding_accept_invitation(input);
- if result->>'status'<>'accepted' or result->>'role'<>'dispatcher' or result->>'entry'<>'setup' or result ?| array['token','email','digest'] then raise exception 'Acceptance: %',result->>'status'; end if;
- original_time:=result->'acceptance'->>'accepted_at';
- if original_time !~ 'Z$' then raise exception 'Acceptance timestamp not UTC'; end if;
- reset role;
- if (select role from public.memberships where tenant_id=target and user_id='46000000-0000-4000-8001-000000000007')<>'dispatcher' then raise exception 'Membership did not persist'; end if;
- select count(*) into audits from public.audit_events where tenant_id=target;
- set local role authenticated;
- result:=public.onboarding_accept_invitation(input);
- if result->>'status'<>'replayed' or result->'acceptance'->>'accepted_at'<>original_time then raise exception 'Invite replay'; end if;
- result:=public.onboarding_accept_invitation(jsonb_set(input,'{request_id}',to_jsonb(gen_random_uuid())));
- if result->>'status'<>'already_accepted' or result->'acceptance'->>'accepted_at'<>original_time then raise exception 'New-request accepted repeat'; end if;
- result:=public.onboarding_accept_invitation(jsonb_set(input,'{token}',to_jsonb(repeat('B',42)||'A')));
- if result->>'reason'<>'request_reuse' then raise exception 'Token/request collision'; end if;
- reset role;
- if (select count(*) from onboarding_private.receipts where actor_user_id='46000000-0000-4000-8001-000000000007' and command='invite_accept')<>2 or (select count(*) from public.audit_events where tenant_id=target)<>audits then raise exception 'Repeat receipt/business audit semantics'; end if;
- update public.tenants set name='Fresh authorized name' where id=target;
- set local role authenticated;
- result:=public.onboarding_accept_invitation(input);
- if result->'workspace'->>'name'<>'Fresh authorized name' or result->'acceptance'->>'accepted_at'<>original_time then raise exception 'Immutable outcome/fresh projection'; end if;
- reset role;
- update auth.users set email='changed@example.invalid' where id='46000000-0000-4000-8001-000000000007';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Changed current email replay'; end if; reset role;
- update auth.users set email='command-7@example.invalid',deleted_at=now() where id='46000000-0000-4000-8001-000000000007';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Deleted current account replay'; end if; reset role;
- update auth.users set deleted_at=null,email_confirmed_at=null where id='46000000-0000-4000-8001-000000000007';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Unconfirmed replay'; end if; reset role;
- update auth.users set email_confirmed_at=now() where id='46000000-0000-4000-8001-000000000007';
- update public.memberships set role='viewer' where tenant_id=target and user_id='46000000-0000-4000-8001-000000000007';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Demoted accepted replay'; end if;
- result:=public.onboarding_accept_invitation(jsonb_build_object('request_id',gen_random_uuid(),'token',repeat('B',42)||'A')); if result->>'status'<>'membership_conflict' then raise exception 'Pending role mismatch promoted member'; end if; reset role;
- delete from public.memberships where tenant_id=target and user_id='46000000-0000-4000-8001-000000000007';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Removed member restored'; end if; reset role;
- if exists(select 1 from public.memberships where tenant_id=target and user_id='46000000-0000-4000-8001-000000000007') then raise exception 'Replay recreated membership'; end if;
- insert into public.memberships(tenant_id,user_id,role) values(target,'46000000-0000-4000-8001-000000000007','dispatcher');
- update onboarding_private.invitations set status='revoked',revoked_by='46000000-0000-4000-8001-000000000001',revoked_at=clock_timestamp(),version=version+1 where id='46000000-0000-4000-8004-000000000001';
- set local role authenticated; result:=public.onboarding_accept_invitation(input); if result->>'status'<>'unavailable' then raise exception 'Revoked receipt replay'; end if; reset role;
- -- Receipt fault after membership/invite/audit mutations must roll back all.
- create trigger onboarding_test_receipt_fault before insert on onboarding_private.receipts for each row execute function onboarding_private.test_receipt_fault();
- select count(*) into audits from public.audit_events where tenant_id=target;
- perform set_config('request.jwt.claim.sub','46000000-0000-4000-8001-000000000009',true); set local role authenticated;
- token_input:=jsonb_build_object('request_id',gen_random_uuid(),'token',repeat('D',42)||'A');
- result:=public.onboarding_accept_invitation(token_input); if result->>'status'<>'retryable_failure' then raise exception 'Receipt fault not safe'; end if; reset role;
- if exists(select 1 from public.memberships where tenant_id=target and user_id='46000000-0000-4000-8001-000000000009') or (select status from onboarding_private.invitations where id='46000000-0000-4000-8004-000000000004')<>'pending' or (select count(*) from public.audit_events where tenant_id=target)<>audits then raise exception 'Partial failed acceptance'; end if;
- drop trigger onboarding_test_receipt_fault on onboarding_private.receipts;
- set local role authenticated; result:=public.onboarding_accept_invitation(token_input); if result->>'status'<>'accepted' then raise exception 'Retry after failed receipt'; end if; reset role;
- -- Historical acceptance fixture: token expired after its original acceptance.
- update onboarding_private.invitations set status='accepted',accepted_by=recipient_user_id,accepted_at=clock_timestamp()-interval '90 minutes',version=version+1 where id='46000000-0000-4000-8004-000000000003';
- insert into public.memberships(tenant_id,user_id,role) values(target,'46000000-0000-4000-8001-000000000008','viewer');
- perform set_config('request.jwt.claim.sub','46000000-0000-4000-8001-000000000008',true);
- token_input:=jsonb_build_object('request_id',gen_random_uuid(),'token',repeat('C',42)||'A');
- set local role authenticated; result:=public.onboarding_accept_invitation(token_input);
- if result->>'status'<>'already_accepted' then raise exception 'Expired accepted repeat denied'; end if;
- original_time:=result->'acceptance'->>'accepted_at'; result:=public.onboarding_accept_invitation(token_input);
- if result->>'status'<>'replayed' or result->'acceptance'->>'accepted_at'<>original_time then raise exception 'Expired accepted replay denied'; end if; reset role;
-end; $$;
 do $$
 declare result jsonb; input jsonb; revision integer; audits bigint; profile_value text; target uuid:='46000000-0000-4000-8000-000000000001';
 begin

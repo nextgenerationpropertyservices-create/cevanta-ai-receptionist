@@ -50,6 +50,14 @@ describe("job action authentication/permissions/validation", () => {
     const action = field === "jobId" ? updateJob : createJob;
     for (const missing of [false,true]) { respond({ role:"owner" }); harness.calls=[]; const input=form({[field]:"bad"}); if(missing)input.delete(field); expect((await action(idle,input)).status).toBe("error"); expect(writes()).toEqual([]); expect(harness.calls.every(call => call.table === "memberships")).toBe(true); }
   });
+  it.each([false,true])("rejects an invalid or missing delete job ID (missing=%s)",async missingJobId=>{
+    respond({role:"owner"});
+    const input=form({jobId:"bad"});
+    if(missingJobId) input.delete("jobId");
+    expect((await deleteJob(idle,input)).status).toBe("error");
+    expect(harness.calls.every(call=>call.table==="memberships")).toBe(true);
+    expect(harness.calls.some(call=>call.method==="rpc")).toBe(false);
+  });
   it.each<Record<string,string>>([{title:" "},{description:""},{title:"x".repeat(161)},{priority:"root"},{status:"root"},{status:"scheduled"},{scheduled_date:"2026-02-30"},{assigned_user_id:"bad"},{customer_id:"bad"},{service_location_id:"bad"},{lead_id:"bad"}])("rejects invalid fields %j", async fields => { respond({role:"owner"}); expect((await createJob(idle,form(fields))).status).toBe("error"); expect(writes()).toEqual([]); });
 });
 
@@ -121,20 +129,33 @@ describe("job update and member-scoped queries",()=>{
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs`);expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs/${job}`);
   });
   it.each(["owner","admin","dispatcher"])("allows %s tenant-scoped job deletion",async role=>{
-    respond({role},{id:job});
+    respond({role},{status:"deleted"});
     await expect(deleteJob(idle,form())).rejects.toThrow(`REDIRECT:/workspaces/${tenant}/jobs`);
-    expect(harness.calls).toContainEqual({table:"jobs",method:"delete",args:[]});
-    expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["tenant_id",tenant]});
-    expect(harness.calls).toContainEqual({table:"jobs",method:"eq",args:["id",job]});
+    expect(harness.calls).toContainEqual({table:"delete_job",method:"rpc",args:[{target_tenant:tenant,target_job:job}]});
+    expect(harness.calls.some(call=>call.method==="delete")).toBe(false);
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/jobs`);
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/calendar`);
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/notifications`);
   });
   it("returns a safe message when job deletion is blocked by linked records",async()=>{
-    harness.responses=[{data:{role:"owner"},error:null},{data:null,error:{code:"23503",message:"synthetic-provider-detail"}}];
+    respond({role:"owner"},{status:"protected"});
     const result=await deleteJob(idle,form());
     expect(result.status).toBe("error");
     expect(result.message).toContain("linked to records");
+    expect(result.message).not.toContain("synthetic-provider-detail");
+    expect(harness.revalidate).not.toHaveBeenCalled();
+  });
+  it.each([
+    [{status:"unavailable"},null],
+    [null,null],
+    [{status:"deleted",job_id:job},null],
+    [{status:"other"},null],
+    [[{status:"deleted"}],null],
+    [{status:"deleted"},{code:"PGRST202",message:"synthetic-provider-detail"}],
+  ] as const)("fails closed on unavailable, corrupt, or errored delete command result %#",async(data,error)=>{
+    harness.responses=[{data:{role:"owner"},error:null},{data,error}];
+    const result=await deleteJob(idle,form());
+    expect(result).toEqual({status:"error",message:"Unable to delete this job. Check your permissions, then try again."});
     expect(result.message).not.toContain("synthetic-provider-detail");
     expect(harness.revalidate).not.toHaveBeenCalled();
   });

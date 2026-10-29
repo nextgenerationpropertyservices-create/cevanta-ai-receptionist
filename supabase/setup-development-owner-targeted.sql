@@ -4,12 +4,12 @@
 begin;
 do $$
 declare
-  target_email constant text := 'jennherrick7@gmail.com';
+  target_email constant text := 'replace-with-confirmed-owner@example.invalid';
   account_id uuid;
   confirmed_at timestamptz;
   demo_tenant constant uuid := '10000000-0000-4000-8000-000000000001';
 begin
-  if target_email = 'jennherrick7@gmail.com' or btrim(target_email) = '' then
+  if target_email = 'replace-with-confirmed-owner@example.invalid' or btrim(target_email) = '' then
     raise exception 'Replace the email placeholder privately in the SQL Editor before running.';
   end if;
   begin
