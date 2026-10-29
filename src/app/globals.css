@@ -284,7 +284,7 @@
 .landing-actions .secondary,.landing-cta-actions .secondary{padding:14px 20px;font-size:14px}
 .landing-note{font-size:12px;line-height:1.5;max-width:570px;margin-top:20px;color:#70817b}
 .landing-hero-proof{display:flex;justify-content:center}
-.landing-proof-window{width:min(100%,480px);background:#102c3b;border-radius:26px;padding:22px;box-shadow:0 28px 70px #143a3830;transform:rotate(2deg)}
+.landing-proof-window{width:min(100%,480px);background:#102c3b;border-radius:26px;padding:22px;box-shadow:0 28px 70px #143a3830;transform:none}
 .landing-window-top{display:flex;align-items:center;gap:8px;color:#9fd3d3;font-size:11px;letter-spacing:.04em;padding-bottom:20px;border-bottom:1px solid #ffffff22}
 .landing-window-top>span:last-child{margin-left:auto;color:#7d969d;font-size:10px;letter-spacing:0}
 .landing-live-dot{width:8px;height:8px;border-radius:50%;background:#b6e861;box-shadow:0 0 0 4px #b6e86122}

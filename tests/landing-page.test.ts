@@ -46,4 +46,11 @@ describe("public landing page", () => {
     expect(globalStyles).toMatch(/\.landing-page \.button\.secondary[^}]*color:#143a38!important/);
     expect(globalStyles).toMatch(/\.landing-faq-list summary[^}]*color:#143a38/);
   });
+
+  it("keeps the sample-call proof card level without losing its responsive width", () => {
+    expect(globalStyles).toMatch(
+      /\.landing-proof-window\{[^}]*width:min\(100%,480px\)[^}]*box-shadow:[^}]*transform:none[^}]*\}/,
+    );
+    expect(globalStyles).not.toMatch(/\.landing-proof-window\{[^}]*transform:rotate\(/);
+  });
 });
