@@ -1,154 +1,211 @@
-const leads = [
-  { name: 'Sam Carter', issue: 'No heat upstairs', location: 'Maple Ridge neighborhood', urgency: 'High', window: 'Today after 2 PM', status: 'Needs review', value: '$650 potential job' },
-  { name: 'Pine Street Market', issue: 'Walk-in cooler running warm', location: 'Auburn commercial district', urgency: 'Urgent', window: 'First available today', status: 'New lead', value: '$1,200 potential job' },
-  { name: 'Casey Morgan', issue: 'Fall tune-up request', location: 'Lisbon service area', urgency: 'Routine', window: 'Next Wednesday afternoon', status: 'Ready to call back', value: '$189 maintenance visit' },
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Cevanta client dashboard preview',
+  description: 'Explore a fictional client-facing preview of the Cevanta front office dashboard.',
+};
+
+const attentionItems = [
+  '3 new calls are ready for office review',
+  '1 urgent cooling request needs a callback',
+  '2 open jobs still need a technician',
 ];
 
-const timeline = [
-  { time: '8:03 AM', title: 'Missed call becomes captured intake', detail: 'AI answers, gets the issue, location, urgency and preferred window.' },
-  { time: '8:04 AM', title: 'Office sees new lead alert', detail: 'The request lands in Cevanta for review instead of disappearing into voicemail.' },
-  { time: '8:11 AM', title: 'Dispatcher reviews before confirming', detail: 'Office decides whether to call, schedule, quote follow-up, or close.' },
-  { time: '10:00 AM', title: 'Calendar hold after human approval', detail: 'Calendar preview shows what the office may schedule after review.' },
+const summaryCards = [
+  { label: 'New leads', value: '3', detail: '1 urgent or high priority' },
+  { label: 'Open jobs', value: '7', detail: '2 waiting for field assignment' },
+  { label: 'Visits today', value: '4', detail: '3 technicians on the road' },
+  { label: 'Calls captured', value: '18', detail: 'Fictional month-to-date example' },
 ];
 
-const jobs = [
-  { title: 'Review Pine Street Market cooling request', tech: 'Unassigned', status: 'Office review', date: 'Today · pending confirmation', note: 'Flagged urgent; no dispatch promised by AI.' },
-  { title: 'Sam Carter furnace diagnostic', tech: 'Avery Brooks', status: 'Calendar hold', date: 'Tue Oct 13 · 10:00 AM', note: 'Human-created hold after reviewing availability.' },
-  { title: 'Casey Morgan tune-up', tech: 'Jordan Lee', status: 'Ready to schedule', date: 'Next Wednesday · afternoon preference', note: 'Customer preference captured, not a confirmed appointment.' },
+const queueItems = [
+  {
+    name: 'Taylor Reed',
+    meta: 'Urgent · AI receptionist lead · Today, 8:42 AM',
+    request: 'No cooling at a small office. The caller reports warm air and requested the first available callback.',
+    priority: 'urgent',
+  },
+  {
+    name: 'Morgan Ellis',
+    meta: 'High priority · AI receptionist lead · Today, 9:16 AM',
+    request: 'Water around the indoor unit. The system is off and the office should review the safety notes.',
+    priority: 'high',
+  },
+  {
+    name: 'Riverview Market',
+    meta: 'Normal priority · Manually added lead · Today, 10:05 AM',
+    request: 'Routine maintenance request for two rooftop units with a morning scheduling preference.',
+    priority: 'normal',
+  },
 ];
 
-const setupItems = [
-  'Services: no heat, AC repair, cooling, maintenance and tune-ups',
-  'Hours: Monday–Thursday 8 AM–5 PM, Friday 8 AM–3 PM',
-  'Service area: Lewiston, Auburn, Lisbon and nearby towns',
-  'Never promise: exact pricing, parts availability, same-day dispatch or confirmed appointment times',
-  'Escalation: urgent safety issue goes to office review first',
+const technicianLoad = [
+  { name: 'Avery Brooks', work: '2 open jobs', current: 'Furnace diagnostic · North district' },
+  { name: 'Jordan Lee', work: '1 open job', current: 'Seasonal tune-up · Central district' },
+  { name: 'Cameron Wells', work: 'Available', current: 'No active assignment shown' },
 ];
 
-const roiRows = [
-  { label: 'Missed calls per month', value: '12' },
-  { label: 'Average booked job value', value: '$425' },
-  { label: 'If 3 extra jobs are recovered', value: '$1,275' },
+const calendarItems = [
+  { time: 'Today · 11:00 AM', title: 'Heat pump diagnostic', meta: 'Avery Brooks · high priority' },
+  { time: 'Today · 2:30 PM', title: 'Seasonal maintenance visit', meta: 'Jordan Lee · normal priority' },
+  { time: 'Tomorrow · 9:00 AM', title: 'Commercial rooftop inspection', meta: 'Unassigned · normal priority' },
+];
+
+const roiAssumptions = [
+  { label: 'Missed calls each month', value: '12' },
+  { label: 'Average completed job', value: '$680' },
+  { label: 'Example close rate', value: '35%' },
 ];
 
 export default function DemoDashboard() {
   return (
-    <main className="demo-dashboard demo-meet" aria-labelledby="demo-title">
-      <section className="demo-hero panel">
-        <div>
-          <span className="eyebrow">GOOGLE MEET SALES DEMO · FICTIONAL HVAC COMPANY</span>
-          <h1 id="demo-title">See how Cevanta turns missed calls into office-ready leads.</h1>
-          <p className="lede">This clean demo dashboard is built for screen sharing. Every name, address, job, lead and dollar example is fictional. The first pilot keeps the office in control before anything is confirmed.</p>
-          <div className="button-row demo-hero-points" aria-label="Demo talking points">
-            <span className="pill">AI answers</span>
-            <span className="pill">Lead captured</span>
-            <span className="pill">Office reviews</span>
-            <span className="pill">No automatic booking</span>
+    <div className="demo-overview-shell">
+      <a className="skip-link" href="#demo-overview-main">Skip to dashboard preview</a>
+
+      <header className="demo-overview-topbar">
+        <div className="demo-overview-topbar-inner">
+          <Link className="demo-overview-brand" href="/" aria-label="Cevanta home">
+            <span className="brand-mark" aria-hidden="true">C</span>
+            <span>Cevanta</span>
+          </Link>
+          <div className="demo-overview-workspace">
+            <strong>Northstar Heating &amp; Cooling</strong>
+            <span>Fictional client workspace</span>
           </div>
+          <nav className="demo-overview-nav" aria-label="Demo dashboard navigation">
+            <a href="#demo-overview-main" aria-current="page">Overview</a>
+            <a href="#today-queue">Leads</a>
+            <a href="#dispatch-coverage">Dispatch</a>
+            <a href="#calendar-pulse">Calendar</a>
+          </nav>
+          <Link className="button demo-overview-top-cta" href="/sign-up">Start setup</Link>
         </div>
-        <aside className="demo-safe-card">
-          <span className="eyebrow">PILOT OFFER</span>
-          <strong>$497 setup + $297/month</strong>
-          <p>Managed pilot for HVAC owners who miss calls or need front-office backup.</p>
-          <small>Boundary: no automatic booking, SMS/email, calendar writes, payment collection or dispatch automation unless separately approved and tested.</small>
-        </aside>
-      </section>
+      </header>
 
-      <section className="demo-meet-alert panel" aria-label="New lead alert">
-        <div>
-          <span className="eyebrow">IMPOSSIBLE-TO-MISS ALERT</span>
-          <h2>3 AI receptionist leads need office review</h2>
-          <p>Use this first on Google Meet: show the owner that every missed call becomes a clear next action for the office.</p>
+      <main className="demo-overview-main" id="demo-overview-main" aria-labelledby="demo-overview-title">
+        <section className="demo-overview-hero">
+          <div>
+            <div className="demo-overview-kicker">
+              <span className="eyebrow">FRONT OFFICE COMMAND CENTER</span>
+              <span className="demo-preview-label">Fictional preview</span>
+            </div>
+            <h1 id="demo-overview-title">See every call, lead, and job that needs attention.</h1>
+            <p>This client-facing preview shows how a busy trade-service office can review new requests, watch dispatch pressure, and keep the day organized from one clean dashboard.</p>
+          </div>
+
+          <aside className="demo-overview-roi" aria-labelledby="demo-roi-title">
+            <span className="eyebrow">VALUE SNAPSHOT</span>
+            <h2 id="demo-roi-title">Example recovered opportunity</h2>
+            <strong>$2,856</strong>
+            <p>Illustrative monthly value if 12 captured calls close at the assumptions below.</p>
+            <div className="demo-overview-roi-fields" aria-label="Example ROI assumptions">
+              {roiAssumptions.map((item) => (
+                <div key={item.label}>
+                  <span>{item.label}</span>
+                  <output>{item.value}</output>
+                </div>
+              ))}
+            </div>
+            <small>Example only. Results depend on call volume, job value, follow-up, and close rate.</small>
+          </aside>
+        </section>
+
+        <section className="demo-overview-alert" aria-labelledby="demo-attention-title">
+          <div>
+            <span className="eyebrow">NEEDS ATTENTION</span>
+            <h2 id="demo-attention-title">{attentionItems[0]}</h2>
+            <p>{attentionItems.slice(1).join(' · ')}</p>
+          </div>
+          <a className="button" href="#today-queue">Review today&apos;s queue</a>
+        </section>
+
+        <section className="demo-overview-stats" aria-label="Fictional front office summary">
+          {summaryCards.map((card) => (
+            <article key={card.label}>
+              <span>{card.label}</span>
+              <strong>{card.value}</strong>
+              <p>{card.detail}</p>
+            </article>
+          ))}
+        </section>
+
+        <div className="demo-overview-grid">
+          <section className="demo-overview-panel" id="today-queue" aria-labelledby="demo-queue-title">
+            <div className="demo-overview-section-heading">
+              <div>
+                <span className="eyebrow">TODAY&apos;S QUEUE</span>
+                <h2 id="demo-queue-title">What the office should handle first</h2>
+              </div>
+              <span className="demo-preview-label">Fictional records</span>
+            </div>
+            <div className="demo-overview-queue">
+              {queueItems.map((item) => (
+                <article data-priority={item.priority} key={item.name}>
+                  <strong>{item.name}</strong>
+                  <span>{item.meta}</span>
+                  <p>{item.request}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="demo-overview-panel" id="dispatch-coverage" aria-labelledby="demo-dispatch-title">
+            <div className="demo-overview-section-heading">
+              <div>
+                <span className="eyebrow">DISPATCH COVERAGE</span>
+                <h2 id="demo-dispatch-title">Field team and workload</h2>
+              </div>
+            </div>
+            <div className="demo-overview-tech-list">
+              {technicianLoad.map((technician) => (
+                <article key={technician.name}>
+                  <div>
+                    <strong>{technician.name}</strong>
+                    <span>{technician.work}</span>
+                  </div>
+                  <p>{technician.current}</p>
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
-        <strong>$2,039</strong>
-      </section>
 
-      <section className="demo-stats" aria-label="Demo summary">
-        <article className="panel stat"><span>New AI leads</span><strong>3</strong><p>All fictional, all waiting for office review</p></article>
-        <article className="panel stat"><span>Fastest response path</span><strong>8 min</strong><p>From missed call to office callback queue</p></article>
-        <article className="panel stat"><span>Pilot mode</span><strong className="role-value">Office review</strong><p>AI captures preferences, office confirms</p></article>
-      </section>
-
-      <section className="split-layout demo-grid">
-        <div className="panel">
-          <div className="section-heading"><div><span className="eyebrow">LEAD INBOX</span><h2>AI receptionist leads</h2></div><span className="pill">Fictional data</span></div>
-          <div className="demo-card-list">
-            {leads.map((lead) => (
-              <article className="demo-record demo-lead-card" key={lead.name}>
-                <div><strong>{lead.name}</strong><span>{lead.status}</span></div>
-                <p>{lead.issue}</p>
-                <dl>
-                  <div><dt>Area</dt><dd>{lead.location}</dd></div>
-                  <div><dt>Urgency</dt><dd>{lead.urgency}</dd></div>
-                  <div><dt>Preferred window</dt><dd>{lead.window}</dd></div>
-                  <div><dt>Demo value</dt><dd>{lead.value}</dd></div>
-                </dl>
+        <section className="demo-overview-panel demo-overview-calendar" id="calendar-pulse" aria-labelledby="demo-calendar-title">
+          <div className="demo-overview-section-heading">
+            <div>
+              <span className="eyebrow">CALENDAR PULSE</span>
+              <h2 id="demo-calendar-title">Upcoming jobs by field team</h2>
+            </div>
+            <span className="demo-preview-label">Office-reviewed schedule</span>
+          </div>
+          <div className="demo-overview-calendar-list">
+            {calendarItems.map((item) => (
+              <article key={`${item.time}-${item.title}`}>
+                <time>{item.time}</time>
+                <div>
+                  <strong>{item.title}</strong>
+                  <span>{item.meta}</span>
+                </div>
+                <span className="demo-calendar-status">Preview</span>
               </article>
             ))}
           </div>
-        </div>
+        </section>
 
-        <aside className="panel demo-script-card">
-          <span className="eyebrow">TALK TRACK</span>
-          <h2>What to say while sharing</h2>
-          <ol>
-            <li>“This is the dashboard your office opens each morning.”</li>
-            <li>“The AI captures the caller’s need and urgency.”</li>
-            <li>“Your office reviews before confirming anything.”</li>
-            <li>“The pilot is intentionally safe while we prove the workflow.”</li>
-          </ol>
-        </aside>
-      </section>
-
-      <section className="panel demo-flow-panel">
-        <div className="section-heading"><div><span className="eyebrow">CALL TO OFFICE WORKFLOW</span><h2>How a missed call becomes a reviewed job</h2></div><span className="pill">Simple story</span></div>
-        <div className="demo-flow">
-          {timeline.map((item) => <article key={item.title}><time>{item.time}</time><strong>{item.title}</strong><p>{item.detail}</p></article>)}
-        </div>
-      </section>
-
-      <section className="split-layout demo-grid">
-        <div className="panel">
-          <div className="section-heading"><div><span className="eyebrow">CALENDAR PREVIEW</span><h2>Jobs and technician view</h2></div><span className="pill">Office controlled</span></div>
-          <div className="demo-card-list">
-            {jobs.map((job) => (
-              <article className="demo-record" key={job.title}>
-                <div><strong>{job.title}</strong><span>{job.status}</span></div>
-                <p>{job.note}</p>
-                <dl>
-                  <div><dt>Technician</dt><dd>{job.tech}</dd></div>
-                  <div><dt>Calendar</dt><dd>{job.date}</dd></div>
-                </dl>
-              </article>
-            ))}
+        <section className="demo-overview-boundary" aria-labelledby="demo-boundary-title">
+          <div>
+            <span className="eyebrow">YOUR OFFICE STAYS IN CONTROL</span>
+            <h2 id="demo-boundary-title">Choose what Cevanta is allowed to do.</h2>
+            <p>Live booking, SMS or email messages, external calendar writes, payment collection, and dispatch automation stay off until the client approves each feature and the workflow is configured and tested for that business.</p>
           </div>
-        </div>
-
-        <aside className="panel demo-roi-card">
-          <span className="eyebrow">ROI SNAPSHOT</span>
-          <h2>Make the value obvious</h2>
-          <div className="demo-roi-list">
-            {roiRows.map(row => <div key={row.label}><span>{row.label}</span><strong>{row.value}</strong></div>)}
+          <div className="demo-overview-actions">
+            <Link className="button" href="/sign-up">Start your guided setup</Link>
+            <Link className="button secondary" href="/#watch">Watch the call example</Link>
+            <Link className="demo-overview-signin" href="/sign-in">Already have an account? Sign in</Link>
           </div>
-          <p>This is an example calculator for the sales conversation, not a guarantee. The point is to show how a few recovered calls can cover the pilot.</p>
-        </aside>
-      </section>
-
-      <section className="split-layout demo-grid">
-        <div className="panel">
-          <span className="eyebrow">ONBOARDING SNAPSHOT</span>
-          <h2>What the HVAC owner fills out</h2>
-          <ul className="demo-check-list">
-            {setupItems.map((item) => <li key={item}>{item}</li>)}
-          </ul>
-        </div>
-        <aside className="panel demo-close">
-          <span className="eyebrow">CLOSE</span>
-          <h2>Use this close on the call</h2>
-          <p>“For the first pilot, Cevanta answers calls, captures the details, and gives your office a clean review queue. Your team stays in control before anything is booked. Setup is $497, then $297 per month.”</p>
-        </aside>
-      </section>
-    </main>
+        </section>
+      </main>
+    </div>
   );
 }
-
