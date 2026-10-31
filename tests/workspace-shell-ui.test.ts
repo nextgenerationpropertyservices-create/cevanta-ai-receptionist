@@ -7,7 +7,7 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/workspaces/11111111-111
 
 import { WorkspaceShell } from "@/components/workspace-shell";
 
-const tenant = { id: "11111111-1111-4111-8111-111111111111", name: "Fictional HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", created_at: "2026-10-11T12:00:00.000Z", updated_at: "2026-10-11T12:00:00.000Z" } as const;
+const tenant = { id: "11111111-1111-4111-8111-111111111111", name: "Fictional HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", plan: "managed_receptionist", created_at: "2026-10-11T12:00:00.000Z", updated_at: "2026-10-11T12:00:00.000Z" } as const;
 
 describe("workspace shell attention badges", () => {
   it("shows lead and job attention counts in the top navigation", () => {
@@ -48,6 +48,20 @@ describe("workspace shell attention badges", () => {
     expect(html).toContain(`/workspaces/${tenant.id}/clients`);
     expect(html).not.toContain("Back office");
     expect(html).not.toContain("Start setup");
+  });
+  it("shows the free plan in the workspace header", () => {
+    const freeTenant = { ...tenant, plan: "free" } as const;
+    const planSummary = { plan: "free", limits: { activeLeads: 50, technicianRoster: 2 }, usage: { activeLeads: 4, technicianRoster: 1 }, remaining: { activeLeads: 46, technicianRoster: 1 } } as const;
+    const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant: freeTenant, role: "owner", planSummary }, createElement("div", null, "Dashboard body")));
+    expect(html).toContain("Free tools");
+    expect(html).toContain(`/workspaces/${tenant.id}/billing`);
+  });
+  it("labels unavailable plan data without implying an entitlement", () => {
+    const planSummary = { plan: "unavailable", limits: { activeLeads: null, technicianRoster: null }, usage: { activeLeads: 0, technicianRoster: 0 }, remaining: { activeLeads: null, technicianRoster: null } } as const;
+    const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "owner", planSummary }, createElement("div", null, "Dashboard body")));
+    expect(html).toContain("Plan temporarily unavailable");
+    expect(html).not.toContain("Managed receptionist");
+    expect(html).not.toContain("Free tools");
   });
   it("does not show an attention pill when there is nothing urgent", () => {
     const html = renderToStaticMarkup(createElement(WorkspaceShell, { tenant, role: "viewer" }, createElement("div", null, "Dashboard body")));

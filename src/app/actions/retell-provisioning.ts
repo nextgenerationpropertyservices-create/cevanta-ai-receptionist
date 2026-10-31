@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/server/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { getAuthoritativeWorkspacePlan } from "@/lib/workspace-plans";
 
 const agentIdSchema = z.string().trim().regex(/^agent_[A-Za-z0-9_-]{1,128}$/);
 const connectionIdSchema = z.uuid();
@@ -45,6 +46,8 @@ export async function registerRetellAgentMapping(tenantId: string, rawAgentId: s
     if (!agent.success) return { status: "invalid_agent" };
     if (!tenant.success) return { status: "unavailable" };
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
+    const plan = await getAuthoritativeWorkspacePlan(client, tenant.data);
+    if (plan === null || plan === "free") return { status: "unavailable" };
 
     const { data, error } = await client.rpc("retell_mapping_register", {
       p_tenant_id: tenant.data,
@@ -82,6 +85,8 @@ export async function pauseRetellAgentMapping(tenantId: string): Promise<RetellM
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
     if (!tenant.success) return { status: "unavailable" };
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
+    const plan = await getAuthoritativeWorkspacePlan(client, tenant.data);
+    if (plan === null || plan === "free") return { status: "unavailable" };
 
     const { data, error } = await client.rpc("retell_mapping_pause", {
       p_tenant_id: tenant.data,

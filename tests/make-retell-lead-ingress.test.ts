@@ -204,6 +204,7 @@ describe("Make Retell lead bridge", () => {
   it.each([
     [{ status: "duplicate", tenant_id: tenant, lead_id: lead }, 200, { status: "duplicate", persisted: true, bookingCreated: false }],
     [{ status: "unmapped_tenant" }, 202, { status: "unmapped_tenant", persisted: false, bookingCreated: false }],
+    [{ status: "plan_restricted" }, 403, { status: "plan_restricted", persisted: false, bookingCreated: false }],
     [{ status: "validation_error" }, 400, { status: "rejected", persisted: false, bookingCreated: false }],
     [{ status: "retryable_failure" }, 503, { status: "retryable_failure", persisted: false, bookingCreated: false }],
   ])("maps RPC status %# safely", async (data, status, expected) => {

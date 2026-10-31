@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const harness = vi.hoisted(() => ({
   configured: true, user: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" } as { id: string } | null,
-  authError: null as unknown, responses: [] as { data: unknown; error: unknown }[],
+  authError: null as unknown, responses: [] as { data: unknown; error: unknown; count?: number | null }[],
   calls: [] as { table: string; method: string; args: unknown[] }[], revalidate: vi.fn(),
 }));
 vi.mock("@/lib/supabase/config", () => ({ isSupabaseConfigured: () => harness.configured }));
@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({
   auth: { getUser: async () => ({ data: { user: harness.user }, error: harness.authError }) },
   from: (table: string) => {
     const response = harness.responses.shift() ?? { data: null, error: null };
-    const chain = Object.fromEntries(["select", "eq", "order", "insert", "update", "delete", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => {
+    const chain = Object.fromEntries(["select", "eq", "in", "order", "insert", "update", "delete", "single", "maybeSingle"].map(method => [method, (...args: unknown[]) => {
       harness.calls.push({ table, method, args }); return chain;
     }])) as Record<string, unknown>;
     chain.then = (resolve: (value: unknown) => unknown) => Promise.resolve(response).then(resolve);
@@ -73,13 +73,13 @@ describe("intake actual action authorization and validation", () => {
 
 describe("intake create and retries", () => {
   it.each(["owner", "admin", "dispatcher"])("allows %s create with trusted tenant/token", async role => {
-    respond({ role }, null, { id: lead });
+    respond({ role }, null, { plan: "managed_receptionist" }, { id: lead });
     expect((await createLead(idle, form({ tenant_id: "hostile", submission_id: "hostile", id: "hostile" }))).status).toBe("success");
     expect(writes()).toEqual([{ table: "leads", method: "insert", args: [{ name: "Fictional enquiry", description: "Synthetic request description", priority: "normal", status: "new", email: null, phone: null, customer_id: null, follow_up_date: null, tenant_id: tenant, submission_id: submission }] }]);
     expect(harness.revalidate).toHaveBeenCalledExactlyOnceWith(`/workspaces/${tenant}/leads`);
   });
   it("checks linked customer in the same tenant before insert", async () => {
-    respond({ role: "owner" }, null, { id: customer }, { id: lead });
+    respond({ role: "owner" }, null, { id: customer }, { plan: "managed_receptionist" }, { id: lead });
     expect((await createLead(idle, form({ customer_id: customer }))).status).toBe("success");
     expect(harness.calls).toContainEqual({ table: "customers", method: "eq", args: ["tenant_id", tenant] });
     expect(harness.calls).toContainEqual({ table: "customers", method: "eq", args: ["id", customer] });
@@ -96,7 +96,7 @@ describe("intake create and retries", () => {
     expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["submission_id", submission] });
   });
   it("handles concurrent duplicate insert through scoped token lookup, without updating", async () => {
-    harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error: null }, { data: null, error: { code: "23505", message: "synthetic-provider-detail" } }, { data: { id: lead }, error: null }];
+    harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error: null }, { data: { plan: "managed_receptionist" }, error: null }, { data: null, error: { code: "23505", message: "synthetic-provider-detail" } }, { data: { id: lead }, error: null }];
     expect((await createLead(idle, form())).status).toBe("success");
     expect(writes().map(call => call.method)).toEqual(["insert"]);
     const insertIndex = harness.calls.findIndex(call => call.method === "insert");
@@ -111,15 +111,45 @@ describe("intake create and retries", () => {
     harness.responses = [{ data: { role: "owner" }, error: null }, { data: null, error: { code, message: "synthetic-provider-detail" } }];
     expect((await createLead(idle, form())).message).toContain("database migration"); expect(writes()).toEqual([]); expect(harness.revalidate).not.toHaveBeenCalled();
   });
+  it("preflights the free active-lead limit without attempting a write", async () => {
+    harness.responses = [
+      { data: { role: "owner" }, error: null },
+      { data: null, error: null },
+      { data: { plan: "free" }, error: null },
+      { data: null, error: null, count: 50 },
+    ];
+    const result = await createLead(idle, form());
+    expect(result.status).toBe("error"); expect(result.message).toMatch(/50 active leads/i); expect(writes()).toEqual([]);
+  });
+  it("translates the database limit race safely", async () => {
+    harness.responses = [
+      { data: { role: "owner" }, error: null },
+      { data: null, error: null },
+      { data: { plan: "managed_receptionist" }, error: null },
+      { data: null, error: { code: "P0001", message: "free_plan_active_lead_limit" } },
+    ];
+    const result = await createLead(idle, form());
+    expect(result.status).toBe("error"); expect(result.message).toMatch(/archive|upgrade/i); expect(result.message).not.toContain("P0001");
+  });
 });
 
 describe("intake update and queries", () => {
   it.each(["owner", "admin", "dispatcher"])("allows %s scoped business update without changing customer/token/identity", async role => {
-    respond({ role }, { id: lead });
+    respond({ role }, { status: "new" }, { id: lead });
     expect((await updateLead(idle, form({ customer_id: customer, tenant_id: "hostile", submission_id: "hostile", id: "hostile", status: "contacted", follow_up_date: "2026-10-03" }))).status).toBe("success");
     expect(writes()).toEqual([{ table: "leads", method: "update", args: [{ name: "Fictional enquiry", description: "Synthetic request description", email: null, phone: null, priority: "normal", status: "contacted", follow_up_date: "2026-10-03" }] }]);
     expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["tenant_id", tenant] }); expect(harness.calls).toContainEqual({ table: "leads", method: "eq", args: ["id", lead] });
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads`); expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}/leads/${lead}`);
+  });
+  it("checks capacity before reopening a closed free-plan lead", async () => {
+    harness.responses = [
+      { data: { role: "owner" }, error: null },
+      { data: { status: "closed" }, error: null },
+      { data: { plan: "free" }, error: null },
+      { data: null, error: null, count: 50 },
+    ];
+    const result = await updateLead(idle, form({ status: "new" }));
+    expect(result.status).toBe("error"); expect(result.message).toMatch(/50 active leads/i); expect(writes()).toEqual([]);
   });
   it.each(["owner", "admin", "dispatcher"])("allows %s tenant-scoped lead deletion", async role => {
     respond({ role }, { id: lead });

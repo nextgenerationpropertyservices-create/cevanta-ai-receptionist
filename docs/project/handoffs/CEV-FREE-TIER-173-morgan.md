@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-FREE-TIER-173
+- Work completed: Integrated a secure free dashboard tier with public acquisition, verified-email signup, tenant plan state, free usage limits, neutral rollout state, upgrade presentation, database-enforced automation boundaries, and provider-side-effect guards.
+- Files changed: See task handoffs CEV-FREE-TIER-173A through 173J; primary changes cover the free-tools route, signup/workspace/billing/shell UI, plan contracts and queries, guarded actions and ingress routes, two forward Supabase migrations, and focused tests.
+- Database changes: Adds `workspace_plan`, `tenants.plan`, free lead/technician limits, explicit managed provisioning, free Retell ingress rejection, and trusted-boundary guards for reactivation, automation controls, and Retell mappings. Migrations have not been applied to hosted Supabase.
+- API or contract changes: Adds free/dashboard-plus/managed/unavailable plan states, plan usage summaries, and safe `plan_restricted` ingress responses.
+- Verification commands and results: Full Vitest PASS (65 files, 1,071 tests); TypeScript PASS; ESLint PASS; embedded database checks PASS; non-OneDrive `next build --webpack` PASS. Architecture and Quality: ACCEPT WITH RELEASE LIMITATIONS.
+- Known limitations: Hosted Supabase Auth/RLS/PostgREST, concurrent final-slot inserts, live provider behavior, and preview smoke are not yet verified. The production database migrations are unapplied.
+- Risks: Deploying the app before its migrations would leave plan state unavailable; rollout must follow the reviewed order and include hosted checks. No production deploy should occur without explicit owner approval.
+- Rollback notes: Before any free tenant exists, restore prior function definitions and remove plan triggers/column/enum in reverse order. After free tenants exist, use forward repair and preserve customer data.
+- Exact next action: Apply both reviewed migrations to an authorized preview/hosted Supabase environment, run hosted RLS/concurrency and preview smoke checks, then request explicit owner approval for production deployment.

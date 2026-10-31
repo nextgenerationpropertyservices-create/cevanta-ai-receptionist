@@ -54,6 +54,7 @@ const ingestResponse = z.discriminatedUnion("status", [
   z.object({ status: z.literal("duplicate"), tenant_id: z.uuid(), lead_id: z.uuid() }),
   z.object({ status: z.literal("validation_error") }),
   z.object({ status: z.literal("unmapped_tenant") }),
+  z.object({ status: z.literal("plan_restricted") }),
   z.object({ status: z.literal("retryable_failure") }),
 ]);
 
@@ -198,6 +199,7 @@ async function persistLead(parsed: z.infer<typeof envelope>) {
     if (result.data.status === "applied") return response(200, "lead_created", true);
     if (result.data.status === "duplicate") return response(200, "duplicate", true);
     if (result.data.status === "unmapped_tenant") return response(202, "unmapped_tenant");
+    if (result.data.status === "plan_restricted") return response(403, "plan_restricted");
     if (result.data.status === "validation_error") return response(400, "rejected");
     return response(503, "retryable_failure");
   } catch {

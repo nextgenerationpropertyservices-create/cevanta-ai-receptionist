@@ -4,6 +4,7 @@ const harness = vi.hoisted(() => ({
   requireUser: vi.fn(),
   configured: vi.fn(),
   rpc: vi.fn(),
+  plan: 'managed_receptionist' as string | null,
   rpcCalls: [] as unknown[][],
 }));
 
@@ -27,6 +28,13 @@ beforeEach(() => {
   harness.requireUser.mockResolvedValue({
     user: { id: 'fictional-user' },
     client: {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            single: async () => ({ data: { plan: harness.plan }, error: null }),
+          }),
+        }),
+      }),
       rpc: (name: string, args: unknown) => {
         harness.rpcCalls.push([name, args]);
         return harness.rpc();
@@ -34,6 +42,7 @@ beforeEach(() => {
     },
   });
   harness.configured.mockReturnValue(true);
+  harness.plan = 'managed_receptionist';
   harness.rpc.mockResolvedValue({ data: { status: 'mapped' }, error: null });
   process.env.MAKE_RETELL_INGRESS_CONNECTION_ID = connection;
 });
@@ -83,6 +92,14 @@ describe('Retell provisioning boundaries', () => {
     harness.rpc.mockResolvedValueOnce({ data: { status: 'unavailable' }, error: null });
     await expect(registerRetellAgentMapping(tenant, agent)).resolves.toEqual({ status: 'unavailable' });
     expect(harness.rpcCalls).toHaveLength(1);
+  });
+
+  it.each(['free', null])('blocks %s plan before Retell mapping mutation', async plan => {
+    harness.plan = plan;
+
+    await expect(registerRetellAgentMapping(tenant, agent)).resolves.toEqual({ status: 'unavailable' });
+    await expect(pauseRetellAgentMapping(tenant)).resolves.toEqual({ status: 'unavailable' });
+    expect(harness.rpcCalls).toEqual([]);
   });
 
   it('rejects a response that includes a provider identifier', async () => {

@@ -5,6 +5,7 @@ import { SETTINGS_ROLES } from "@/lib/contracts";
 import { requireMembership, uuidSchema } from "@/lib/server/authorization";
 import { technicianRosterSchema } from "@/lib/technician-roster";
 import type { ActionState } from "@/lib/server/action-state";
+import { FREE_TECHNICIAN_LIMIT_MESSAGE, FREE_TECHNICIAN_ROSTER_LIMIT, isFreePlanLimitError } from "@/lib/workspace-plans";
 const missing=(code?:string)=>code === "42P01" || code === "PGRST205" || code === "42883";
 const rawFields=(form:FormData)=>({...Object.fromEntries(form),skill_presets:form.getAll("skill_presets")});
 
@@ -18,11 +19,20 @@ export async function saveTechnicianRoster(_previous:ActionState,form:FormData):
    const existing=await client.from("technician_roster").select("linked_user_id").eq("tenant_id",parsed.data.tenantId).eq("id",parsed.data.rosterId).maybeSingle();
    if(existing.error || !existing.data) return {status:"error",message:"Technician roster entry not found."};
    linkedUserId=typeof existing.data.linked_user_id === "string" ? existing.data.linked_user_id : undefined;
+  } else {
+   const tenant=await client.from("tenants").select("plan").eq("id",parsed.data.tenantId).single();
+   if(tenant.error || !tenant.data) throw new Error("Plan lookup failed.");
+   if(tenant.data.plan === "free") {
+    const usage=await client.from("technician_roster").select("id",{count:"exact",head:true}).eq("tenant_id",parsed.data.tenantId);
+    if(usage.error) throw new Error("Roster usage lookup failed.");
+    if((usage.count ?? 0)>=FREE_TECHNICIAN_ROSTER_LIMIT) return {status:"error",message:FREE_TECHNICIAN_LIMIT_MESSAGE};
+   }
   }
   const payload={display_name:parsed.data.display_name,phone:parsed.data.phone ?? null,skills:parsed.data.skills,service_areas:parsed.data.service_areas,availability_note:parsed.data.availability_note,availability_windows:parsed.data.availability_windows,...(parsed.data.email ? {email:parsed.data.email} : {})};
   const result=parsed.data.rosterId
    ? await client.from("technician_roster").update(payload).eq("tenant_id",parsed.data.tenantId).eq("id",parsed.data.rosterId).select("id").single()
    : await client.from("technician_roster").insert({...payload,email:parsed.data.email ?? null,tenant_id:parsed.data.tenantId}).select("id").single();
+  if(isFreePlanLimitError(result.error,"free_plan_technician_limit")) return {status:"error",message:FREE_TECHNICIAN_LIMIT_MESSAGE};
   if(linkedUserId) {
    const profile=await client.from("technician_profiles").update({skills:parsed.data.skills,service_areas:parsed.data.service_areas,availability_note:parsed.data.availability_note,availability_windows:parsed.data.availability_windows}).eq("tenant_id",parsed.data.tenantId).eq("user_id",linkedUserId);
    if(profile.error) throw new Error("Technician profile sync failed.");

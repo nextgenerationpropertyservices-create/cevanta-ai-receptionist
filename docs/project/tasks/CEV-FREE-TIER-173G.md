@@ -1,0 +1,26 @@
+# CEV-FREE-TIER-173G — Free-plan blocker repairs
+
+- Status: ready after CEV-FREE-TIER-173F architect block
+- Owner: Blake (`backend_logic`)
+- Scope: Add authoritative free-plan guards for locked server mutations and make plan reads fail safe during app-first rollout.
+- Dependencies: CEV-FREE-TIER-173F review and approved CEV-FREE-TIER-173A contract.
+- Allowed files:
+  - `src/app/actions/reactivation.ts`
+  - `src/app/actions/automation-controls.ts`
+  - `src/app/actions/make-authorization.ts`
+  - `src/app/actions/retell-provisioning.ts`
+  - `src/lib/workspace-plans.ts`
+  - `src/lib/server/workspace-plan-queries.ts`
+  - `src/lib/contracts.ts`
+  - `src/app/workspaces/[tenantId]/layout.tsx`
+  - `src/app/workspaces/page.tsx`
+  - `tests/free-tier-security.test.ts`
+  - `tests/workspace-plans.test.ts`
+  - `docs/project/handoffs/CEV-FREE-TIER-173G-blake.md`
+- Acceptance criteria:
+  - Free workspaces fail closed for reactivation, provider authorization/mapping, and automation-control mutations with safe upgrade messaging.
+  - Plan-unavailable during rollout is rendered as unavailable/maintenance state, never as managed or free.
+  - Existing managed behavior remains unchanged.
+  - Focused tests cover locked actions and unavailable-plan behavior.
+- Reviewers: Atlas and Quinn.
+- Required evidence: focused tests, typecheck/lint, handoff.

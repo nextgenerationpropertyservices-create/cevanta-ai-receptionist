@@ -1,0 +1,22 @@
+# CEV-FREE-TIER-173I — Unavailable-plan presentation repair
+
+- Status: assigned after CEV-FREE-TIER-173F block
+- Owner: Nova (`frontend_ux`)
+- Scope: Ensure a missing/unavailable plan never displays managed/free entitlements, pricing, or AI claims.
+- Dependencies: CEV-FREE-TIER-173G unavailable-plan contract.
+- Allowed files:
+  - `src/components/workspace-shell.tsx`
+  - `src/app/workspaces/[tenantId]/page.tsx`
+  - `src/app/workspaces/[tenantId]/billing/page.tsx`
+  - `tests/workspace-shell-ui.test.ts`
+  - `tests/dashboard-ui.test.ts`
+  - `tests/billing-ui.test.ts`
+  - `tests/free-tier-ui.test.ts`
+  - `docs/project/handoffs/CEV-FREE-TIER-173I-nova.md`
+- Acceptance criteria:
+  - Unavailable plan shows a neutral maintenance/unavailable state.
+  - No managed price, AI entitlement, or free entitlement is inferred.
+  - Managed and free plan presentation remains unchanged.
+  - Focused UI tests cover all three states.
+- Reviewers: Morgan and Quinn.
+- Required evidence: focused tests, typecheck/lint, handoff.

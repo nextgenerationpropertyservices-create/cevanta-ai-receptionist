@@ -6,6 +6,7 @@ const harness = vi.hoisted(() => ({
   configured: true,
   requireMembership: vi.fn(),
   operatorAccountType: "internal",
+  clientPlan: "managed_receptionist",
   relationExists: true,
   calls: [] as Array<{ table: string; method: string; args: unknown[] }>,
 }));
@@ -44,7 +45,7 @@ function databaseClient() {
           harness.calls.push({ table, method: "single", args: [] });
           if (table !== "tenants") return { data: null, error: { message: "not found" } };
           if (filters.get("id") === operatorTenantId) return { data: { id: operatorTenantId, account_type: harness.operatorAccountType }, error: null };
-          if (filters.get("id") === clientTenantId) return { data: { name: "Fictional Northstar Trades" }, error: null };
+          if (filters.get("id") === clientTenantId) return { data: { name: "Fictional Northstar Trades", plan: harness.clientPlan }, error: null };
           return { data: null, error: { message: "not found" } };
         },
         async maybeSingle() {
@@ -68,6 +69,7 @@ async function reachStripeRequest(fetchMock: ReturnType<typeof vi.fn>) {
 beforeEach(() => {
   harness.configured = true;
   harness.operatorAccountType = "internal";
+  harness.clientPlan = "managed_receptionist";
   harness.relationExists = true;
   harness.calls = [];
   harness.requireMembership.mockReset().mockResolvedValue({ client: databaseClient(), role: "owner", user: { id: "44444444-4444-4444-8444-444444444444" } });
@@ -130,6 +132,25 @@ describe("manual Stripe payment requests", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(harness.calls).toContainEqual({ table: "managed_client_workspaces", method: "eq", args: ["operator_tenant_id", operatorTenantId] });
     expect(harness.calls).toContainEqual({ table: "managed_client_workspaces", method: "eq", args: ["client_tenant_id", clientTenantId] });
+  });
+
+  it("rejects free or unavailable client plans before creating Stripe objects", async () => {
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    harness.clientPlan = "free";
+    await expect(createStripePaymentRequest(idle, paymentForm())).resolves.toEqual({
+      status: "error",
+      message: "Upgrade the client workspace before creating a Stripe payment request.",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    harness.clientPlan = "unexpected";
+    await expect(createStripePaymentRequest(idle, paymentForm())).resolves.toEqual({
+      status: "error",
+      message: "Upgrade the client workspace before creating a Stripe payment request.",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("rejects a provider URL outside the exact Stripe checkout hosts", async () => {

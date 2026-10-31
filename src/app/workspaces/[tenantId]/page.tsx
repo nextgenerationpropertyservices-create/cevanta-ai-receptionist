@@ -13,6 +13,7 @@ import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { ActionForm, Field } from '@/components/action-form';
 import { archiveManagedClientWorkspace } from '@/app/actions/managed-clients';
 import { getManagedClientWorkspaces, type ManagedClientWorkspace } from '@/lib/server/queries';
+import { getWorkspacePlanSummary } from '@/lib/server/workspace-plan-queries';
 
 const todayKey = () => new Date().toISOString().slice(0,10);
 const formatDateTime = (value:string) => new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC'}).format(new Date(value));
@@ -37,7 +38,8 @@ export default async function Dashboard({params}: {params:Promise<{tenantId:stri
  const workspace=await getWorkspace(tenantId);
  const {tenant,role}=workspace;
  if (tenant.account_type === 'internal') return await InternalOperationsDashboard({ tenantId, name: tenant.name });
- const [inbox,jobsInbox,appointmentsInbox]=await Promise.all([getLeads(tenantId),getJobs(tenantId),getAppointments(tenantId)]);
+ const [inbox,jobsInbox,appointmentsInbox,planSummary]=await Promise.all([getLeads(tenantId),getJobs(tenantId),getAppointments(tenantId),getWorkspacePlanSummary(tenantId)]);
+ if (planSummary.plan === 'unavailable') return <section className="panel" role="status"><span className="eyebrow">WORKSPACE STATUS</span><h1>Plan information is temporarily unavailable.</h1><p>We cannot safely confirm this workspace&apos;s features right now. No free or managed services have been assumed, and connected automation remains unavailable until the plan can be verified.</p><div className="button-row"><Link className="button secondary" href="/workspaces">Return to workspaces</Link><Link className="button secondary" href={`/workspaces/${tenantId}/manual`}>Open the dashboard guide</Link></div></section>;
  let operatorTenantId: string | null = null;
  if (tenant.account_type === 'client' && (role === 'owner' || role === 'admin') && 'client' in workspace && workspace.client) {
   const managed = await workspace.client.from('managed_client_workspaces').select('operator_tenant_id').eq('client_tenant_id', tenantId).maybeSingle();
@@ -67,8 +69,10 @@ export default async function Dashboard({params}: {params:Promise<{tenantId:stri
   todaysAppointments.length ? `${todaysAppointments.length} scheduled visit${todaysAppointments.length===1?'':'s'} today` : '',
  ].filter(Boolean);
  const jobById=new Map(jobs.map(job=>[job.id,job]));
+ const isFree=planSummary.plan === 'free';
  return <>
-  <div className="front-office-hero"><div><span className="eyebrow">FRONT OFFICE COMMAND CENTER</span><h1>Make every call, lead, and job impossible to miss.</h1><p>{tenant.name} gets one clean front-office workspace for {tenant.trade.toLowerCase()} and other trade-service work: review AI receptionist leads, see dispatch pressure, watch the calendar, and prove the money Cevanta is helping recover.</p></div><RoiCalculator capturedLeadCount={aiCaptured} /></div>
+  <div className="front-office-hero"><div><span className="eyebrow">FRONT OFFICE COMMAND CENTER</span><h1>{isFree ? 'Keep every lead, customer, and job easy to find.' : 'Make every call, lead, and job impossible to miss.'}</h1><p>{isFree ? `${tenant.name} has one clean place to organize manually added leads, customer history, jobs, the internal calendar, and a small field team.` : `${tenant.name} gets one clean front-office workspace for ${tenant.trade.toLowerCase()} and other trade-service work: review AI receptionist leads, see dispatch pressure, watch the calendar, and prove the money Cevanta is helping recover.`}</p></div><RoiCalculator capturedLeadCount={isFree ? leads.length : aiCaptured} /></div>
+  {isFree && <section className="workspace-plan-strip" aria-label="Free plan usage"><div><span className="eyebrow">FREE TOOLS PLAN</span><h2>{planSummary.remaining.activeLeads} active lead spaces remaining</h2><p>{planSummary.usage.activeLeads} of {planSummary.limits.activeLeads} active leads · {planSummary.usage.technicianRoster} of {planSummary.limits.technicianRoster} technician roster spots used</p></div><div><Link className="button" href={`/workspaces/${tenantId}/billing`}>See upgrade options</Link><Link className="button secondary" href={`/workspaces/${tenantId}/manual`}>How it works</Link></div></section>}
   {notifications.length>0 && <section className="front-office-alert" role="status" aria-live="polite"><div><span className="eyebrow">NEEDS ATTENTION</span><h2>{notifications[0]}</h2><p>{notifications.slice(1).join(' · ') || 'Review this now so the customer does not wait.'}</p></div><div className="front-office-alert-actions"><Link className="button" href={newLeads[0] ? `/workspaces/${tenantId}/leads/${newLeads[0].id}` : `/workspaces/${tenantId}/jobs`}>{newLeads[0] ? 'Review newest lead' : 'Open dispatch'} ↗</Link><Link className="front-office-alert-secondary" href={`/workspaces/${tenantId}/notifications`}>Open attention queue</Link></div></section>}
   <DashboardWidgets tenantId={tenantId} widgets={[
    { id:'summary', label:'Summary cards', href:`/workspaces/${tenantId}/reports`, node:<section className="front-office-stats" aria-label="Front office summary"><article><span>New leads</span><strong>{newLeads.length}</strong><p>{newUrgentLeads.length} urgent/high priority</p></article><article><span>Open jobs</span><strong>{openJobs.length}</strong><p>{unassignedJobs.length} waiting for field assignment</p></article><article><span>Scheduled visits today</span><strong>{todaysAppointments.length}</strong><p>{scheduledJobs.length} jobs marked scheduled</p></article><article><span>Field team</span><strong>{techs.length}</strong><p>{writable ? 'Available in roster' : 'Managed by office roles'}</p></article></section> },

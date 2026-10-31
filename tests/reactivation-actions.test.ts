@@ -4,6 +4,7 @@ const harness = vi.hoisted(() => ({
   requireMembership: vi.fn(),
   revalidatePath: vi.fn(),
   rpc: vi.fn(),
+  plan: 'managed_receptionist' as string | null,
   queryResponses: [] as Array<{ data: unknown; error: { code?: string; message?: string } | null }>,
   calls: [] as Array<{ table: string; method: string; args: unknown[] }>,
 }));
@@ -27,6 +28,9 @@ function query(table: string) {
     select(...args: unknown[]) { harness.calls.push({ table, method: 'select', args }); return chain; },
     eq(...args: unknown[]) { harness.calls.push({ table, method: 'eq', args }); return chain; },
     order(...args: unknown[]) { harness.calls.push({ table, method: 'order', args }); return chain; },
+    single: async () => table === 'tenants'
+      ? { data: { plan: harness.plan }, error: null }
+      : { data: null, error: { code: 'PGRST116' } },
     then(resolve: (value: unknown) => unknown) { return Promise.resolve(harness.queryResponses.shift()).then(resolve); },
   };
   return chain;
@@ -75,6 +79,7 @@ function history() {
 beforeEach(() => {
   vi.clearAllMocks();
   harness.calls = [];
+  harness.plan = 'managed_receptionist';
   history();
   harness.requireMembership.mockResolvedValue({ client: databaseClient(), role: 'owner', user: { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' } });
   harness.rpc.mockResolvedValue({ data: { status: 'saved', campaign_id: campaignId, campaign_status: 'review', candidate_count: 1 }, error: null });
@@ -87,6 +92,7 @@ describe('Reactivation hardened commands', () => {
     expect(result).toEqual({ status: 'success', message: 'Campaign created with 1 review draft.' });
     expect(harness.requireMembership).toHaveBeenCalledWith(tenantId, ['owner', 'admin', 'dispatcher']);
     expect(harness.calls.filter(call => call.method === 'eq')).toEqual([
+      { table: 'tenants', method: 'eq', args: ['id', tenantId] },
       { table: 'customers', method: 'eq', args: ['tenant_id', tenantId] },
       { table: 'leads', method: 'eq', args: ['tenant_id', tenantId] },
       { table: 'jobs', method: 'eq', args: ['tenant_id', tenantId] },
@@ -151,6 +157,17 @@ describe('Reactivation hardened commands', () => {
     expect(harness.rpc).not.toHaveBeenCalled();
   });
 
+  it.each(['free', null])('blocks %s plan before reading history or calling reactivation RPCs', async plan => {
+    harness.plan = plan;
+
+    const result = await createReactivationCampaign(idle, campaignForm());
+
+    expect(result.status).toBe('error');
+    expect(harness.rpc).not.toHaveBeenCalled();
+    expect(harness.calls.filter(call => call.table !== 'tenants')).toEqual([]);
+    expect(harness.revalidatePath).not.toHaveBeenCalled();
+  });
+
   it('approves and dismisses only through the narrow review command', async () => {
     harness.rpc.mockResolvedValueOnce({ data: { status: 'saved', candidate_id: candidateId, candidate_status: 'approved' }, error: null });
     const approved = await approveReactivationCandidate(idle, candidateForm({ decision: 'dismiss', status: 'booked', reviewed_by: 'forged', job_id: 'forged' }));
@@ -161,7 +178,7 @@ describe('Reactivation hardened commands', () => {
     const dismissed = await dismissReactivationCandidate(idle, candidateForm({ decision: 'approve', appointment_id: 'forged' }));
     expect(dismissed).toEqual({ status: 'success', message: 'Candidate dismissed.' });
     expect(harness.rpc).toHaveBeenNthCalledWith(2, 'review_reactivation_candidate', { input: { tenant_id: tenantId, candidate_id: candidateId, decision: 'dismiss' } });
-    expect(harness.calls).toEqual([]);
+    expect(harness.calls.every(call => call.table === 'tenants' && (call.method === 'select' || call.method === 'eq'))).toBe(true);
   });
 
   it('denies or rejects invalid review results without a success claim', async () => {

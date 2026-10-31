@@ -2,12 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const harness = vi.hoisted(() => ({
-  workspace: vi.fn(), managedClients: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(),
+  workspace: vi.fn(), managedClients: vi.fn(), leads: vi.fn(), jobs: vi.fn(), appointments: vi.fn(), technicians: vi.fn(), planSummary: vi.fn(),
 }));
 vi.mock("@/lib/server/queries", () => ({ getWorkspace: harness.workspace, getManagedClientWorkspaces: harness.managedClients }));
 vi.mock("@/lib/server/intake-queries", () => ({ getLeads: harness.leads }));
 vi.mock("@/lib/server/jobs-queries", () => ({ getJobs: harness.jobs, getTechnicians: harness.technicians }));
 vi.mock("@/lib/server/appointments-queries", () => ({ getAppointments: harness.appointments }));
+vi.mock("@/lib/server/workspace-plan-queries", () => ({ getWorkspacePlanSummary: harness.planSummary }));
 
 import Dashboard from "@/app/workspaces/[tenantId]/page";
 
@@ -24,7 +25,8 @@ const unassignedJob = { ...job, id: "77777777-7777-4777-8777-777777777777", assi
 const appointment = { id: "88888888-8888-4888-8888-888888888888", tenant_id: tenant, job_id: job.id, submission_id: "99999999-9999-4999-8999-999999999999", title: "Water heater diagnostic", starts_at: "2099-10-11T14:00:00.000Z", ends_at: "2099-10-11T16:00:00.000Z", status: "scheduled", created_at: "2026-10-11T12:00:00.000Z", updated_at: "2026-10-11T12:00:00.000Z" };
 
 beforeEach(() => {
-  harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: "Fictional Plumbing", trade: "Plumbing", timezone: "America/New_York", account_type: "client" }, role: "owner" });
+  harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: "Fictional Plumbing", trade: "Plumbing", timezone: "America/New_York", account_type: "client", plan: "managed_receptionist" }, role: "owner" });
+  harness.planSummary.mockResolvedValue({ plan: "managed_receptionist", limits: { activeLeads: null, technicianRoster: null }, usage: { activeLeads: 0, technicianRoster: 1 }, remaining: { activeLeads: null, technicianRoster: null } });
   harness.managedClients.mockResolvedValue({ clients: [], allowed: false, operator: { id: tenant, name: "Cevanta Operations", trade: "Operations", timezone: "America/New_York", account_type: "internal" } });
   harness.leads.mockResolvedValue({ ready: true, leads: [] });
   harness.jobs.mockResolvedValue({ ready: true, jobs: [] });
@@ -86,6 +88,26 @@ describe("workspace overview front office dashboard", () => {
     expect(output).toContain("manually added");
     expect(output).toContain("Manual office lead");
     expect(output).toContain(`/workspaces/${tenant}/leads/${manualLead.id}`);
+  });
+  it("shows free usage and avoids claiming AI capture for the free workspace", async () => {
+    harness.workspace.mockResolvedValueOnce({ tenant: { id: tenant, name: "Fictional Plumbing", trade: "Plumbing", timezone: "America/New_York", account_type: "client", plan: "free" }, role: "owner" });
+    harness.planSummary.mockResolvedValueOnce({ plan: "free", limits: { activeLeads: 50, technicianRoster: 2 }, usage: { activeLeads: 4, technicianRoster: 1 }, remaining: { activeLeads: 46, technicianRoster: 1 } });
+    const output = await html([]);
+    expect(output).toContain("Keep every lead, customer, and job easy to find.");
+    expect(output).toContain("46 active lead spaces remaining");
+    expect(output).toContain("1 of 2 technician roster spots used");
+    expect(output).toContain("See upgrade options");
+    expect(output).not.toContain("review AI receptionist leads");
+  });
+
+  it("shows a neutral status when the plan cannot be verified", async () => {
+    harness.planSummary.mockResolvedValueOnce({ plan: "unavailable", limits: { activeLeads: null, technicianRoster: null }, usage: { activeLeads: 0, technicianRoster: 0 }, remaining: { activeLeads: null, technicianRoster: null } });
+    const output = await html([]);
+    expect(output).toContain("Plan information is temporarily unavailable.");
+    expect(output).toContain("No free or managed services have been assumed");
+    expect(output).not.toContain("Make every call, lead, and job impossible to miss.");
+    expect(output).not.toContain("FREE TOOLS PLAN");
+    expect(output).not.toContain("RECOVERED LOSS SNAPSHOT");
   });
 
   it("gives the internal workspace an owner operations command center", async () => {

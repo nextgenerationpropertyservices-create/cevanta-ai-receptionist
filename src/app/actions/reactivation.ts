@@ -11,6 +11,7 @@ import { buildReactivationDraft, isEligibleForReactivation, latestCompletedServi
 import { campaignSchema, candidateActionSchema, scheduleSchema } from '@/lib/reactivation-validation';
 import { requireMembership } from '@/lib/server/authorization';
 import type { ActionState } from '@/lib/server/action-state';
+import { getAuthoritativeWorkspacePlan, FREE_PLAN_LOCKED_MESSAGE } from '@/lib/workspace-plans';
 
 const missing = (code?: string) => code === '42P01' || code === 'PGRST205' || code === 'PGRST202' || code === '42883';
 const migrationMessage = 'Reactivation needs its database migration before it can be used.';
@@ -30,6 +31,8 @@ export async function createReactivationCampaign(_previous: ActionState, form: F
     if (!parsedRequestId.success) return { status: 'error', message: 'Refresh this page before creating the campaign.' };
     const { tenantId, name, season, channel, triggerType, weatherTrigger } = parsed.data;
     const { client } = await requireMembership(tenantId, OFFICE_ROLES);
+    const plan = await getAuthoritativeWorkspacePlan(client, tenantId);
+    if (plan === null || plan === 'free') return { status: 'error', message: FREE_PLAN_LOCKED_MESSAGE };
 
     const [customersResult, leadsResult, jobsResult] = await Promise.all([
       client.from('customers').select('*').eq('tenant_id', tenantId),
@@ -86,6 +89,8 @@ async function reviewReactivationCandidate(form: FormData, decision: 'approve' |
     if (!parsed.success) return { status: 'error', message: 'The campaign candidate is unavailable.' };
     const { tenantId, candidateId } = parsed.data;
     const { client } = await requireMembership(tenantId, OFFICE_ROLES);
+    const plan = await getAuthoritativeWorkspacePlan(client, tenantId);
+    if (plan === null || plan === 'free') return { status: 'error', message: FREE_PLAN_LOCKED_MESSAGE };
     const result = await client.rpc('review_reactivation_candidate', { input: { tenant_id: tenantId, candidate_id: candidateId, decision } });
     if (missing(result.error?.code)) return { status: 'error', message: migrationMessage };
     if (result.error) return { status: 'error', message: decision === 'approve' ? 'This draft is no longer waiting for approval.' : 'This candidate is no longer available to dismiss.' };
@@ -116,6 +121,8 @@ export async function scheduleReactivationCandidate(_previous: ActionState, form
     if (!parsed.success) return { status: 'error', message: parsed.error.issues[0]?.message ?? 'Choose a future visit time.' };
     const { tenantId, candidateId, date, time } = parsed.data;
     const { client } = await requireMembership(tenantId, OFFICE_ROLES);
+    const plan = await getAuthoritativeWorkspacePlan(client, tenantId);
+    if (plan === null || plan === 'free') return { status: 'error', message: FREE_PLAN_LOCKED_MESSAGE };
     const startsAt = new Date(`${date}T${time}:00Z`);
     const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000);
     const result = await client.rpc('schedule_reactivation_visit', {

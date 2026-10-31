@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { ActionState } from "@/lib/server/action-state";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { requireMembership } from "@/lib/server/authorization";
+import { getAuthoritativeWorkspacePlan } from "@/lib/workspace-plans";
 
 const STRIPE_REQUEST_DEADLINE_MS = 5_000;
 const stripeUnavailableMessage = "Stripe could not create this payment request. Check the Stripe account and try again.";
@@ -102,6 +103,11 @@ export async function createStripePaymentRequest(_previous: StripePaymentRequest
 
     const relation = await client.from("managed_client_workspaces").select("client_tenant_id").eq("operator_tenant_id", parsed.data.operatorTenantId).eq("client_tenant_id", parsed.data.clientTenantId).maybeSingle();
     if (relation.error || !relation.data) return { status: "error", message: "That client is not connected to this Cevanta workspace." };
+
+    const clientPlan = await getAuthoritativeWorkspacePlan(client, parsed.data.clientTenantId);
+    if (clientPlan === null || clientPlan === "free") {
+      return { status: "error", message: "Upgrade the client workspace before creating a Stripe payment request." };
+    }
 
     const tenant = await client.from("tenants").select("name").eq("id", parsed.data.clientTenantId).single();
     if (tenant.error || !tenant.data) return { status: "error", message: "The client workspace could not be found." };

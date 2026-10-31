@@ -4,7 +4,14 @@ export const OFFICE_ROLES: readonly Role[] = ["owner", "admin", "dispatcher"];
 export const SETTINGS_ROLES: readonly Role[] = ["owner", "admin"];
 export const canManageCustomers = (role: Role) => OFFICE_ROLES.includes(role);
 export const canManageSettings = (role: Role) => SETTINGS_ROLES.includes(role);
-export interface Tenant { id: string; name: string; trade: string; timezone: string; account_type: "internal" | "client"; created_at: string; updated_at: string }
+export type WorkspacePlan = "free" | "dashboard_plus" | "managed_receptionist" | "unavailable";
+export interface WorkspacePlanSummary {
+  plan: WorkspacePlan;
+  limits: { activeLeads: number | null; technicianRoster: number | null };
+  usage: { activeLeads: number; technicianRoster: number };
+  remaining: { activeLeads: number | null; technicianRoster: number | null };
+}
+export interface Tenant { id: string; name: string; trade: string; timezone: string; account_type: "internal" | "client"; plan: WorkspacePlan; created_at: string; updated_at: string }
 export interface Membership { tenant_id: string; user_id: string; role: Role; created_at: string }
 export interface Customer { id: string; tenant_id: string; name: string; email: string | null; phone: string | null; notes: string | null; created_at: string; updated_at: string }
 export interface Contact { id: string; tenant_id: string; customer_id: string; name: string; email: string | null; phone: string | null; job_title: string | null; created_at: string; updated_at: string }

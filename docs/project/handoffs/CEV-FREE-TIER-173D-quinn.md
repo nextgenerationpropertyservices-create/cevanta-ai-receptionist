@@ -1,0 +1,50 @@
+# Agent handoff — CEV-FREE-TIER-173D
+
+- Task ID: CEV-FREE-TIER-173D
+- Review decision: **BLOCK**. The repaired application actions now fail closed when plan data is unavailable and block normal free-plan UI submissions, but four direct or provider-backed paths can still bypass the free entitlement boundary.
+- Work completed: Independently reviewed the free-plan migration, plan reads, manual lead/technician limits, Retell event ingress, repaired action guards, database grants, direct authenticated RPC/table paths, and Stripe provider action. Added a focused security regression suite that documents the trusted-boundary requirements. Inspected the candidate diff for common credential and real-customer markers; none were found.
+- Files changed: `tests/free-tier-security.test.ts`; `docs/project/handoffs/CEV-FREE-TIER-173D-quinn.md`.
+- Database changes: None in this review.
+- API or contract changes: None in this review.
+- Verification commands and results:
+  - `node_modules/.bin/vitest.cmd run tests/free-tier-security.test.ts` — **FAIL as expected for the blocking defects**: 2 tests pass and 4 fail. Passing evidence confirms ordinary tenant update grants exclude `plan`, and mapped free Retell events are rejected before receipts, leads, and notification outbox writes.
+  - `node_modules/.bin/eslint.cmd tests/free-tier-security.test.ts` — PASS.
+  - Candidate diff scan for common live/test secret formats, Twilio account identifiers, Gmail addresses, and embedded bearer values — PASS, no matches.
+  - Hosted Supabase Auth/JWT/PostgREST, simultaneous hosted transactions, live Retell/Make, and Stripe provider calls — NOT RUN. Local/static evidence cannot prove these hosted boundaries.
+- Blocking defects:
+  - **[High] Direct reactivation RPC bypass.** Reproduction: sign in as an office-role member of a free tenant and call the authenticated `create_reactivation_campaign`, `review_reactivation_candidate`, or `schedule_reactivation_visit` RPC directly instead of using the Next.js action. The repaired action checks the plan, but the database functions remain executable by `authenticated` and contain no plan check. Expected: a free plan is rejected at the authoritative RPC boundary with no campaign, approval, job, or appointment mutation. Actual: existing membership checks allow the command to continue.
+  - **[High] Direct automation-control table bypass.** Reproduction: as a free-tenant owner/admin, write `workspace_automation_controls` directly through PostgREST using the granted insert/update columns. The server action checks plan state, but table RLS/column grants do not enforce it. Expected: free tenants cannot request/approve/activate SMS, email, booking, payment, calendar, or dispatch controls. Actual: the direct database write remains authorized for the role.
+  - **[High] Direct Retell mapping RPC bypass.** Reproduction: as an authorized member of a free tenant, call the authenticated `retell_mapping_register` or `retell_mapping_pause` RPC directly. The action checks the plan, but the database commands are still granted to `authenticated` and contain no plan check. Expected: no trusted provider mapping can be registered for a free workspace. Actual: the direct RPC can bypass the action guard. Retell lead ingress is separately blocked, which limits immediate lead creation but does not satisfy the mapping boundary.
+  - **[High] Stripe provider side effect has no client-plan guard.** Reproduction: from an internal operator workspace, submit `createStripePaymentRequest` for a related free client. The action validates the relationship but never reads the client plan before creating Stripe product, price, and payment-link objects. Expected under the approved contract: payment collection/provider creation remains disabled for free. Actual: Stripe objects may be created. If manual upgrade checkout is intentionally exempt, the architecture contract must explicitly define that exception and its audit/consent rules before acceptance.
+- Verified improvements: Missing or malformed plan reads now resolve to an explicit unavailable state; repaired Reactivation, automation-control, Make authorization, and Retell action paths fail closed; free manual lead/technician limits remain database-enforced; ordinary clients cannot update `tenants.plan`; managed tenants are not downgraded; ingress `plan_restricted` responses do not claim persistence or booking success.
+- Known limitations: The focused tests use source/migration assertions to prove the presence or absence of mandatory trusted-boundary guards. They do not replace live RLS/RPC tests with separate fictional identities. The embedded database runner still does not prove actual migration backfill against pre-existing hosted rows, authenticated PostgREST denial, or simultaneous final-slot transactions.
+- Risks: Shipping now would make the user interface appear locked while authenticated clients can bypass it with direct database/RPC calls. That is an entitlement and provider-control weakness, not only a presentation issue.
+- Rollback notes: This review changes no runtime behavior or data. Remove the focused test only if the approved architecture is formally changed; do not weaken it merely to obtain a passing suite. Use a forward migration to add database guards because the current plan migration has not been deployed.
+- Exact next action: Atlas and Blake should add plan checks at the reactivation RPC, automation-control table, and Retell mapping RPC boundaries, and either guard Stripe creation or document an Architect-approved operator-only upgrade exception. Then rerun this six-test security suite, the embedded database suite, full tests, typecheck, lint, and non-OneDrive production build before preview. Do not apply the migration or deploy this candidate while this review is BLOCK.
+
+## Final rerun after CEV-FREE-TIER-173H, 173I, and 173J
+
+- Final review decision: **ACCEPT WITH RELEASE LIMITATIONS.** The four high-severity bypasses from the first review are closed in the integrated local candidate. This is Quality acceptance of the reviewed free-tier boundaries, not hosted migration or production approval.
+- Repairs independently confirmed:
+  - The forward migration wraps every authenticated reactivation RPC with membership and authoritative plan checks before calling its private implementation. Direct free/missing-plan RPC attempts are rejected before campaign, approval, job, or appointment mutation.
+  - Direct automation-control inserts and updates now pass through a tenant-row-locking trigger that derives plan state from `NEW.tenant_id` and rejects free/missing plans. Existing role/RLS checks remain in force.
+  - Public Retell mapping register/pause RPCs now check authenticated operator authorization and authoritative plan state before calling private implementations. Free/missing plans return the existing unavailable result without changing routes.
+  - Stripe payment-request creation verifies the internal operator/client relationship, reads the client plan, and rejects free/missing plans before its first provider call.
+  - Unavailable plan state is neutral in the workspace header, Overview, and Billing and no longer claims a managed plan, price, or automation entitlement.
+  - Private legacy command execution is revoked from `public`, `anon`, `authenticated`, and `service_role`; only reviewed public wrappers retain authenticated execution.
+- Files changed by this Quality task: `tests/free-tier-security.test.ts`; `docs/project/handoffs/CEV-FREE-TIER-173D-quinn.md`. The security test now evaluates both `202610310001_workspace_plans.sql` and `202610310002_free_plan_trusted_boundaries.sql`.
+- Final verification:
+  - Focused integrated Vitest command covering security, both plan migrations, plan summary, reactivation, automation controls, Make authorization, Retell mapping/ingress, Stripe, free acquisition UI, shell, Overview, and Billing — **PASS, 14 files / 118 tests**.
+  - `node scripts/test-workspace-plans-embedded.mjs` — **PASS** for defaults, 50-active-lead and two-technician limits, trusted-boundary guards, managed compatibility, and provider restriction assertions.
+  - `node_modules/.bin/eslint.cmd tests/free-tier-security.test.ts` — **PASS**.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false` — **PASS**.
+  - Candidate-diff scan for common API-key/account-token patterns and real Gmail addresses — **PASS**, no matches found.
+- Remaining release limitations:
+  - Hosted Supabase Auth/JWT/PostgREST behavior, grants, and RLS were not exercised. Embedded PGlite is not proof of hosted authorization.
+  - Simultaneous hosted final-slot writes were not run, although tenant-row locking is present and embedded limit behavior passes.
+  - The embedded fixture does not prove the first migration's backfill against a real pre-existing hosted tenant or both provisioning RPCs end to end.
+  - Live Retell, Make, Stripe, email, SMS, calendar, and other provider behavior was not run. No claim is made that providers are configured or active.
+  - A production build still requires the non-OneDrive Release run because the workspace build has a known `.next` permission failure.
+- Final risks: Future migrations that replace public reactivation/Retell wrappers or automation-control triggers could reopen the boundary; regression tests must remain mandatory. Applying migration 002 without migration 001 is unsupported.
+- Final rollback notes: No runtime or data changes were made by Quality. Before any free tenant exists, follow the reviewed rollback sequence. After free tenants exist, preserve plan data and use a forward repair; never delete customer records to resolve an entitlement issue.
+- Final exact next action: Morgan should run the complete integrated suite and have Phoenix build outside OneDrive. Then apply both migrations only to an authorized hosted preview and test separate fictional free/managed tenants through Auth/PostgREST before requesting production approval. Production remains blocked until those release gates and explicit owner approval.
