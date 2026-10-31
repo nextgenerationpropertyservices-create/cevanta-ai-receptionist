@@ -760,6 +760,7 @@ html[data-theme="light"] .client-milestone-form select{background:#fff;color:var
 .free-tools-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px}
 .free-tools-nav>div{display:flex;align-items:center;gap:18px;font-size:13px;font-weight:700}
 .free-tools-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:42px;align-items:center;padding:70px 28px 80px}
+.free-tools-page h1,.free-tools-page h2,.free-tools-page h3{color:#143a38}
 .free-tools-hero h1{max-width:780px;font-size:clamp(2.7rem,5.8vw,5.4rem)}
 .free-tools-hero>div>p{max-width:700px;font-size:18px}
 .free-tools-hero small{display:block;max-width:700px;margin-top:18px;color:#687b76;font-size:11px}
