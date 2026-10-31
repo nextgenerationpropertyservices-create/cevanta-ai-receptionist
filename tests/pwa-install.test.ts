@@ -21,7 +21,7 @@ describe('installable app shell', () => {
       icons: Array<{ src: string; sizes: string; type: string }>;
     };
 
-    expect(manifest.name).toBe('Cevanta AI Receptionist');
+    expect(manifest.name).toBe('Cevanta');
     expect(manifest.short_name).toBe('Cevanta');
     expect(manifest.start_url).toBe('/workspaces');
     expect(manifest.display).toBe('standalone');
@@ -42,7 +42,8 @@ describe('installable app shell', () => {
   it('keeps the service worker away from private dashboard data', () => {
     const serviceWorker = readFileSync('public/sw.js', 'utf8');
 
-    expect(serviceWorker).toContain("url.pathname.startsWith('/workspaces/')");
+    expect(serviceWorker).not.toContain("APP_SHELL = ['/', '/workspaces'");
+    expect(serviceWorker).toContain("caches.match('/offline.html')");
     expect(serviceWorker).toContain("url.pathname.startsWith('/api/')");
     expect(serviceWorker).toContain("url.pathname.startsWith('/auth/')");
     expect(serviceWorker).toContain('return;');

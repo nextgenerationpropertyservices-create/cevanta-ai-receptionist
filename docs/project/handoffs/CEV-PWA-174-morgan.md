@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-PWA-174
+- Work completed: Added global Install Cevanta control, accessible native dialog and platform instructions, native prompt lifecycle and installed-mode hiding. Updated trade-neutral manifest while preserving /workspaces app identity. Replaced workspace precache with fixed public offline assets; activation purges legacy Cevanta cache. Auth/invite/API routes bypass interception.
+- Files changed: src/components/pwa-register.tsx, public/manifest.webmanifest, public/sw.js, public/offline.html, tests/pwa-install.test.ts, task/review/handoff documents. Next build regenerated next-env.d.ts; do not include in release unless needed.
+- Database changes: None.
+- API or contract changes: None.
+- Verification: TypeScript PASS; full ESLint PASS; Vitest 65 files / 1071 tests PASS; Next webpack build PASS after authorized filesystem escalation (restricted build initially failed EPERM). Reviewer behavioral VM checks confirmed public-only cache and private-response exclusion.
+- Known limitations: Actual device installation, native browser prompt, mobile display and offline browser smoke not exercised. No preview or production deployment of this change yet.
+- Risks: Browser determines install availability; iOS requires manual steps. Requires internet for business data.
+- Rollback: restore prior installer, manifest and SW; cache version must advance for any forward cache repair.
+- Exact next action: Review final Quinn handoff; prepare preview/device smoke then production release under owner approval.

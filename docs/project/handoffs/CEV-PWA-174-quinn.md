@@ -1,0 +1,12 @@
+# Agent handoff
+- Task ID: CEV-PWA-174
+- Work completed: Independent security and UX inspection and final repair review of install controls, manifest, offline page, and service-worker update. Decision: ACCEPT WITH DEVICE-VERIFICATION LIMITATIONS. Coordinator retains integration acceptance.
+- Files changed: This review record only.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Executed public/sw.js in Node VM with mocked service-worker events, including final revision. PASS: cache install excludes workspaces; activation removes legacy Cevanta cache but preserves unrelated caches; offline workspace navigation returns only static offline.html; invitation/auth/API navigation bypasses worker entirely. PASS: manifest id remains /workspaces. Ran node node_modules/eslint/bin/eslint.js src/components/pwa-register.tsx: exit 0. Reviewed fixed cache allowlist and confirmed no authenticated response writes or runtime cache.put calls. No credentials or real customer records added in reviewed changes. Morgan reports full lint/typecheck and 1,071 tests pass; those full-suite results were not independently rerun by Quinn.
+- Findings: Both P2 findings resolved: manifest now preserves /workspaces identity, and native Install now renders only after a browser install event is captured. Initial ESLint failure resolved and independently rechecked. No remaining blocking issue identified in reviewed scope.
+- Known limitations: No physical Android/iOS install, standalone relaunch, authenticated browser signout/cache inspection, or installed service-worker upgrade was exercised. VM evidence does not prove browser-specific behavior. Full typecheck/lint/tests/build evidence belongs to Morgan.
+- Risks: Browser install support varies. Existing v1 caches are purged when v2 activates; users who never load the update will retain old browser state until they return or clear site data.
+- Rollback notes: Do not restore the old private-workspace caching behavior. Roll back the install UI alone if needed; preserve public-only cache logic.
+- Exact next action: Morgan completes production build and integration acceptance, then requests release approval. Physical browser installation and standalone relaunch should be verified on target devices; do not claim App Store availability or offline business records.

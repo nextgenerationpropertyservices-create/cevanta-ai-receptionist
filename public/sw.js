@@ -1,5 +1,5 @@
-const CACHE_NAME = 'cevanta-app-shell-v1';
-const APP_SHELL = ['/', '/workspaces', '/manifest.webmanifest', '/icons/icon.svg'];
+const CACHE_NAME = 'cevanta-public-shell-v2';
+const APP_SHELL = ['/offline.html', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -8,9 +8,8 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith('cevanta-') && key !== CACHE_NAME).map((key) => caches.delete(key)))).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -21,11 +20,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isInvitationRoute = url.pathname === '/invite' || url.pathname.startsWith('/invite/');
-  const isPrivateAppRoute = isInvitationRoute || url.pathname.startsWith('/workspaces/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
-  if (isPrivateAppRoute) {
-    return;
+  // Only fixed public files enter Cache Storage. Never cache signed-in responses.
+  const privateRoute = url.pathname === '/invite' || url.pathname.startsWith('/invite/') || url.pathname.startsWith('/auth/') || url.pathname.startsWith('/api/');
+  if (privateRoute) return;
+  if (APP_SHELL.includes(url.pathname) && !url.search) {
+    event.respondWith(fetch(request).catch(() => caches.match(url.pathname)));
+  } else if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).catch(() => caches.match('/offline.html')));
   }
-
-  event.respondWith(fetch(request).catch(() => caches.match(request).then((cached) => cached || caches.match('/'))));
 });

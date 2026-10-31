@@ -1,13 +1,13 @@
 {
-  "name": "Cevanta AI Receptionist",
+  "id": "/workspaces",
+  "name": "Cevanta",
   "short_name": "Cevanta",
-  "description": "AI receptionist and CRM dashboard for HVAC service businesses.",
+  "description": "Your front-office dashboard for leads, customers and service work across the trades.",
   "start_url": "/workspaces",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#0f172a",
-  "orientation": "portrait-primary",
   "categories": ["business", "productivity"],
   "icons": [
     {
