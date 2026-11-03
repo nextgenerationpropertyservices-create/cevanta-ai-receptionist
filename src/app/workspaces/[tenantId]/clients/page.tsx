@@ -11,6 +11,83 @@ import { saveOnboardingMilestones } from "@/app/actions/onboarding-milestones";
 import { getOnboardingMilestones } from "@/lib/server/onboarding-milestones";
 import { milestoneLabel, type OnboardingMilestones } from "@/lib/onboarding-milestones";
 import { StripePaymentRequestForm } from "./stripe-payment-request-form";
+import { FREE_TOOL_USERS_PAGE_SIZE, getFreeToolUsers } from "@/lib/server/free-tool-users";
+
+const freeToolPlanLabels = {
+  free: "Free tools",
+  dashboard_plus: "Dashboard Plus",
+  managed_receptionist: "Managed receptionist",
+};
+
+const freeToolLabels: Readonly<Record<string, string>> = {
+  crm: "CRM",
+  leads: "Leads",
+  jobs: "Jobs",
+  calendar: "Calendar",
+  technicians: "Technicians",
+  setup: "Setup",
+};
+
+function freeToolDateFormatter(timeZone: string) {
+  const options = {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit", timeZoneName: "short",
+  } as const;
+  try {
+    return new Intl.DateTimeFormat("en-US", { ...options, timeZone });
+  } catch {
+    return new Intl.DateTimeFormat("en-US", { ...options, timeZone: "UTC" });
+  }
+}
+
+function FreeToolUsers({ tenantId, page, query, result, timeZone }: {
+  tenantId: string;
+  page: number;
+  query: { stage?: string; q?: string };
+  result: Awaited<ReturnType<typeof getFreeToolUsers>>;
+  timeZone: string;
+}) {
+  const formatDate = freeToolDateFormatter(timeZone);
+  const timestamp = (value: string | null) =>
+    value ? <time dateTime={value}>{formatDate.format(new Date(value))}</time> : "None recorded";
+  const pageLink = (nextPage: number) => {
+    const params = new URLSearchParams();
+    if (query.q) params.set("q", query.q);
+    if (query.stage) params.set("stage", query.stage);
+    if (nextPage > 1) params.set("freePage", String(nextPage));
+    const search = params.toString();
+    return `/workspaces/${tenantId}/clients${search ? `?${search}` : ""}#free-tool-users`;
+  };
+
+  return <section id="free-tool-users" className="panel" aria-labelledby="free-tool-users-title">
+    <div className="section-heading">
+      <div><span className="eyebrow">FREE WORKSPACE ACTIVITY</span><h2 id="free-tool-users-title">Free Tool Users</h2></div>
+      <span className="pill">Internal review</span>
+    </div>
+    <p>See who created a free workspace, when they last opened it, and which tools they used to save or change records.</p>
+    {!result ? <p className="notice">Free workspace activity is temporarily unavailable.</p>
+      : result.rows.length ? <div className="table-scroll">
+        <table>
+          <thead><tr><th scope="col">Workspace and email</th><th scope="col">Workspace created</th><th scope="col">Last opened</th><th scope="col">Recorded tool use</th><th scope="col">Current plan</th></tr></thead>
+          <tbody>{result.rows.map(row => <tr key={row.workspace_id}>
+            <td><strong>{row.workspace_name}</strong><p className="small muted">{row.email}</p></td>
+            <td>{timestamp(row.signed_up_at)}</td>
+            <td>{timestamp(row.last_opened_at)}</td>
+            <td>{row.tools_used.length ? row.tools_used.map(tool => freeToolLabels[tool] ?? tool).join(", ") : "None recorded"}
+              {row.last_tool_activity_at && <p className="small muted">Latest change {timestamp(row.last_tool_activity_at)}</p>}
+            </td>
+            <td>{freeToolPlanLabels[row.plan]}</td>
+          </tr>)}</tbody>
+        </table>
+      </div> : <Empty title={page > 1 ? "No more free workspaces" : "No free workspaces yet"}>Verified owners appear here after creating their free workspace.</Empty>}
+    {result && (page > 1 || result.hasNext) && <nav className="button-row" aria-label="Free tool users pages">
+      {page > 1 && <Link className="button secondary" href={pageLink(page - 1)}>Previous</Link>}
+      <span>Page {page}</span>
+      {result.hasNext && page < 10000 && <Link className="button secondary" href={pageLink(page + 1)}>Next</Link>}
+    </nav>}
+    <p className="small muted">Free workspace opens are recorded at most once every 15 minutes. Tool activity comes from saved changes by the workspace creator.</p>
+  </section>;
+}
 
 type SetupGate = { label: string; ready: boolean; openHref: string };
 type IntakeDetail = { label: string; value: string; ready: boolean };
@@ -171,11 +248,16 @@ function clientStage(client: ClientOps): Exclude<ClientStage, "all"> {
   return "setup";
 }
 
-export default async function ClientWorkspaces({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams?: Promise<{ stage?: string; q?: string }> }) {
+export default async function ClientWorkspaces({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams?: Promise<{ stage?: string; q?: string; freePage?: string }> }) {
   const { tenantId } = await params;
   const query = searchParams ? await searchParams : {};
+  const requestedFreePage = Number(query.freePage);
+  const freePage = Number.isInteger(requestedFreePage) && requestedFreePage >= 1 && requestedFreePage <= 10000 ? requestedFreePage : 1;
   const { operator, role, clients, allowed } = await getManagedClientWorkspaces(tenantId);
-  const opsClients = allowed ? await Promise.all(clients.map(clientOps)) : [];
+  const [opsClients, freeUsers] = await Promise.all([
+    allowed ? Promise.all(clients.map(clientOps)) : [],
+    allowed ? getFreeToolUsers(tenantId, (freePage - 1) * FREE_TOOL_USERS_PAGE_SIZE) : null,
+  ]);
   const persistedMilestones = allowed ? await getOnboardingMilestones(opsClients.map(client => client.id)) : new Map<string, OnboardingMilestones>();
   for (const client of opsClients) {
     const saved = persistedMilestones.get(client.id);
@@ -196,6 +278,7 @@ export default async function ClientWorkspaces({ params, searchParams }: { param
   return <>
     <div className="page-heading"><span className="eyebrow">CEVANTA BACK OFFICE</span><h1>Internal owner operations dashboard.</h1><p>Monitor every client workspace, onboarding file, paperwork state, launch gate, payment check, integration status, and support next action from {operator.name}.</p></div>
     {!allowed ? <section className="panel"><h2>Internal access required</h2><p className="notice">Your {role} access can use this workspace, but only Cevanta internal owner/admin access can create and monitor managed client workspaces.</p><Link className="button secondary" href={`/workspaces/${tenantId}`}>Return to dashboard ↗</Link></section> : <>
+      <div className="button-row"><Link className="button secondary" href="#free-tool-users">Free Tool Users</Link></div>
       <div className="stat-grid"><div className="panel stat"><span>Managed clients</span><strong className="role-value">{opsClients.length}</strong><p>Total client workspaces connected to this Cevanta operator dashboard.</p></div><div className="panel stat"><span>Ready for test call</span><strong className="role-value">{readyForTest}</strong><p>Clients with core intake, services, hours, call rules and escalation contacts saved.</p></div><div className="panel stat"><span>Need setup work</span><strong className="role-value">{needsSetup}</strong><p>Clients missing paperwork or onboarding gates before live pilot calls.</p></div></div>
 
       <section className="panel"><div className="section-heading"><div><span className="eyebrow">OWNER PRIORITY QUEUE</span><h2>What needs your attention first</h2></div><span className="pill">{activeClients} active or pilot</span></div><form className="client-monitor-search" method="get"><label htmlFor="client-search">Find a client</label><div><input id="client-search" name="q" type="search" defaultValue={search} placeholder="Business name, trade, or timezone"/><input type="hidden" name="stage" value={stage}/><button className="button secondary" type="submit">Search</button>{search && <Link className="card-link" href={`/workspaces/${tenantId}/clients${stage === "all" ? "" : `?stage=${stage}`}`}>Clear</Link>}</div></form><nav className="client-stage-filter" aria-label="Filter clients by onboarding stage">{([['all','All'],['setup','Setup'],['testing','Testing'],['live','Live'],['paused','Paused']] as const).map(([value,label]) => { const params = new URLSearchParams(); if (value !== "all") params.set("stage", value); if (search) params.set("q", search); const suffix = params.toString(); return <Link key={value} className={stage === value ? "active" : ""} href={`/workspaces/${tenantId}/clients${suffix ? `?${suffix}` : ""}`} aria-current={stage === value ? "page" : undefined}>{label}<span>{stageCounts[value]}</span></Link>; })}</nav>{priorityClients.length ? <div className="table-scroll"><table><thead><tr><th>Client</th><th>Readiness</th><th>Next action</th><th>Open</th></tr></thead><tbody>{priorityClients.map(client => <tr key={client.id}><td><strong>{client.name}</strong><p className="small muted">{client.trade} · {client.status}</p></td><td><strong>{client.readinessScore}%</strong><p className="small muted">{client.setupStatus}</p></td><td>{client.nextAction}</td><td><div className="button-row"><Link className="card-link" href={client.setupHref}>Setup ↗</Link><Link className="card-link" href={client.launchHref}>Launch ↗</Link></div></td></tr>)}</tbody></table></div> : <Empty title={search ? `No clients match “${search}”` : `No ${stage === "all" ? "client" : stage} workspaces`}>Try another search or select a different stage.</Empty>}</section>
@@ -214,6 +297,7 @@ export default async function ClientWorkspaces({ params, searchParams }: { param
       <section className="panel payment-request-panel"><div className="section-heading"><div><span className="eyebrow">MANUAL STRIPE REQUEST</span><h2>Create a hosted payment link</h2><p>Generate a one-time Stripe-hosted request for the setup fee or first monthly pilot payment. Cevanta never sees card details and does not charge automatically from this screen.</p></div><span className="pill">Owner controlled</span></div><StripePaymentRequestForm operatorTenantId={tenantId} initialRequestId={randomUUID()} clients={opsClients.map(client => ({ id: client.id, name: client.name, trade: client.trade }))} /><p className="small muted">Defaults are $497 setup and $297 for the first month. Adjust them for this request; the selected amount is validated on the server. Use Stripe test mode first.</p></section>
 
       <section className="panel"><div className="section-heading"><div><span className="eyebrow">LAUNCH CONTROL</span><h2>Use the same checklist for every client</h2></div><Link className="button secondary" href={`/workspaces/${tenantId}/integrations`}>Review global gates ↗</Link></div><div className="dispatch-summary"><article><span>1. Intake</span><strong>Setup</strong><p className="small muted">Business details, services, hours, rules and escalation contacts must be saved.</p></article><article><span>2. Payment</span><strong>Manual</strong><p className="small muted">Confirm setup fee and monthly pilot payment outside Cevanta until billing is built.</p></article><article><span>3. Test</span><strong>Call proof</strong><p className="small muted">Run one fictional Retell/Make/Cevanta test and verify one office-review lead.</p></article><article><span>4. Go live</span><strong>Approval</strong><p className="small muted">Keep booking, SMS/email, calendar writes and dispatch automation off unless separately approved.</p></article></div></section>
+      <FreeToolUsers tenantId={tenantId} page={freePage} query={query} result={freeUsers} timeZone={operator.timezone}/>
     </>}
   </>;
 }

@@ -6,6 +6,7 @@ const harness = vi.hoisted(() => ({
   snapshot: vi.fn(),
   rpc: vi.fn(),
   milestones: vi.fn(),
+  freeUsers: vi.fn(),
   redirect: vi.fn((path: string) => { throw new Error(`NEXT_REDIRECT:${path}`); }),
   configured: true,
 }));
@@ -13,6 +14,7 @@ const harness = vi.hoisted(() => ({
 vi.mock("@/lib/server/queries", () => ({ getManagedClientWorkspaces: harness.list }));
 vi.mock("@/lib/server/onboarding-rpc", () => ({ getOnboardingSnapshot: harness.snapshot }));
 vi.mock("@/lib/server/onboarding-milestones", () => ({ getOnboardingMilestones: harness.milestones }));
+vi.mock("@/lib/server/free-tool-users", () => ({ FREE_TOOL_USERS_PAGE_SIZE: 50, getFreeToolUsers: harness.freeUsers }));
 vi.mock("@/lib/supabase/config", () => ({ isSupabaseConfigured: () => harness.configured }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ rpc: harness.rpc }) }));
 vi.mock("next/navigation", () => ({ redirect: harness.redirect }));
@@ -55,6 +57,7 @@ beforeEach(() => {
   harness.snapshot.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York" }, flow_version: "onboarding-v1", config_revision: 3, profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ id: "30000000-0000-4000-8000-000000000001", name: "Heating", description: "Fictional service", enabled: true, position: 0, version: 1 }], weekly_hours: [], exceptions: [], booking: { mode: "request_only", lead_time_minutes: null, buffer_before_minutes: null, buffer_after_minutes: null, horizon_days: null, notes: "Office review. Service area: Lewiston and Auburn. Never promise confirmed appointments or exact pricing.", acknowledged: true }, escalation: [], resume_step: "booking", resume_version: 1, readiness: { configuration_state: "not_evaluated", manual_workspace_state: "not_evaluated", reason: "setup_policy_pending", next_action: "platform_operator", booking_state: "blocked", release_state: "not_evaluated", hostedReady: false, providerConnectionAuthorized: false } } });
   harness.rpc.mockResolvedValue({ data: { status: "saved", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", status: "onboarding" } }, error: null });
   harness.milestones.mockResolvedValue(new Map());
+  harness.freeUsers.mockResolvedValue({ rows: [], hasNext: false });
 });
 
 describe("managed client workspace dashboard", () => {
@@ -172,7 +175,31 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain("Internal access required");
     expect(html).toContain("Return to dashboard");
     expect(harness.snapshot).not.toHaveBeenCalled();
+    expect(harness.freeUsers).not.toHaveBeenCalled();
     expect(html).not.toMatch(/Create client workspace|name="name"|operator_tenant_id|request_id/);
+  });
+
+  it("shows verified signup and recorded use separately with the current plan", async () => {
+    harness.freeUsers.mockResolvedValue({
+      rows: [{
+        workspace_id: clientTenant,
+        workspace_name: "Fictional Trade Shop",
+        email: "trade-owner@example.invalid",
+        signed_up_at: "2026-11-01T12:00:00Z",
+        last_opened_at: null,
+        last_tool_activity_at: "2026-11-02T12:00:00Z",
+        tools_used: ["leads", "jobs"],
+        plan: "dashboard_plus",
+      }],
+      hasNext: true,
+    });
+    const html = await renderClients({ operator, role: "owner", allowed: true, clients: [] }, "setup", "Northstar", { freePage: "2" });
+    expect(harness.freeUsers).toHaveBeenCalledWith(operatorTenant, 50);
+    expect(html).toContain("trade-owner@example.invalid");
+    expect(html).toContain("None recorded");
+    expect(html).toContain("Leads, Jobs");
+    expect(html).toContain("Dashboard Plus");
+    expect(html).toContain("freePage=3#free-tool-users");
   });
 });
 
