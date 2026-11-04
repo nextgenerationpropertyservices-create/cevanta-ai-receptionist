@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { PricingOptions } from '@/components/pricing-options';
 export function Brand() { return <Link className="brand brand-logo" href="/" aria-label="Cevanta home"><Image className="brand-logo-image" src="/cevanta-logo-v1.png" alt="Cevanta" width={210} height={70} priority /></Link>; }
 export function Empty({title, children}: {title: string; children: React.ReactNode}) { return <div className="empty"><span aria-hidden="true" className="empty-icon">↗</span><h3>{title}</h3><p>{children}</p></div>; }
 type LandingFaq = readonly {question: string; answer: string}[];
@@ -10,6 +11,7 @@ export function LandingPage({faq = []}: {faq?: LandingFaq}) {
       <nav aria-label="Main navigation" className="landing-nav-links">
         <a href="#how-it-works">How it works</a>
         <a href="#who-it-is-for">Who it is for</a>
+        <a href="#pricing">Plans</a>
         <a href="#watch">See it in action</a>
         <Link href="/sign-in">Sign in</Link>
         <Link className="button landing-nav-cta" href="/sign-up">Get started</Link>
@@ -26,6 +28,7 @@ export function LandingPage({faq = []}: {faq?: LandingFaq}) {
           <a className="button secondary" href="#watch">Watch the call <span aria-hidden="true">↓</span></a>
         </div>
         <p className="landing-note">Your office stays in control. Cevanta does not promise a time, collect payment, or dispatch a technician without your approval.</p>
+        <Link className="card-link" href="/missed-call-checkup">Run the free Missed Call Checkup ↗</Link>
       </div>
       <div className="landing-hero-proof" aria-label="What the receptionist does">
         <div className="landing-proof-window">
@@ -80,6 +83,8 @@ export function LandingPage({faq = []}: {faq?: LandingFaq}) {
         <article><h3>How you can evaluate it</h3><p>Watch the fictional call example, open the sample dashboard, and complete a guided setup before deciding whether a managed pilot fits your business.</p></article>
       </div>
     </section>
+
+    <PricingOptions />
 
     {faq.length > 0 ? <section id="faq" className="landing-faq" aria-labelledby="faq-title">
       <div className="landing-section-heading"><span className="eyebrow">COMMON QUESTIONS</span><h2 id="faq-title">Straight answers before you start.</h2><p>What the service does, who it serves, and where your office stays in control.</p></div>
