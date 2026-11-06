@@ -67,6 +67,9 @@ const machineIngressPaths = new Set([
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const pathname = request.nextUrl.pathname;
+  // Public fixed-destination shortcuts do not read data or refresh sessions.
+  // Keep the segment boundary: /links-other must retain ordinary auth handling.
+  if (pathname === "/links" || pathname.startsWith("/links/")) return response;
   if (invitationDocumentPath(pathname)) {
     const nonce = randomBytes(16).toString("base64");
     const csp = invitationDocumentCsp(nonce);
