@@ -44,8 +44,9 @@ async function html(leads = [aiLead]) {
 describe("workspace overview front office dashboard", () => {
   it("makes new AI leads and dispatch problems hard to miss", async () => {
     const output = await html();
-    expect(output).toContain("FRONT OFFICE COMMAND CENTER");
-    expect(output).toContain("Make every call, lead, and job impossible to miss.");
+    expect(output).toContain('class="front-office-hero front-office-overview"');
+    expect(output).toContain("Your front office,");
+    expect(output).toContain("at a glance.");
     expect(output).toContain("1 new AI lead needs office review");
     expect(output).toContain("1 urgent/high-priority AI lead");
     expect(output).toContain("1 open job unassigned");
@@ -54,9 +55,9 @@ describe("workspace overview front office dashboard", () => {
 
   it("shows ROI, field team workload, and calendar pulse from existing data", async () => {
     const output = await html();
-    expect(output).toContain("RECOVERED LOSS SNAPSHOT");
+    expect(output).toContain('<details class="roi-assumptions">');
     expect(output).toContain("Estimated recovered revenue");
-    expect(output).toContain("Adjust the numbers below to match your business.");
+    expect(output).toContain("Adjust assumptions");
     expect(output).toContain("Average job value");
     expect(output).toContain("Close rate %");
     expect(output).toContain("Monthly cost");
@@ -65,7 +66,7 @@ describe("workspace overview front office dashboard", () => {
     expect(output).toContain("Casey Field Tech");
     expect(output).toContain("Water heater diagnostic");
     expect(output).toContain("Open full calendar");
-    expect(output).toContain("RUN YOUR FRONT OFFICE");
+
     expect(output).toContain("Everything your team needs to respond faster and stay organized");
     expect(output).toContain("Manage field team");
     expect(output).toContain("View schedule");

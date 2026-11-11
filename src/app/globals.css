@@ -788,3 +788,161 @@ html[data-theme="light"] .client-milestone-form select{background:#fff;color:var
 .workspace-plan-strip{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 18px;padding:18px 20px;border:1px solid #2f6b64;border-left:4px solid #75c67a;border-radius:12px;background:#102a2b;color:#eef8f4}
 .workspace-plan-strip .eyebrow{margin-bottom:4px;color:#8bdc98}.workspace-plan-strip h2{margin-bottom:4px;color:#f4fbf7}.workspace-plan-strip p{margin:0;color:#bed2ca;font-size:12px}.workspace-plan-strip>div:last-child{display:flex;gap:8px;flex-shrink:0}.workspace-plan-strip .button.secondary{border-color:#ffffff3b;color:#eef8f4}
 @media(max-width:760px){.workspace-plan-strip{display:block}.workspace-plan-strip>div:last-child{display:grid;margin-top:15px}.workspace-plan-strip .button{width:100%}.workspace-plan-badge{order:3}}
+/* CEV-UI-20261110: precise, task-first overview. Scoped to the client overview. */
+.topnav-shell:has(.front-office-overview) {
+ --desk-bg:#0c121c; --desk-surface:#121c29; --desk-raised:#182534;
+ --desk-line:#2a3849; --desk-text:#eef3f7; --desk-muted:#a4b4c4; --desk-accent:#7ddbd1;
+ background:var(--desk-bg); color:var(--desk-text);
+}
+html[data-theme="light"] .topnav-shell:has(.front-office-overview) {
+ --desk-bg:#f3f5f7; --desk-surface:#fff; --desk-raised:#edf2f5;
+ --desk-line:#d4dee5; --desk-text:#192e3b; --desk-muted:#526675; --desk-accent:#176e66;
+}
+.topnav-shell:has(.front-office-overview) .workspace-topnav {
+ background:var(--desk-bg); border-color:var(--desk-line); padding:20px 36px 0;
+}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-main {display:flex;gap:24px; align-items:center; flex-wrap:wrap}
+.topnav-shell:has(.front-office-overview) .brand-logo {width:150px;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.topnav-shell:has(.front-office-overview) .brand-logo-image {width:150px}
+html[data-theme="light"] .topnav-shell:has(.front-office-overview) .brand-logo-image {filter:none}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-label {min-width:170px;gap:10px;border-left:1px solid var(--desk-line);padding-left:24px}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-label strong {color:var(--desk-text);font-size:14px}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-label div span:not(.avatar) {color:var(--desk-muted);font-size:12px;line-height:1.5;white-space:normal}
+.topnav-shell:has(.front-office-overview) .avatar {width:34px;height:34px;border-radius:10px;background:var(--desk-raised);color:var(--desk-accent);text-transform:uppercase}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions {gap:14px;flex:1;justify-content:flex-end;color:var(--desk-muted);font-size:12px}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions .button {padding:9px 14px;font-size:12px;min-height:40px}
+.topnav-shell:has(.front-office-overview) .workspace-attention-link {background:var(--desk-raised);border:1px solid var(--desk-line);color:var(--desk-text);font-size:12px;box-shadow:none}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-menu {margin-top:20px;gap:20px;align-items:center}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-primary {gap:22px;flex-wrap:wrap}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-menu a,
+.topnav-shell:has(.front-office-overview) .workspace-nav-more summary {background:transparent;border:0;border-radius:0;color:var(--desk-muted);font-size:13px;padding:12px 0;box-shadow:none;min-height:44px}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-menu a[aria-current="page"] {color:var(--desk-text);box-shadow:inset 0 -2px var(--desk-accent)}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-menu a:hover {color:var(--desk-accent);background:transparent}
+.topnav-shell:has(.front-office-overview) .workspace-nav-more-menu {background:var(--desk-surface);border-color:var(--desk-line);padding:10px 18px}
+.topnav-shell:has(.front-office-overview) .workspace-nav-more-menu a {padding:10px}
+.topnav-shell:has(.front-office-overview) .workspace-lead-alert {display:none}
+.topnav-shell:has(.front-office-overview) .workspace-content {background:var(--desk-bg);color:var(--desk-text)}
+.topnav-shell:has(.front-office-overview) .workspace-content main {max-width:1480px;margin:auto;padding:36px}
+.topnav-shell:has(.front-office-overview) .front-office-hero {grid-template-columns:minmax(0,1fr) minmax(300px,360px);align-items:center;gap:48px;padding:0 0 30px;margin:0 0 24px;background:transparent;border:0;border-bottom:1px solid var(--desk-line);border-radius:0;box-shadow:none}
+.topnav-shell:has(.front-office-overview) .front-office-hero h1 {font-size:clamp(32px,3.5vw,48px);font-weight:500;letter-spacing:-.035em;line-height:1.13;color:var(--desk-text);margin:0 0 16px;text-wrap:balance}
+.topnav-shell:has(.front-office-overview) .front-office-hero p {font-size:14px;line-height:1.65;color:var(--desk-muted);max-width:55ch}
+.topnav-shell:has(.front-office-overview) .roi-card {background:var(--desk-surface);border:1px solid var(--desk-line);border-radius:12px;padding:20px 24px;color:var(--desk-text)}
+.roi-caption {display:block;font-size:13px;color:var(--muted);font-weight:500}
+.topnav-shell:has(.front-office-overview) .roi-caption {color:var(--desk-muted)}
+.topnav-shell:has(.front-office-overview) .roi-card strong {font-size:34px;font-weight:500;letter-spacing:-.03em;color:var(--desk-accent);margin:8px 0;line-height:1.15;font-variant-numeric:tabular-nums}
+.topnav-shell:has(.front-office-overview) .roi-card p,
+.topnav-shell:has(.front-office-overview) .roi-card small {color:var(--desk-muted);font-size:12px;line-height:1.6}
+.roi-assumptions {margin:12px 0}
+.roi-assumptions summary {cursor:pointer;font-size:12px;font-weight:600;padding:8px 0;min-height:36px;text-underline-offset:4px}
+.roi-assumptions summary:hover {text-decoration:underline}
+.roi-assumptions .roi-fields {margin-top:12px}
+.topnav-shell:has(.front-office-overview) .roi-card small {border-color:var(--desk-line)}
+.topnav-shell:has(.front-office-overview) .roi-fields {grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.topnav-shell:has(.front-office-overview) .roi-fields span {font-size:10px;letter-spacing:0;color:var(--desk-muted)}
+.topnav-shell:has(.front-office-overview) .roi-fields input {width:100%;min-width:0;background:var(--desk-bg);border-color:var(--desk-line);color:var(--desk-text);padding:9px;font-size:13px}
+.topnav-shell:has(.front-office-overview) .front-office-alert {padding:18px 22px;margin:0 0 24px;background:var(--desk-surface);border:1px solid var(--desk-line);border-radius:12px;gap:20px;box-shadow:none}
+.topnav-shell:has(.front-office-overview) .front-office-alert h2 {font-size:16px;font-weight:600;color:var(--desk-text);margin:0 0 5px;letter-spacing:-.015em}
+.topnav-shell:has(.front-office-overview) .front-office-alert p {color:var(--desk-muted);font-size:13px;margin:0}
+.topnav-shell:has(.front-office-overview) .button {background:var(--desk-accent);border:1px solid var(--desk-accent);color:var(--desk-bg);border-radius:8px;min-height:40px;padding:10px 15px;font-size:12px;font-weight:600;box-shadow:none}
+html[data-theme="light"] .topnav-shell:has(.front-office-overview) .button {color:#fff}
+.topnav-shell:has(.front-office-overview) .button:hover {filter:brightness(1.08)}
+.topnav-shell:has(.front-office-overview) .button.secondary {background:transparent;border-color:var(--desk-line);color:var(--desk-text)}
+.topnav-shell:has(.front-office-overview) .dashboard-layout-controls {margin:0 0 12px}
+.topnav-shell:has(.front-office-overview) .dashboard-layout-controls .small {color:var(--desk-muted);font-size:12px}
+.topnav-shell:has(.front-office-overview) .front-office-stats {gap:0;margin:0 0 8px;border:1px solid var(--desk-line);border-radius:12px;overflow:hidden;background:var(--desk-surface)}
+.topnav-shell:has(.front-office-overview) .front-office-stats article {border:0;border-right:1px solid var(--desk-line);border-radius:0;padding:22px 24px;min-height:136px;background:transparent;transform:none;box-shadow:none}
+.topnav-shell:has(.front-office-overview) .front-office-stats article:last-child {border-right:0}
+.topnav-shell:has(.front-office-overview) .front-office-stats span {color:var(--desk-muted);font-size:12px;text-transform:none;letter-spacing:0}
+.topnav-shell:has(.front-office-overview) .front-office-stats strong {font-size:32px;font-weight:500;color:var(--desk-text);margin:9px 0 5px;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.topnav-shell:has(.front-office-overview) .front-office-stats p {font-size:12px;color:var(--desk-muted);line-height:1.5}
+.topnav-shell:has(.front-office-overview) .dashboard-widget-list {gap:20px}
+.topnav-shell:has(.front-office-overview) .front-office-grid {gap:20px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);margin:0}
+.topnav-shell:has(.front-office-overview) .panel {padding:24px;border-radius:12px;background:var(--desk-surface);border-color:var(--desk-line);box-shadow:none;color:var(--desk-text)}
+.topnav-shell:has(.front-office-overview) .section-heading {gap:16px;margin-bottom:20px;align-items:center}
+.topnav-shell:has(.front-office-overview) .section-heading h2,
+.topnav-shell:has(.front-office-overview) .front-office-next h2 {font-size:18px;font-weight:500;line-height:1.4;color:var(--desk-text);margin:0;letter-spacing:-.02em}
+.topnav-shell:has(.front-office-overview) .section-heading .button {font-size:12px;padding:8px 12px;background:transparent;color:var(--desk-text);border-color:var(--desk-line);white-space:nowrap}
+.topnav-shell:has(.front-office-overview) .front-office-queue {margin:0;gap:0}
+.topnav-shell:has(.front-office-overview) .front-office-queue>a {border:0;border-top:1px solid var(--desk-line);border-radius:0;padding:18px 0;background:transparent}
+.topnav-shell:has(.front-office-overview) .front-office-queue>a:hover {background:var(--desk-raised)}
+.topnav-shell:has(.front-office-overview) .front-office-queue strong,
+.topnav-shell:has(.front-office-overview) .tech-load-list strong {font-size:15px;font-weight:600;color:var(--desk-text)}
+.topnav-shell:has(.front-office-overview) .front-office-queue span,
+.topnav-shell:has(.front-office-overview) .tech-load-list span {font-size:11px;color:var(--desk-accent);line-height:1.6;letter-spacing:.03em;margin:7px 0}
+.topnav-shell:has(.front-office-overview) .front-office-queue p,
+.topnav-shell:has(.front-office-overview) .tech-load-list p,
+.topnav-shell:has(.front-office-overview) .front-office-next p {font-size:13px;color:var(--desk-muted);line-height:1.65}
+.topnav-shell:has(.front-office-overview) .empty {padding:26px 12px;background:transparent}
+.topnav-shell:has(.front-office-overview) .empty-icon {display:none}
+.topnav-shell:has(.front-office-overview) .empty h3 {font-size:15px;color:var(--desk-text);font-weight:500}
+.topnav-shell:has(.front-office-overview) .empty p {font-size:13px;line-height:1.65;color:var(--desk-muted);max-width:44ch;margin:0 auto}
+.topnav-shell:has(.front-office-overview) .calendar-pulse-list time,
+.topnav-shell:has(.front-office-overview) .calendar-pulse-list span {font-size:12px;color:var(--desk-muted)}
+.topnav-shell:has(.front-office-overview) .calendar-pulse-list strong {font-size:14px;color:var(--desk-text)}
+.topnav-shell:has(.front-office-overview) .front-office-next .button-row {margin:20px 0}
+.topnav-shell:has(.front-office-overview) .danger-zone {margin-top:20px}
+.topnav-shell:has(.front-office-overview) .app-footer {background:transparent;color:var(--desk-muted);font-size:12px;padding:24px 36px}
+.topnav-shell:has(.front-office-overview) .dashboard-guide-toggle {background:var(--desk-surface);color:var(--desk-text);border:1px solid var(--desk-line);box-shadow:0 6px 20px #0003;font-size:12px}
+.topnav-shell:has(.front-office-overview) :focus-visible {outline:2px solid var(--desk-accent);outline-offset:4px}
+.topnav-shell:has(.front-office-overview) ::selection {background:var(--desk-accent);color:var(--desk-bg)}
+@media(max-width:1100px) {
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-actions {flex-basis:100%;justify-content:flex-start;flex-wrap:wrap}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-main {gap:16px}
+}
+@media(max-width:760px) {
+ .topnav-shell:has(.front-office-overview) .workspace-topnav {padding:16px 20px 0}
+ .topnav-shell:has(.front-office-overview) .workspace-content main {padding:26px 20px}
+ .topnav-shell:has(.front-office-overview) .front-office-hero {grid-template-columns:1fr;gap:24px;padding-bottom:24px}
+ .topnav-shell:has(.front-office-overview) .front-office-hero h1 {font-size:36px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-primary {gap:18px}
+ .topnav-shell:has(.front-office-overview) .front-office-stats {grid-template-columns:repeat(2,minmax(0,1fr))}
+ .topnav-shell:has(.front-office-overview) .front-office-stats article {padding:18px;min-height:128px;border-bottom:1px solid var(--desk-line)}
+ .topnav-shell:has(.front-office-overview) .front-office-stats article:nth-child(even) {border-right:0}
+ .topnav-shell:has(.front-office-overview) .front-office-stats article:nth-last-child(-n+2) {border-bottom:0}
+ .topnav-shell:has(.front-office-overview) .front-office-grid {grid-template-columns:1fr}
+ .topnav-shell:has(.front-office-overview) .front-office-alert {grid-template-columns:1fr;gap:12px}
+ .topnav-shell:has(.front-office-overview) .front-office-alert .button {width:100%;margin:0}
+ .topnav-shell:has(.front-office-overview) .panel {padding:20px}
+ .topnav-shell:has(.front-office-overview) .section-heading {align-items:flex-start;flex-direction:column;gap:12px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-label {padding-left:14px;min-width:0}
+ .topnav-shell:has(.front-office-overview) .dashboard-layout-controls {display:flex;align-items:center;gap:12px}
+ .topnav-shell:has(.front-office-overview) .dashboard-layout-controls .button-row {margin:0;flex-shrink:0}
+}
+@media(prefers-reduced-motion:reduce) {
+ .topnav-shell:has(.front-office-overview) * {scroll-behavior:auto;transition:none;animation:none}
+}
+.topnav-shell:has(.front-office-overview) .front-office-alert .button {background:var(--desk-accent);border-color:var(--desk-accent);color:var(--desk-bg);font-size:12px;padding:10px 15px}
+html[data-theme="light"] .topnav-shell:has(.front-office-overview) .front-office-alert .button {color:#fff}
+.topnav-shell:has(.front-office-overview) .roi-estimate-note {display:block;color:var(--desk-muted);font-size:11px;line-height:1.5}
+.topnav-shell:has(.front-office-overview) .dashboard-guide>button {background:var(--desk-surface);color:var(--desk-muted);border:1px solid var(--desk-line);box-shadow:0 6px 20px #0003;font-size:12px;padding:10px 14px}
+.topnav-shell:has(.front-office-overview) .roi-card p {margin:0}
+.topnav-shell:has(.front-office-overview) .roi-assumptions {margin:8px 0}
+.topnav-shell:has(.front-office-overview) .front-office-hero {padding-bottom:24px}
+html[data-theme="light"] .topnav-shell:has(.front-office-overview) .button.secondary {color:var(--desk-text);background:transparent}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions .text-button,
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions .card-link {color:var(--desk-muted)}
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions .text-button:hover,
+.topnav-shell:has(.front-office-overview) .workspace-topnav-actions .card-link:hover {color:var(--desk-accent)}
+@media(max-width:760px) {
+ .topnav-shell:has(.front-office-overview) .brand-logo {width:118px;min-height:38px}
+ .topnav-shell:has(.front-office-overview) .brand-logo-image {width:118px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-main {gap:12px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-label {flex:1;border:0;padding-left:0}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-label strong {font-size:12px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-label div span:not(.avatar) {font-size:10px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-label .avatar {display:none}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-actions {gap:10px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-menu {flex-wrap:nowrap;gap:16px;margin-top:12px}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-primary {flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;gap:18px;scrollbar-width:thin;scrollbar-color:var(--desk-line) transparent}
+ .topnav-shell:has(.front-office-overview) .workspace-topnav-primary a {flex-shrink:0;white-space:nowrap}
+ .topnav-shell:has(.front-office-overview) .workspace-nav-more {flex-shrink:0}
+}
+/* Shared calculator also appears on the existing green Reports card. */
+.roi-caption,.roi-estimate-note {color:#eef7e2}
+.roi-estimate-note {display:block;font-size:11px;line-height:1.5}
+.topnav-shell:has(.front-office-overview) .roi-caption,
+.topnav-shell:has(.front-office-overview) .roi-estimate-note {color:var(--desk-muted)}
+.topnav-shell:has(.front-office-overview) .front-office-queue>a {display:block}
+.topnav-shell:has(.front-office-overview) .front-office-queue strong,
+.topnav-shell:has(.front-office-overview) .front-office-queue span {display:block}
+.topnav-shell:has(.front-office-overview) .front-office-queue p {max-width:65ch;max-height:none;overflow:visible;white-space:normal;display:block;-webkit-line-clamp:unset}
