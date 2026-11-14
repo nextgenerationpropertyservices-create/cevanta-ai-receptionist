@@ -1,0 +1,13 @@
+import Link from "next/link";
+import { ActionForm } from "@/components/action-form";
+import { createPermitCoordinationNote } from "@/app/actions/permit-coordination";
+import { requirePermitWorkspace } from "@/lib/server/permits";
+import { uuidSchema } from "@/lib/server/authorization";
+import { notFound } from "next/navigation";
+export default async function Coordination({params}:{params:Promise<{tenantId:string;permitId:string}>}) {
+ const {tenantId,permitId}=await params; uuidSchema.parse(permitId);
+ const {client}=await requirePermitWorkspace(tenantId);
+ const permit=await client.from("job_permits").select("id,title,site,jurisdiction").eq("tenant_id",tenantId).eq("id",permitId).maybeSingle(); if(!permit.data) notFound();
+ const notes=await client.from("permit_coordination_notes").select("id,source_message,extracted_reference,extracted_date,suggested_status,draft_subject,draft_body,created_at").eq("tenant_id",tenantId).eq("permit_id",permitId).order("created_at",{ascending:false}).limit(20);
+ return <><Link className="back-link" href={`/workspaces/${tenantId}/permits/${permitId}`}>← Permit</Link><div className="page-heading"><span className="eyebrow">COORDINATION</span><h1>{permit.data.title}</h1><p>{permit.data.site} · {permit.data.jurisdiction}</p></div><section className="panel"><h2>Read a forwarded message</h2><p>Paste a forwarded utility or inspection email. Cevanta extracts likely references and dates, then prepares a draft for office review. It never sends the draft automatically.</p><ActionForm action={createPermitCoordinationNote} submitLabel="Save and prepare follow-up" hidden={{tenantId,permitId}}><label className="field"><span>Forwarded message</span><textarea name="sourceMessage" rows={10} required maxLength={20000} placeholder="Paste the complete forwarded message here" /></label></ActionForm></section><section className="panel"><h2>Coordination history</h2>{notes.error?<p role="alert">Coordination history is unavailable.</p>:notes.data?.length?notes.data.map(note=><article className="panel" key={note.id}><p><strong>{note.suggested_status}</strong>{note.extracted_reference&&` · Ref ${note.extracted_reference}`}{note.extracted_date&&` · ${note.extracted_date}`}</p><details><summary>Show source message</summary><pre className="record-notes">{note.source_message}</pre></details><h3>Follow-up draft</h3><p><strong>{note.draft_subject}</strong></p><pre className="record-notes">{note.draft_body}</pre><p className="small muted">Saved {new Intl.DateTimeFormat("en-US",{dateStyle:"medium",timeStyle:"short"}).format(new Date(note.created_at))}</p></article>):<p>No forwarded messages saved yet.</p>}</section></>;
+}
