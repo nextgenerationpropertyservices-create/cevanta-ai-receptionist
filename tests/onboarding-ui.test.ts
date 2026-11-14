@@ -8,6 +8,7 @@ const harness = vi.hoisted(() => ({ snapshot: vi.fn(), save: vi.fn(), progress: 
 vi.mock('@/lib/server/onboarding-rpc', () => ({ getOnboardingSnapshot: harness.snapshot }));
 vi.mock('@/app/actions/onboarding', () => ({ saveOnboardingConfiguration: harness.save, saveOnboardingProgress: harness.progress }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: harness.refresh }) }));
+vi.mock('@/lib/server/queries', () => ({ getWorkspaceRecord: async () => ({ tenant: { permitdesk_only: false } }) }));
 import Page from '@/app/workspaces/[tenantId]/onboarding/page';
 import { BusinessProfileForm, ServicesForm, WeeklyHoursForm, HoursExceptionsForm, BookingPreferencesForm, EscalationContactsForm, ResumeStepForm, profileFeedback, resumeFeedback, resumeRequiresReview, submitBusinessProfile, submitResumeStep, submitSetupEditor, submitHoursException, setupEditorFeedback, exceptionFeedback, parseHoursTime } from '@/app/workspaces/[tenantId]/onboarding/onboarding-form';
 

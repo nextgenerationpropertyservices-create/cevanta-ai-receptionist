@@ -1,3 +1,5 @@
+import { getWorkspaceRecord } from '@/lib/server/queries';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { SELF_SERVICE_ONBOARDING_STEPS, STANDARD_INTAKE_FIELDS, templateForTrade } from '@/lib/client-onboarding-blueprint';
 import { getOnboardingSnapshot } from '@/lib/server/onboarding-rpc';
@@ -58,6 +60,8 @@ function OnboardingBlueprint({ snapshot }: { snapshot: OwnerOnboardingSnapshot }
 
 export default async function OnboardingPage({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams?: Promise<{ locked?: string }> }) {
   const { tenantId } = await params;
+  const {tenant} = await getWorkspaceRecord(tenantId);
+  if (tenant.permitdesk_only) redirect(`/workspaces/${tenantId}/permits`);
   const query = searchParams ? await searchParams : {};
   const response = await getOnboardingSnapshot(tenantId);
   if (response.status !== 'available') return <section className="panel" aria-labelledby="setup-error-title">

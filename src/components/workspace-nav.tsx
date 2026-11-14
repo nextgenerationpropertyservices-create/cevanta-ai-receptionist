@@ -10,7 +10,7 @@ export interface WorkspaceNavLink {
   count?: number;
 }
 
-const PRIMARY_LABELS = new Set(['Overview', 'Notifications', 'Clients', 'Leads', 'Jobs', 'Calendar']);
+const PRIMARY_LABELS = new Set(['Overview', 'Notifications', 'Clients', 'Leads', 'Jobs', 'Permits', 'Calendar']);
 
 function isActivePath(pathname: string, href: string, label: string) {
   if (label === 'Overview') return pathname === href;

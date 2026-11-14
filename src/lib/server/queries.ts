@@ -37,6 +37,7 @@ async function hasInternalOperatorAccess(client: Awaited<ReturnType<typeof getWo
 
 export async function getWorkspace(tenantId: string) {
   const workspace = await getWorkspaceRecord(tenantId);
+  if (workspace.tenant.permitdesk_only) redirect(`/workspaces/${tenantId}/permits`);
   const setup = workspace.tenant.account_type === "client" && (workspace.role === "owner" || workspace.role === "admin")
     ? await getOnboardingSnapshot(tenantId)
     : null;

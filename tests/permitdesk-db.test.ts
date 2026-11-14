@@ -1,0 +1,61 @@
+import { PGlite } from "@electric-sql/pglite";
+import { readFileSync,readdirSync } from "node:fs";
+import { expect,test } from "vitest";
+
+test("permit pilot protects roles and tenants, preserves linked snapshots and expires",async()=>{
+ const db=await PGlite.create();
+ try {
+  await db.exec(`create role anon nologin; create role authenticated nologin;
+  create schema auth; create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb);
+  create function auth.uid() returns uuid language sql stable as
+  $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+  grant usage on schema public,auth to anon,authenticated;
+  grant execute on function auth.uid() to anon,authenticated;
+  alter default privileges in schema public grant all on tables to anon,authenticated;`);
+  for (const file of readdirSync("supabase/migrations").filter(f=>f.endsWith(".sql")).sort()) await db.exec(readFileSync("supabase/migrations/"+file,"utf8"));
+  const a="10000000-0000-4000-8000-000000000001",b="10000000-0000-4000-8000-000000000002",internal="10000000-0000-4000-8000-000000000003";
+  const owner="20000000-0000-4000-8000-000000000001",viewer="20000000-0000-4000-8000-000000000002",j="30000000-0000-4000-8000-000000000001",otherJob="30000000-0000-4000-8000-000000000002";
+  await db.exec(`insert into auth.users(id) values('${owner}'),('${viewer}');
+  insert into public.tenants(id,name,trade,account_type) values ('${a}','Fixture A','Electrical','client'),('${b}','Fixture B','Electrical','client'),('${internal}','Internal fixture','Software','internal');
+  insert into public.memberships(tenant_id,user_id,role) values('${a}','${owner}','owner'),('${b}','${owner}','owner'),('${internal}','${owner}','owner'),('${a}','${viewer}','viewer');
+  insert into public.jobs(id,tenant_id,submission_id,title,description) values('${j}','${a}',gen_random_uuid(),'Fixture job A','Fixture scope'),('${otherJob}','${b}',gen_random_uuid(),'Fixture job B','Fixture scope');
+  insert into public.permit_workspace_access(tenant_id,enabled) values('${a}',true),('${internal}',true);`);
+  const as=async(id:string)=>db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${id}',false);`);
+  const create=(t:string,job:string)=>db.exec(`insert into public.job_permits(tenant_id,job_id,title,site,jurisdiction,scope) values('${t}',${job?"'"+job+"'":"null"},'Fixture permit','Test street','Winchendon, MA','Fixture scope');`);
+  const count=async()=>Number((await db.query<{count:number}>("select count(*) as count from public.job_permits")).rows[0].count);
+  await db.exec("set role anon");
+  await expect(count()).rejects.toMatchObject({code:"42501"});
+  await as(owner);
+  await expect(create(b,otherJob)).rejects.toMatchObject({code:"42501"});
+  await expect(create(internal,"")).rejects.toMatchObject({code:"42501"});
+  await expect(create(a,otherJob)).rejects.toMatchObject({code:"23503"});
+  await create(a,j);expect(await count()).toBe(1);
+  await expect(create(a,j)).rejects.toMatchObject({code:"23505"});
+  await expect(db.exec(`update public.job_permits set tenant_id='${b}'`)).rejects.toMatchObject({code:"42501"});
+  await expect(db.exec("update public.permit_workspace_access set enabled=false")).rejects.toMatchObject({code:"42501"});
+  await expect(db.exec("update public.job_permits set status='issued'")).rejects.toMatchObject({code:"23514"});
+  await db.exec("update public.job_permits set status='submitted',submitted_on='2026-01-01'");
+  await db.exec(`reset role; update public.tenants set permitdesk_only=true where id='${a}'`);
+  await as(owner);
+  expect(await count()).toBe(1);
+  expect((await db.query(`select id from public.jobs where tenant_id='${a}'`)).rows).toEqual([]);
+  expect((await db.query(`select id from public.jobs where tenant_id='${b}'`)).rows).toEqual([{id:otherJob}]);
+  await expect(db.query(`select * from public.get_tenant_technicians('${a}')`)).rejects.toMatchObject({code:"42501"});
+  await expect(create(a,j)).rejects.toMatchObject({code:"42501"});
+  await create(a,"");
+  expect(await count()).toBe(2);
+  await expect(db.exec("update public.tenants set permitdesk_only=false")).rejects.toMatchObject({code:"42501"});
+  await db.exec("reset role; update public.permit_workspace_access set enabled=false");
+  await as(owner);
+  expect(await count()).toBe(0);
+  await expect(create(a,"")).rejects.toMatchObject({code:"42501"});
+  await db.exec("reset role; update public.permit_workspace_access set enabled=true; delete from public.job_permits where job_id is null");
+  await db.exec(`reset role; update public.tenants set permitdesk_only=false where id='${a}'`);
+  await as(owner);
+  await as(viewer);expect(await count()).toBe(0);await expect(create(a,"")).rejects.toMatchObject({code:"42501"});
+  await db.exec(`reset role;delete from public.jobs where id='${j}'`);
+  await as(owner);expect((await db.query("select job_id,status from public.job_permits")).rows).toEqual([{job_id:null,status:"submitted"}]);
+  await db.exec(`reset role; update public.permit_workspace_access set expires_at=now()-interval '1 second' where tenant_id='${a}'`);
+  await as(owner);expect(await count()).toBe(0);await expect(create(a,"")).rejects.toMatchObject({code:"42501"});
+ }finally{await db.close()}
+},30000);

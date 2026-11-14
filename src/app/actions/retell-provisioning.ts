@@ -27,7 +27,9 @@ export type RetellMappingHealth =
  * id and must already be an owner/admin of the target workspace.
  */
 export async function registerRetellAgentMapping(tenantId: string, rawAgentId: string): Promise<RetellMappingResult> {
-  await requireMembership(tenantId, ["owner", "admin"]);
+  const {client} = await requireMembership(tenantId, ["owner", "admin"]);
+  const {data: available, error: accessError} = await client.rpc("missed_call_available", {target: tenantId});
+  if (accessError || available !== true) return {status: "unavailable"};
   try {
     const agent = agentIdSchema.safeParse(rawAgentId);
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
@@ -61,7 +63,9 @@ export async function registerRetellAgentMapping(tenantId: string, rawAgentId: s
  * the Retell agent, change phone routing, or revoke provider credentials.
  */
 export async function pauseRetellAgentMapping(tenantId: string): Promise<RetellMappingPauseResult> {
-  await requireMembership(tenantId, ["owner", "admin"]);
+  const {client} = await requireMembership(tenantId, ["owner", "admin"]);
+  const {data: available, error: accessError} = await client.rpc("missed_call_available", {target: tenantId});
+  if (accessError || available !== true) return {status: "unavailable"};
   try {
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };
@@ -83,7 +87,9 @@ export async function pauseRetellAgentMapping(tenantId: string): Promise<RetellM
 
 /** Returns a non-sensitive tenant route state for the owner/admin Integrations page. */
 export async function getRetellAgentMappingHealth(tenantId: string): Promise<RetellMappingHealth> {
-  await requireMembership(tenantId, ["owner", "admin"]);
+  const {client} = await requireMembership(tenantId, ["owner", "admin"]);
+  const {data: available, error: accessError} = await client.rpc("missed_call_available", {target: tenantId});
+  if (accessError || available !== true) return {status: "unavailable"};
   try {
     const connection = connectionIdSchema.safeParse(process.env.MAKE_RETELL_INGRESS_CONNECTION_ID);
     if (!isSupabaseConfigured() || !connection.success) return { status: "not_configured" };

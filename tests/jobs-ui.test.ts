@@ -39,10 +39,11 @@ describe("dispatch board quick assignment", () => {
 });
 describe("job detail delete controls", () => {
   it("lets writable office users delete a job from the detail page", async () => {
-    detailHarness.workspace.mockResolvedValue({ tenant: { id: tenant, name: "Fictional HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client" }, role: "owner" });
+    detailHarness.workspace.mockResolvedValue({ tenant: { id: tenant, name: "Fictional HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client" }, client:{from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{enabled:true,expires_at:null},error:null})})})})}, role: "owner" });
     detailHarness.job.mockResolvedValue({ ready: true, job });
     detailHarness.technicians.mockResolvedValue({ ready: true, technicians: [tech] });
     const html = renderToStaticMarkup(await JobDetail({ params: Promise.resolve({ tenantId: tenant, jobId: job.id }) }));
+    expect(html).toContain("Create permit");
     expect(html).toContain("Delete this job");
     expect(html).toContain("Delete job");
     expect(html).toContain("does not message customers, cancel external calendars, charge money, or dispatch technicians");

@@ -26,7 +26,7 @@ const tenant = '11111111-1111-4111-8111-111111111111';
 beforeEach(() => {
   vi.clearAllMocks();
   harness.rpcCalls.length = 0;
-  harness.membership.mockResolvedValue({ role: 'owner', user: { id: 'user' } });
+  harness.membership.mockResolvedValue({ role: 'owner', user: { id: 'user' }, client: { rpc: vi.fn().mockResolvedValue({ data: true, error: null }) } });
   harness.configured.mockReturnValue(true);
   harness.rpc.mockResolvedValue({ data: { status: 'paused' }, error: null });
   process.env.MAKE_RETELL_INGRESS_CONNECTION_ID = '22222222-2222-4222-8222-222222222222';
