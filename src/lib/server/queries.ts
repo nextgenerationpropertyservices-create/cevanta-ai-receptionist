@@ -52,20 +52,30 @@ export async function getWorkspace(tenantId: string) {
   return workspace;
 }
 
-export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string }
+export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string; permitdesk_enabled: boolean; permitdesk_expires_at: string | null; permitdesk_status: "off" | "enabled" | "expired" | "unavailable"; permitdesk_only: boolean }
 
 export async function getManagedClientWorkspaces(operatorTenantId: string): Promise<{ operator: Tenant; role: string; clients: ManagedClientWorkspace[]; allowed: boolean }> {
   const { tenant, role } = await getWorkspace(operatorTenantId);
   const allowed = tenant.account_type === "internal" && (role === "owner" || role === "admin");
   if (!allowed) return { operator: tenant, role, clients: [], allowed: false };
   const { client } = await requireMembership(operatorTenantId, ["owner", "admin"]);
-  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).neq("status", "archived").order("created_at", { ascending: false });
+  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,permitdesk_only,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).neq("status", "archived").order("created_at", { ascending: false });
   if (result.error) throw new Error("Could not load client workspaces.");
-  const clients = (result.data ?? []).flatMap(row => {
+  const clients: ManagedClientWorkspace[] = (result.data ?? []).flatMap(row => {
     const clientRow = Array.isArray(row.client) ? row.client[0] : row.client;
     if (!clientRow) return [];
-    return [{ id: clientRow.id, name: clientRow.name, trade: clientRow.trade, timezone: clientRow.timezone, status: row.status, created_at: row.created_at, updated_at: clientRow.updated_at }];
+    return [{ id: clientRow.id, name: clientRow.name, trade: clientRow.trade, timezone: clientRow.timezone, status: row.status, created_at: row.created_at, updated_at: clientRow.updated_at, permitdesk_enabled: false, permitdesk_expires_at: null, permitdesk_status: "off" as const, permitdesk_only: Boolean(clientRow.permitdesk_only) }];
   });
+  const access = clients.length
+    ? await client.from("permit_workspace_access").select("tenant_id,enabled,expires_at").in("tenant_id", clients.map(item => item.id))
+    : { data: [], error: null };
+  const accessByTenant = new Map((access.data ?? []).map(item => [item.tenant_id as string, item]));
+  for (const item of clients) {
+    const grant = accessByTenant.get(item.id);
+    item.permitdesk_enabled = Boolean(grant?.enabled);
+    item.permitdesk_expires_at = (grant?.expires_at as string | null | undefined) ?? null;
+    item.permitdesk_status = item.status === "paused" ? "unavailable" : item.permitdesk_enabled ? item.permitdesk_expires_at && new Date(item.permitdesk_expires_at) <= new Date() ? "expired" : "enabled" : "off";
+  }
   return { operator: tenant, role, clients, allowed: true };
 }
 export async function getCustomers(tenantId: string): Promise<Customer[]> {
