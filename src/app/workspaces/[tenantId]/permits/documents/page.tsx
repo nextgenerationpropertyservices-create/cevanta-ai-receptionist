@@ -4,7 +4,10 @@ export default async function PermitDocumentsIndex({params}:{params:Promise<{ten
  const {tenantId}=await params; const {client}=await requirePermitWorkspace(tenantId); const base=`/workspaces/${tenantId}/permits`;
  const permits=await client.from("job_permits").select("id,title,site").eq("tenant_id",tenantId).order("updated_at",{ascending:false}).limit(200);
  const docs=await client.from("permit_documents").select("permit_id,label,category,created_at").eq("tenant_id",tenantId).order("created_at",{ascending:false}).limit(500);
- const byPermit=new Map<string,number>(); for(const doc of docs.data??[]) byPermit.set(doc.permit_id,(byPermit.get(doc.permit_id)??0)+1;
+ const byPermit = new Map<string, number>();
+ for (const doc of (docs.data ?? [])) {
+  byPermit.set(doc.permit_id, (byPermit.get(doc.permit_id) ?? 0) + 1);
+ }
  const cards = permits.data ?? [];
  return <>
   <nav className="permitdesk-subnav" aria-label="PermitDesk"><Link href={base}>Overview</Link><Link href={base+"?view=queue"}>Permit Queue</Link><Link href={base+"?view=field"}>Field Intake</Link><Link href={base+"?view=utility"}>Utility Coordination</Link><Link href={base+"?view=inspections"}>Inspections</Link><Link href={base+"?view=closeout"}>Closeout</Link><Link href={base+"/library#jurisdictions"}>AHJ Matrix</Link><Link href={base+"/library#templates"}>Scope Templates</Link><Link aria-current="page" href={base+"/documents"}>Documents</Link></nav>
