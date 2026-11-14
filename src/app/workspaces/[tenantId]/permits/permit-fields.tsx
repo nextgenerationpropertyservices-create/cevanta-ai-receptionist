@@ -10,6 +10,8 @@ export function PermitFields({permit}:{permit?:Partial<Permit>}) {
  {permit?.id&&<><label className="field"><span>Permit status</span><select name="status" defaultValue={permit.status}>{permitStatuses.map(s=><option key={s} value={s}>{permitStatusLabels[s]}</option>)}</select></label>
  <Field name="submitted_on" label="Actual submission date" type="date" defaultValue={permit.submitted_on??undefined}/>
  <Field name="permit_number" label="Town-issued permit number" maxLength={100} defaultValue={permit.permit_number}/>
- <Field name="next_followup" label="Next follow-up date" type="date" defaultValue={permit.next_followup??undefined}/></>}
+ <Field name="next_followup" label="Next follow-up date" type="date" defaultValue={permit.next_followup??undefined}/>
+ <Field name="closeout_reference" label="Final closure reference" maxLength={160} defaultValue={permit.closeout_reference}/>
+ <Field name="closed_on" label="Actual closure date" type="date" defaultValue={permit.closed_on??undefined}/></>}
  </>;
 }

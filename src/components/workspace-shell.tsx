@@ -18,6 +18,7 @@ export function WorkspaceShell({tenant,role,children,permitsAvailable=false,atte
   {href:base,label:'Overview'},
   {href:`${base}/notifications`,label:'Notifications',count:totalAttention},
   ...(tenant.account_type === 'internal' ? [{href:`${base}/clients`,label:'Clients'}] : []),
+  ...(tenant.account_type === 'internal' && (role === 'owner' || role === 'admin') ? [{href:`${base}/permit-pilot`,label:'PermitDesk pilot'}] : []),
   {href:`${base}/customers`,label:'Customers'},
   {href:`${base}/leads`,label:'Leads',count:attention.aiLeads},
   {href:`${base}/jobs`,label:role === 'technician' ? 'My jobs' : 'Jobs',count:attention.unassignedJobs},

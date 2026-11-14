@@ -52,6 +52,9 @@ test("permit pilot protects roles and tenants, preserves linked snapshots and ex
   await db.exec("reset role; update public.permit_workspace_access set enabled=true; delete from public.job_permits where job_id is null");
   await db.exec(`reset role; update public.tenants set permitdesk_only=false where id='${a}'`);
   await as(owner);
+  await expect(db.exec("update public.job_permits set status='closed',permit_number='FIXTURE'")).rejects.toMatchObject({code:"23514"});
+  await db.exec("update public.job_permits set status='closed',permit_number='FIXTURE',inspection_status='passed',closed_on='2026-01-02',closeout_reference='Final fixture'");
+  await db.exec("update public.job_permits set status='submitted'");
   await as(viewer);expect(await count()).toBe(0);await expect(create(a,"")).rejects.toMatchObject({code:"42501"});
   await db.exec(`reset role;delete from public.jobs where id='${j}'`);
   await as(owner);expect((await db.query("select job_id,status from public.job_permits")).rows).toEqual([{job_id:null,status:"submitted"}]);

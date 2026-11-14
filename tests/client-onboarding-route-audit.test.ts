@@ -17,7 +17,9 @@ describe("client onboarding route coverage", () => {
       const relative = file.slice(root.length + 1).replaceAll("\\", "/");
       if (relative === "onboarding/page.tsx") return false;
       const source = readFileSync(file, "utf8");
-      return !source.includes("getWorkspace(") && !source.includes("getManagedClientWorkspaces(") && !source.includes("requirePermitWorkspace(");
+      return !source.includes("getWorkspace(") && !source.includes("getManagedClientWorkspaces(") && !source.includes("requirePermitWorkspace(") &&
+        !(relative === "permits/[permitId]/documents/page.tsx" && source.includes("requireDocumentPermit(")) &&
+        !(relative === "permit-pilot/page.tsx" && source.includes("getWorkspaceRecord("));
     });
     expect(unguarded).toEqual([]);
   });

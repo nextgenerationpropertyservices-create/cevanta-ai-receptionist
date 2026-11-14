@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect, unstable_rethrow } from "next/navigation";
-import { permitFields, permitTracking } from "@/lib/permit-contracts";
+import { permitFields, permitTracking, permitOperations } from "@/lib/permit-contracts";
 import { uuidSchema } from "@/lib/server/authorization";
 import { permitJobSeed, requirePermitWorkspace } from "@/lib/server/permits";
 import type { ActionState } from "@/lib/server/action-state";
@@ -21,7 +21,8 @@ export async function savePermit(_prev:ActionState,form:FormData):Promise<Action
    const tracking=permitTracking(new Intl.DateTimeFormat("en-CA",{timeZone:tenant.timezone,year:"numeric",month:"2-digit",day:"2-digit"}).format()).safeParse(values);
    if (!tracking.success) return {status:"error",message:tracking.error.issues[0]?.message??"Check filing details."};
    const t=tracking.data;
-   const {data,error}=await client.from("job_permits").update({...fields.data,...t,submitted_on:t.submitted_on||null,next_followup:t.next_followup||null}).eq("tenant_id",tenantId).eq("id",id).eq("updated_at",revision).select("id").maybeSingle();
+   const {data,error}=await client.from("job_permits").update({...fields.data,...t,submitted_on:t.submitted_on||null,next_followup:t.next_followup||null,closed_on:t.closed_on||null}).eq("tenant_id",tenantId).eq("id",id).eq("updated_at",revision).select("id").maybeSingle();
+   if (error?.code==="23514" && t.status==="closed") return {status:"error",message:"Record a passed inspection, final reference, and closure date before closing."};
    if (error||!data) return {status:"error",message:"The permit could not be saved. Reopen it to check whether it was updated elsewhere."};
    revalidatePath(base);revalidatePath(`${base}/${id}`);
    return {status:"success",message:"Permit saved."};
@@ -40,4 +41,26 @@ export async function savePermit(_prev:ActionState,form:FormData):Promise<Action
   unstable_rethrow(error);
   return {status:"error",message:"Could not save the permit. Check your access and try again."};
  }
+}
+
+export async function savePermitOperations(_previous:ActionState,form:FormData):Promise<ActionState> {
+  try {
+    const tenantId=uuidSchema.parse(form.get("tenantId"));
+    const permitId=uuidSchema.parse(form.get("permitId"));
+    const {client}=await requirePermitWorkspace(tenantId);
+    const revision=String(form.get("revision")??"");
+    if (!Number.isFinite(Date.parse(revision))) return {status:"error",message:"Reopen this permit before saving."};
+    const values=permitOperations.safeParse(Object.fromEntries(form));
+    if (!values.success) return {status:"error",message:values.error.issues[0]?.message??"Check the utility and inspection details."};
+    const {data,error}=await client.from("job_permits").update(values.data)
+      .eq("tenant_id",tenantId).eq("id",permitId).eq("updated_at",revision).select("id").maybeSingle();
+    if (error||!data) return {status:"error",message:"Could not save. Reopen the permit to check for newer changes."};
+    const base="/workspaces/"+tenantId+"/permits";
+    revalidatePath(base);
+    revalidatePath(base+"/"+permitId);
+    return {status:"success",message:"Utility and inspection details saved."};
+  } catch(error) {
+    unstable_rethrow(error);
+    return {status:"error",message:"Could not save utility and inspection details."};
+  }
 }
