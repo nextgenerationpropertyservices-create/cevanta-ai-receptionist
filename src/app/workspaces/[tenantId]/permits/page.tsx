@@ -2,16 +2,17 @@ import Link from "next/link";
 import { requirePermitWorkspace } from "@/lib/server/permits";
 import { permitStatusLabels, permitLanes, permitLane, type Permit, type PermitOperations } from "@/lib/permit-contracts";
 
-export default async function PermitsPage({params,searchParams}:{params:Promise<{tenantId:string}>;searchParams:Promise<{q?:string;lane?:string}>}){
+export default async function PermitsPage({params,searchParams}:{params:Promise<{tenantId:string}>;searchParams:Promise<{q?:string;lane?:string;view?:string}>}){
  const {tenantId}=await params;
  const {client,tenant}=await requirePermitWorkspace(tenantId);
- const {q,lane}=await searchParams;
+ const {q,lane,view}=await searchParams;
  const search=typeof q==="string"?q.slice(0,100).trim().toLowerCase():"";
  const today=new Intl.DateTimeFormat("en-CA",{timeZone:tenant.timezone,year:"numeric",month:"2-digit",day:"2-digit"}).format();
  const {data,error}=await client.from("job_permits").select("id,title,site,jurisdiction,status,next_followup,utility_status,inspection_status,first_inspection,blocker,expires_on,issued_on,submitted_on,inspection_date,work_on,disconnect_on,reconnect_on").eq("tenant_id",tenantId).order("updated_at",{ascending:false}).limit(200);
  const base=`/workspaces/${tenantId}/permits`;
  const permits=(data??[]) as (Pick<Permit,"id"|"title"|"site"|"jurisdiction"|"status"|"next_followup"> & Pick<PermitOperations,"utility_status"|"inspection_status"|"first_inspection"|"blocker"|"expires_on"|"issued_on"|"inspection_date"|"work_on"|"disconnect_on"|"reconnect_on"> & Pick<Permit,"submitted_on">)[];
- const shown=permits.filter(p=>[p.title,p.site,p.jurisdiction].some(value=>value.toLowerCase().includes(search))&&(!lane||permitLane(p)===lane));
+ const workArea = view === "utility" ? permits.filter(p=>p.utility_status!=="not_required") : view === "inspections" ? permits.filter(p=>p.inspection_status!=="not_scheduled") : view === "closeout" ? permits.filter(p=>p.status==="closed" || p.inspection_status==="passed") : view === "field" ? permits.filter(p=>["draft","ready"].includes(p.status)) : permits;
+ const shown=workArea.filter(p=>[p.title,p.site,p.jurisdiction].some(value=>value.toLowerCase().includes(search))&&(!lane||permitLane(p)===lane));
  const csvCell=(value:string|null)=>{
   const text=value??"";
   const safe=/^[\s\uFEFF]*[=+@-]|^[\t\r\n]/.test(text)?"'"+text:text;
@@ -28,7 +29,8 @@ export default async function PermitsPage({params,searchParams}:{params:Promise<
  const first=permits.filter(p=>["passed","corrections"].includes(p.first_inspection.toLowerCase()));
  const approvalDays=permits.flatMap(p=>p.issued_on&&p.submitted_on&&p.issued_on>=p.submitted_on?[(Date.parse(p.issued_on)-Date.parse(p.submitted_on))/86400000]:[]);
  const average=approvalDays.length?Math.round(approvalDays.reduce((sum,days)=>sum+days,0)/approvalDays.length):null;
- return <><nav className="permitdesk-subnav" aria-label="PermitDesk"><Link aria-current="page" href={base}>Overview</Link><Link href={`${base}/new`}>New permit</Link><Link href={base+"/library"}>Library</Link><Link href={base+"/feedback"}>Feedback</Link></nav><div className="page-heading"><span className="eyebrow">PERMITDESK</span><h1>Permit operations</h1><p>Keep permits, inspections, utilities, documents, and office follow-up in one place.</p><Link className="button" href={`${base}/new`}>Create permit</Link> <Link className="button secondary" href={base+"/library"}>Open permit library</Link></div>
+ const nav=[['Overview',base],['Permit Queue',base+'?view=queue'],['Field Intake',base+'?view=field'],['Utility Coordination',base+'?view=utility'],['Inspections',base+'?view=inspections'],['Closeout',base+'?view=closeout'],['AHJ Matrix',base+'/library#jurisdictions'],['Scope Templates',base+'/library#templates'],['Documents',base+'?view=documents']];
+ return <><nav className="permitdesk-subnav" aria-label="PermitDesk">{nav.map(([label,href])=><Link key={label} aria-current={(view===undefined&&label==='Overview')||(view==='queue'&&label==='Permit Queue')||(view==='field'&&label==='Field Intake')||(view==='utility'&&label==='Utility Coordination')||(view==='inspections'&&label==='Inspections')||(view==='closeout'&&label==='Closeout')?"page":undefined} href={href}>{label}</Link>)}</nav><div className="page-heading"><span className="eyebrow">PERMITDESK</span><h1>{view==='utility'?'Utility coordination':view==='inspections'?'Inspections':view==='closeout'?'Closeout':view==='field'?'Field intake':'Permit operations'}</h1><p>Keep permits, inspections, utilities, documents, and office follow-up in one place.</p><Link className="button" href={`${base}/new`}>Create permit</Link> <Link className="button secondary" href={base+"/library"}>Open permit library</Link></div>
   <section className="panel"><h2>Permit operations</h2>
  {!error&&<div className="stat-grid"><p>Open permits <strong>{open.length}</strong></p><p>Need attention <strong>{alerts.length}</strong></p><p>Average approval <strong>{average===null?"—":average+" days"}</strong></p><p>First inspections passed <strong>{first.filter(p=>p.first_inspection.toLowerCase()==="passed").length}/{first.length}</strong></p></div>}
  {alerts.length>0&&<ul>{alerts.map(p=><li key={p.id}><Link href={base+"/"+p.id}>{p.title}</Link> · {p.blocker||"Review dates or inspection corrections"}</li>)}</ul>}
