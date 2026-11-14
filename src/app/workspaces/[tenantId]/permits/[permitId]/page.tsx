@@ -41,6 +41,17 @@ export default async function PermitDetail({params}:{params:Promise<{tenantId:st
   <div className="button-row"><a className="button secondary" href={filingDraft}>Open draft in my email app</a><Link className="card-link" href={`/workspaces/${tenantId}/permits/${p.id}/documents`}>Open filing packet</Link></div>
   <p className="small muted">After sending, record the actual submission date below.</p>
  </details></section>
+ <section className="panel" id="field-intake-files">
+  <h2>Field intake files</h2>
+  <form action={`/workspaces/${tenantId}/permits/${p.id}/documents/manage`} method="post" encType="multipart/form-data">
+   <input type="hidden" name="operation" value="intake"/>
+   <label className="field"><span>Photos and supporting files</span>
+    <input name="file" type="file" multiple required accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.pdf,.txt,.csv,.docx,.xlsx,.dwg,.dxf"/>
+   </label>
+   <p className="small muted">Select up to 10 files. Each file can be up to 2 MB. Keep each batch under 4 MB.</p>
+   <button className="button" type="submit">Upload to permit</button>
+  </form>
+ </section>
  <section className="panel"><h2>Permit details and filing status</h2><p>Record submission only after filing. Update the permit number when the town issues it.</p><ActionForm key={p.updated_at} action={savePermit} hidden={{tenantId,permitId,revision:p.updated_at}} submitLabel="Save permit"><PermitFields permit={p}/></ActionForm></section>
  <section className="panel"><h2>Utility coordination and inspection</h2>
  <ActionForm key={p.updated_at+"-operations"} action={savePermitOperations} hidden={{tenantId,permitId,revision:p.updated_at}} submitLabel="Save coordination details">

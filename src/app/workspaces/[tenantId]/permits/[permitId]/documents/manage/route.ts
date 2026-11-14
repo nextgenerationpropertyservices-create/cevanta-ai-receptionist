@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { uuidSchema } from "@/lib/server/authorization";
 import { documentCategories, maxDocumentBytes, requireDocumentPermit } from "../access";
 
-const maxRequestBytes = maxDocumentBytes + 16 * 1024;
+const maxRequestBytes = 4 * 1024 * 1024;
 
 async function readForm(request: Request) {
   const length = request.headers.get("content-length");
@@ -37,6 +37,23 @@ export async function POST(request: Request, context: { params: Promise<{ tenant
   const form = await readForm(request).catch(() => null);
   if (!form) return back("invalid");
   const operation = form.get("operation");
+  if (operation === "intake") {
+    const files = form.getAll("file");
+    if (!files.length || files.length > 10) return back("invalid");
+    const rows = [];
+    for (const file of files) {
+      if (!(file instanceof File) || !file.size || file.size > maxDocumentBytes) return back("invalid");
+      const filename = file.name.replace(/[\x00-\x1f\x7f/\\]/g, "_");
+      if (filename.length > 150 || !/\.(pdf|jpe?g|png|webp|heic|heif|txt|csv|docx|xlsx|dwg|dxf)$/i.test(filename)) return back("invalid");
+      rows.push({
+        tenant_id: tenantId, permit_id: permitId, label: filename.slice(0, 120),
+        category: /\.(jpe?g|png|webp|heic|heif)$/i.test(filename) ? "photo" : "other",
+        filename, content: "\\x" + Buffer.from(await file.arrayBuffer()).toString("hex"),
+      });
+    }
+    const { error } = await client.from("permit_documents").insert(rows);
+    return back(error ? "failed" : "saved");
+  }
   if (operation === "remove" || operation === "packet") {
     const id = uuidSchema.safeParse(form.get("documentId"));
     if (!id.success) return back("invalid");

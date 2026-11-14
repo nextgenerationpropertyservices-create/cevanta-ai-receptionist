@@ -1,8 +1,8 @@
-:global(.app-shell:has([data-permitdesk])) > :global(.workspace-topnav),
-:global(.app-shell:has([data-permitdesk])) :global(.app-footer) { display: none; }
+:global(.app-shell):has(.shell) > :global(.workspace-topnav),
+:global(.app-shell):has(.shell) :global(.app-footer) { display: none; }
 
-:global(.workspace-content:has([data-permitdesk])),
-:global(#main:has(> [data-permitdesk])) {
+:global(.workspace-content):has(.shell),
+:global(#main):has(> .shell) {
   width: 100%;
   max-width: none;
   margin: 0;
@@ -26,13 +26,13 @@
   color: #192c28;
   min-height: 100dvh;
   overflow: clip;
-  font: 14px/1.45 Inter, system-ui, sans-serif;
+  font: 16px/1.55 Inter, system-ui, sans-serif;
 }
 
 .sidebar {
   padding: 1.2rem;
   background: #0d332e;
-  color: #d1e2da;
+  color: #e8f4ef;
 }
 
 .brand {
@@ -45,8 +45,8 @@
 .brand small, .group p {
   display: block;
   margin: .35rem 0;
-  color: #aac7ba;
-  font-size: .72rem;
+  color: #c7ded3;
+  font-size: .8rem;
   text-transform: uppercase;
   letter-spacing: .1em;
 }
@@ -56,6 +56,8 @@
   display: block;
   padding: .55rem .6rem;
   color: inherit;
+  font-size: .9375rem;
+  font-weight: 550;
   border-radius: .4rem;
 }
 .group a:hover, .group a:focus-visible { background: #23544a; color: white; }
@@ -66,7 +68,13 @@
   border-color: #e3e9e3;
   box-shadow: none;
 }
-.shell .content :global(.muted), .shell .content :global(.page-heading p) { color: #5c6e66; }
+.shell .content :global(.muted), .shell .content :global(.page-heading p) { color: #40564e; }
+.shell .content :is(p, label, td, th, summary) { line-height: 1.55; }
+.shell .content :is(small, :global(.small), th, :global(.eyebrow)) { font-size: .875rem; }
+.shell .content :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid #197452;
+  outline-offset: 3px;
+}
 .shell .content :global(.eyebrow), .shell .content :global(.card-link) { color: #1e6454; }
 .shell .content :global(.button) { background: #103c35; border-color: #103c35; color: white; }
 .shell .content :global(.button.secondary) { background: white; border-color: #cddbd1; color: #103c35; }
