@@ -92,7 +92,7 @@ export default async function PermitLibraryPage({ params }: { params: Promise<{ 
       <h1>Permit library</h1>
       <p>Reuse common scopes of work and keep your workspace’s municipal filing instructions up to date.</p>
     </header>
-    <section className="card">
+    <section className="card" id="templates">
       <h2>Scope templates</h2>
       {templates.error ? <p role="alert">Scope templates are unavailable. Refresh this page to try again.</p> : <>
         {templates.data?.map((template) => <details key={template.id}>
@@ -105,7 +105,7 @@ export default async function PermitLibraryPage({ params }: { params: Promise<{ 
         </details>
       </>}
     </section>
-    <section className="card">
+    <section className="card" id="jurisdictions">
       <h2>Jurisdiction directory</h2>
       <p>Verify instructions against the municipality’s official source before filing.</p>
       {overrides.error ? <p role="alert">Workspace jurisdiction profiles are unavailable. Refresh this page to try again.</p> : <>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./permitdesk.module.css";
 import { requirePermitWorkspace } from "@/lib/server/permits";
 import { permitStatusLabels, permitLanes, permitLane, type Permit, type PermitOperations } from "@/lib/permit-contracts";
 
@@ -31,11 +32,22 @@ export default async function PermitsPage({params,searchParams}:{params:Promise<
  const average=approvalDays.length?Math.round(approvalDays.reduce((sum,days)=>sum+days,0)/approvalDays.length):null;
  const nav=[['Overview',base],['Permit Queue',base+'?view=queue'],['Field Intake',base+'?view=field'],['Utility Coordination',base+'?view=utility'],['Inspections',base+'?view=inspections'],['Closeout',base+'?view=closeout'],['AHJ Matrix',base+'/library#jurisdictions'],['Scope Templates',base+'/library#templates'],['Documents',base+'/documents']];
  return <><nav className="permitdesk-subnav" aria-label="PermitDesk">{nav.map(([label,href])=><Link key={label} aria-current={(view===undefined&&label==='Overview')||(view==='queue'&&label==='Permit Queue')||(view==='field'&&label==='Field Intake')||(view==='utility'&&label==='Utility Coordination')||(view==='inspections'&&label==='Inspections')||(view==='closeout'&&label==='Closeout')?"page":undefined} href={href}>{label}</Link>)}</nav><div className="page-heading"><span className="eyebrow">PERMITDESK</span><h1>{view==='utility'?'Utility coordination':view==='inspections'?'Inspections':view==='closeout'?'Closeout':view==='field'?'Field intake':'Permit operations'}</h1><p>Keep permits, inspections, utilities, documents, and office follow-up in one place.</p><Link className="button" href={`${base}/new`}>Create permit</Link> <Link className="button secondary" href={base+"/library"}>Open permit library</Link></div>
-  <section className="panel"><h2>Permit operations</h2>
- {!error&&<div className="stat-grid"><p>Open permits <strong>{open.length}</strong></p><p>Need attention <strong>{alerts.length}</strong></p><p>Average approval <strong>{average===null?"—":average+" days"}</strong></p><p>First inspections passed <strong>{first.filter(p=>p.first_inspection.toLowerCase()==="passed").length}/{first.length}</strong></p></div>}
+ {!view && !error && <>
+  <div className={styles.metrics}>
+   <article className="panel"><span>Active in-flight permits</span><strong>{open.length}</strong></article>
+   <article className="panel"><span>Avg. approval cycle</span><strong>{average === null ? "—" : `${average} days`}</strong></article>
+   <article className="panel"><span>First-pass inspections</span><strong>{first.length ? `${Math.round(100 * first.filter(p => p.first_inspection.toLowerCase() === "passed").length / first.length)}%` : "—"}</strong></article>
+   <article className="panel"><span>Needs attention</span><strong>{alerts.length}</strong></article>
+  </div>
+  <section className="panel"><h2>Permit pipeline</h2><div className={styles.stages}>
+   {permitLanes.map(stage => <Link key={stage} href={`${base}?view=queue&lane=${encodeURIComponent(stage)}`}>{stage} <strong>{permits.filter(permit => permitLane(permit) === stage).length}</strong></Link>)}
+  </div></section>
+ </>}
+  <section className="panel"><h2>Needs attention</h2>
+ {!error && alerts.length === 0 && <p className="muted">No open blockers or deadline alerts.</p>}
  {alerts.length>0&&<ul>{alerts.map(p=><li key={p.id}><Link href={base+"/"+p.id}>{p.title}</Link> · {p.blocker||"Review dates or inspection corrections"}</li>)}</ul>}
  <h3>Next 14 days</h3>{!error&&(upcoming.length?<ul>{upcoming.map(p=><li key={p.id+p.label}><Link href={base+"/"+p.id}>{p.title}</Link> · {p.label} · {p.date}</li>)}</ul>:<p className="muted">No upcoming milestones.</p>)}
  </section>
  <section className="panel"><h2>Permit queue</h2>{csv&&<a className="card-link" download="permit-queue.csv" href={"data:text/csv;charset=utf-8,"+encodeURIComponent(csv)}>Download filtered CSV</a>}{permits.length===200&&<p className="muted">Queue and totals use the 200 most recently updated permits.</p>}
- <form><label className="field"><span>Search permits</span><input name="q" defaultValue={search} maxLength={100}/></label><label className="field"><span>Workflow stage</span><select name="lane" defaultValue={lane??""}><option value="">All stages</option>{permitLanes.map(stage=><option key={stage}>{stage}</option>)}</select></label><button className="button secondary" type="submit">Filter</button></form>{error?<p role="alert">The permit queue is unavailable. Refresh and try again.</p>:shown.length===0?<p>{search||lane?"No permits match your filters.":"No permits yet. Start here or create a permit from a job."}</p>:<div className="stat-grid">{permitLanes.map(status=>{const entries=shown.filter(permit=>permitLane(permit)===status); return <section className="panel" key={status}><h3>{status} ({entries.length})</h3>{entries.length===0?<p className="muted">No permits</p>:<ul>{entries.map(p=><li key={p.id}><Link className="card-link" href={`${base}/${p.id}`}>{p.title}</Link><p className="small muted">{p.site} · {p.jurisdiction} · {permitStatusLabels[p.status]}{p.next_followup?` · Follow-up ${p.next_followup}`:""}</p></li>)}</ul>}</section>;})}</div>}</section></>;
+ <form>{view && <input type="hidden" name="view" value={view}/>}<label className="field"><span>Search permits</span><input name="q" defaultValue={search} maxLength={100}/></label><label className="field"><span>Workflow stage</span><select name="lane" defaultValue={lane??""}><option value="">All stages</option>{permitLanes.map(stage=><option key={stage}>{stage}</option>)}</select></label><button className="button secondary" type="submit">Filter</button></form>{error?<p role="alert">The permit queue is unavailable. Refresh and try again.</p>:shown.length===0?<p>{search||lane?"No permits match your filters.":"No permits in this work area yet."}</p>:<div className="table-scroll"><table><thead><tr><th>Project</th><th>Jurisdiction</th><th>Stage</th><th>Next follow-up</th></tr></thead><tbody>{shown.map(permit => <tr key={permit.id}><td><Link className="card-link" href={`${base}/${permit.id}`}>{permit.title}</Link><p className="small muted">{permit.site}</p></td><td>{permit.jurisdiction}</td><td>{permitLane(permit)}</td><td>{permit.next_followup ?? "—"}</td></tr>)}</tbody></table></div>}</section></>;
 }

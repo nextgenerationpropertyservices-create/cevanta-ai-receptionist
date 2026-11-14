@@ -1,0 +1,74 @@
+.shell {
+  display: grid;
+  grid-template-columns: 234px minmax(0, 1fr);
+  background: #f5f7f3;
+  color: #192c28;
+  min-height: 72vh;
+  border: 1px solid #dce5db;
+  border-radius: 12px;
+  overflow: clip;
+  font: 14px/1.45 Inter, system-ui, sans-serif;
+}
+
+.sidebar {
+  padding: 1.2rem;
+  background: #0d332e;
+  color: #d1e2da;
+}
+
+.brand {
+  display: block;
+  color: inherit;
+  font-weight: 750;
+  font-size: 1.25rem;
+}
+
+.brand small, .group p {
+  display: block;
+  margin: .35rem 0;
+  color: #aac7ba;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.group { margin-top: 1.4rem; }
+.group a {
+  display: block;
+  padding: .55rem .6rem;
+  color: inherit;
+  border-radius: .4rem;
+}
+.group a:hover, .group a:focus-visible { background: #23544a; color: white; }
+.content { min-width: 0; padding: clamp(12px, 2vw, 30px); }
+.shell .content :global(.panel), .shell .content :global(.card) {
+  background: white;
+  color: #192c28;
+  border-color: #e3e9e3;
+  box-shadow: none;
+}
+.shell .content :global(.muted), .shell .content :global(.page-heading p) { color: #5c6e66; }
+.shell .content :global(.eyebrow), .shell .content :global(.card-link) { color: #1e6454; }
+.shell .content :global(.button) { background: #103c35; border-color: #103c35; color: white; }
+.shell .content :global(.button.secondary) { background: white; border-color: #cddbd1; color: #103c35; }
+.shell .content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  background: white;
+  border-color: #cddbd1;
+  color: #192c28;
+}
+.content :global(.permitdesk-subnav) { display: none; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.metrics strong { display: block; margin-top: .5rem; font-size: 1.65rem; }
+.stages { display: flex; flex-wrap: wrap; gap: .6rem; }
+.stages a { color: #103c35; background: #eef4ee; border-radius: .4rem; padding: .55rem .75rem; }
+.stages strong { margin-left: .4rem; }
+
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .group a { display: inline-block; }
+}
