@@ -1,11 +1,30 @@
+:global(.app-shell:has([data-permitdesk])) > :global(.workspace-topnav),
+:global(.app-shell:has([data-permitdesk])) :global(.app-footer) { display: none; }
+
+:global(.workspace-content:has([data-permitdesk])),
+:global(#main:has(> [data-permitdesk])) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e3e9e3;
+}
+.topbar a { color: #1e6454; }
+
 .shell {
   display: grid;
   grid-template-columns: 234px minmax(0, 1fr);
   background: #f5f7f3;
   color: #192c28;
-  min-height: 72vh;
-  border: 1px solid #dce5db;
-  border-radius: 12px;
+  min-height: 100dvh;
   overflow: clip;
   font: 14px/1.45 Inter, system-ui, sans-serif;
 }

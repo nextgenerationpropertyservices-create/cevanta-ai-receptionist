@@ -29,10 +29,18 @@ export default async function PermitDetail({params}:{params:Promise<{tenantId:st
  };
  const source=safeLink(a?.source),portal=safeLink(a?.portal),form=safeLink(a?.formUrl);
  const winchendon=starter?.id==="ahj-ma-winchendon";
- const filingDraft=winchendon?`mailto:afronte@winchendon-ma.gov?subject=${encodeURIComponent("Electrical permit application - "+p.title)}&body=${encodeURIComponent("Hello,\n\nPlease find the signed application for the electrical work at "+p.site+" attached. Please confirm receipt.\n\nThank you.")}`:null;
+ const recipient = winchendon && !match ? "afronte@winchendon-ma.gov" : "";
+ const subject = encodeURIComponent(`Permit application – ${p.title}`);
+ const body = encodeURIComponent(`Hello,\n\nPlease find the signed permit application for ${p.site} attached.\n\nScope of work\n${p.scope.slice(0, 1000)}\n\nPlease confirm receipt.\n\nThank you,\n${tenant.name}`);
+ const filingDraft = `mailto:${recipient}?subject=${subject}&body=${body}`;
  return <><Link className="back-link" href={`/workspaces/${tenantId}/permits`}>← Permits</Link><div className="page-heading"><span className="eyebrow">{permitStatusLabels[p.status]}</span><h1>{p.title}</h1><p>{p.site} · {p.jurisdiction}</p><Link className="button secondary" href={`/workspaces/${tenantId}/permits/${p.id}/documents`}>Documents and filing packet</Link><Link className="button secondary" href={`/workspaces/${tenantId}/permits/${p.id}/coordination`}>Inspection and utility coordination</Link>{!tenant.permitdesk_only&&p.job_id&&<Link className="card-link" href={`/workspaces/${tenantId}/jobs/${p.job_id}`}>Open linked job ↗</Link>}</div>
  <section className="panel"><h2>File permit</h2><p>{a?.nextStep??"Confirm the official filing route with the permit office."}</p>{<>{source&&<a className="card-link" href={source} target="_blank" rel="noreferrer">Official instructions ↗</a>}{portal&&<p><a className="card-link" href={portal} target="_blank" rel="noreferrer">Open permit portal ↗</a></p>}{form&&<p><a className="card-link" href={form} target="_blank" rel="noreferrer">Official form ↗</a></p>}</>}
- {winchendon&&<><PermitPdf site={p.site} scope={p.scope} firm={tenant.name} email={user.email??""}/><p>Complete and sign the downloaded form. Attach it and any required documents before sending. Nothing is sent automatically.</p>{filingDraft&&<a className="button secondary" href={filingDraft}>Open filing email</a>}</>}</section>
+ {winchendon&&<PermitPdf site={p.site} scope={p.scope} firm={tenant.name} email={user.email??""}/>}
+ <details><summary>Prepare filing email</summary>
+  <p>Use this option if your jurisdiction accepts applications by email. Confirm the permit office address, attach the signed application and supporting documents, then send it from your email account.</p>
+  <div className="button-row"><a className="button secondary" href={filingDraft}>Open draft in my email app</a><Link className="card-link" href={`/workspaces/${tenantId}/permits/${p.id}/documents`}>Open filing packet</Link></div>
+  <p className="small muted">After sending, record the actual submission date below.</p>
+ </details></section>
  <section className="panel"><h2>Permit details and filing status</h2><p>Record submission only after filing. Update the permit number when the town issues it.</p><ActionForm key={p.updated_at} action={savePermit} hidden={{tenantId,permitId,revision:p.updated_at}} submitLabel="Save permit"><PermitFields permit={p}/></ActionForm></section>
  <section className="panel"><h2>Utility coordination and inspection</h2>
  <ActionForm key={p.updated_at+"-operations"} action={savePermitOperations} hidden={{tenantId,permitId,revision:p.updated_at}} submitLabel="Save coordination details">

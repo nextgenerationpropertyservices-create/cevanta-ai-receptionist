@@ -18,7 +18,7 @@ export default async function PermitDeskLayout({ children, params }: {
     ] },
   ];
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-permitdesk>
       <aside className={styles.sidebar}>
         <Link className={styles.brand} href={base}>PermitDesk <small>By Cevanta</small></Link>
         <nav aria-label="PermitDesk work areas">
@@ -30,7 +30,13 @@ export default async function PermitDeskLayout({ children, params }: {
           ))}
         </nav>
       </aside>
-      <div className={styles.content}>{children}</div>
+      <div className={styles.content}>
+        <header className={styles.topbar}>
+          <span>Workspace / <strong>PermitDesk</strong></span>
+          <Link href={`/workspaces/${tenantId}`}>Back to Cevanta</Link>
+        </header>
+        {children}
+      </div>
     </div>
   );
 }
