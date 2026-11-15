@@ -32,7 +32,10 @@ function invitationTokenDigest(token: string): string | null {
 }
 
 export async function issueClientInvitation(_previous: InvitationState, form: FormData): Promise<InvitationState> {
-  const parsed = issueSchema.safeParse(Object.fromEntries(form));
+  const fields = Object.fromEntries(form);
+  const replacePending = fields.intent === "replace";
+  delete fields.intent;
+  const parsed = issueSchema.safeParse(fields);
   if (!parsed.success) return { status: "error", message: "Enter a confirmed client account email and try again." };
   const token = randomBytes(32).toString("base64url");
   const tokenDigestHex = invitationTokenDigest(token);
@@ -51,6 +54,7 @@ export async function issueClientInvitation(_previous: InvitationState, form: Fo
         intended_role: "owner",
         token_digest_hex: tokenDigestHex,
         expires_at: expiresAt,
+        ...(replacePending ? { replace_pending: true } : {}),
       },
     });
     if (error) return { status: "error", message: "The invitation could not be created. Check the account email and try again." };

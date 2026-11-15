@@ -17,5 +17,7 @@ export function InvitationLinkForm({ operatorTenantId, clientTenantId }: { opera
     {state.message && <p className={state.status === "error" ? "form-error" : "notice"} role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
     {state.inviteUrl && <div className="notice"><strong>Copy this private link now:</strong><input readOnly value={state.inviteUrl} aria-label="Private client invitation link" onFocus={event => event.currentTarget.select()} /><p className="small muted">Valid for 7 days. Send it only to the confirmed email above. It is not emailed automatically yet.</p></div>}
     <button className="button" disabled={pending} type="submit">{pending ? "Creating…" : "Create private invite"}<span aria-hidden="true">↗</span></button>
+    <button className="button secondary" disabled={pending} type="submit" name="intent" value="replace">Revoke and replace invite</button>
+    <p className="small muted">Replacing the invitation invalidates any pending link for this email and workspace.</p>
   </form>;
 }

@@ -273,6 +273,16 @@ begin
  if exists(select 1 from public.memberships where tenant_id=client_id and user_id=invitee) then raise exception 'Invitation granted membership early'; end if;
  result:=public.issue_client_invitation(jsonb_build_object('request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','command-9@example.invalid','intended_role','owner','token_digest_hex',repeat('cd',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
  if result->>'status'<>'already_pending' then raise exception 'Pending invitation duplicate accepted: %',result; end if;
+ result:=public.issue_client_invitation(jsonb_build_object(
+   'request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,
+   'recipient_email','command-9@example.invalid','intended_role','owner',
+   'token_digest_hex',repeat('cd',32),'expires_at',clock_timestamp()+interval '1 day','replace_pending',true));
+ if result->>'status' is distinct from 'created' then raise exception 'Replacement invite was not issued: %',result; end if;
+ reset role;
+ if not exists(select 1 from onboarding_private.invitations where tenant_id=client_id and creation_request_id=req and status='revoked')
+   or not exists(select 1 from onboarding_private.invitations where tenant_id=client_id and id=(result->>'invitation_id')::uuid and status='pending')
+ then raise exception 'Replacement did not revoke the old invite and leave the new invite pending'; end if;
+ set local role authenticated;
  result:=public.issue_client_invitation(jsonb_build_object('request_id',gen_random_uuid(),'operator_tenant_id',operator_id,'client_tenant_id',client_id,'recipient_email','unknown@example.invalid','intended_role','owner','token_digest_hex',repeat('ef',32),'expires_at',to_char(clock_timestamp()+interval '1 day','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')));
  if result->>'status'<>'not_found' then raise exception 'Unknown account invitation accepted: %',result; end if;
  reset role;
