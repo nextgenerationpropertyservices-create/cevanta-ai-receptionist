@@ -20,6 +20,9 @@
 .topbar a { color: #1e6454; }
 
 .shell {
+  color-scheme: light;
+  --ink: #192c28;
+  --muted: #344b42;
   display: grid;
   grid-template-columns: 234px minmax(0, 1fr);
   background: #f5f7f3;
@@ -68,8 +71,17 @@
   border-color: #e3e9e3;
   box-shadow: none;
 }
-.shell .content :is(h1, h2, h3, h4, h5, h6, strong, b) {
-  color: #192c28;
+.shell .content :is(h1, h2, h3, h4, h5, h6),
+.shell .content .metrics strong,
+.shell .content .stages strong {
+  color: #192c28 !important;
+}
+.shell .content :global(.notice) { color: #243c33; background: #eef4ee; border-color: #748c81; }
+.shell .content :global(.back-link),
+.shell .content td a:not(:global(.button)) {
+  color: #174e40;
+  text-decoration: underline;
+  text-underline-offset: .15em;
 }
 .shell .content p, .shell .content :global(.muted), .shell .content :global(.page-heading p) {
   color: #344b42;
