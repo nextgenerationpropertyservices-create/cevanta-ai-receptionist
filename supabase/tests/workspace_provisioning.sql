@@ -66,4 +66,86 @@ begin
  if result->>'status'<>'unavailable' then raise exception 'Existing member created workspace'; end if;
  reset role;
 end $$;
+-- CEV-SELF-SERVE-ALERTS: configured operator receives setup metadata for new signups only.
+do $$
+declare
+ operator_id uuid := '47000000-0000-4000-8000-000000000098';
+ operator_user uuid := '47000000-0000-4000-8001-000000000005';
+ client_user uuid := '47000000-0000-4000-8001-000000000002';
+ client_id uuid;
+ fixture_job_id uuid := gen_random_uuid();
+ input jsonb := jsonb_build_object(
+   'request_id', gen_random_uuid(), 'name', 'Fictional Setup Queue Electric',
+   'trade', 'Electrical', 'timezone', 'America/New_York');
+ result jsonb;
+ dashboard_on bool;
+ permitdesk_on bool;
+begin
+ insert into public.tenants(id,name,account_type) values(operator_id,'Fictional Internal','internal');
+ insert into public.memberships(tenant_id,user_id,role) values(operator_id,operator_user,'owner');
+ insert into onboarding_private.self_service_operator(operator_tenant_id) values(operator_id);
+
+ perform set_config('request.jwt.claim.sub',client_user::text,true);
+ set local role authenticated;
+ result := public.provision_owner_workspace(input);
+ if result->>'status' <> 'saved' then raise exception 'Queued provision failed'; end if;
+ client_id := (result->'workspace'->>'id')::uuid;
+ result := public.provision_owner_workspace(input);
+ if result->>'status' <> 'replayed' then raise exception 'Queued replay failed'; end if;
+ begin
+   perform public.list_self_service_clients(operator_id);
+   raise exception 'Contractor listed setup queue';
+ exception when insufficient_privilege then null; end;
+ begin
+   perform public.set_self_service_client_access(operator_id,client_id,false,false,null);
+   raise exception 'Contractor edited product access';
+ exception when insufficient_privilege then null; end;
+ reset role;
+ insert into public.jobs(id, tenant_id, submission_id, title, description)
+ values(fixture_job_id, client_id, gen_random_uuid(), 'Fictional setup queue job', 'Product access test fixture');
+ if exists(select 1 from public.managed_client_workspaces where client_tenant_id=client_id)
+   or exists(select 1 from public.memberships where tenant_id=client_id and user_id=operator_user)
+ then raise exception 'Self-service signup granted managed workspace access'; end if;
+
+ perform set_config('request.jwt.claim.sub',operator_user::text,true);
+ set local role authenticated;
+ result := public.list_self_service_clients(operator_id);
+ if jsonb_array_length(result) <> 1 or (result->0->>'id')::uuid <> client_id
+   or result->0->>'dashboard_enabled' is distinct from 'true'
+   or result->0->>'permitdesk_enabled' is distinct from 'false'
+ then raise exception 'Unexpected queue list or defaults'; end if;
+ if exists(select 1 from public.tenants where id=client_id) then
+   raise exception 'Setup operator has direct tenant read access';
+ end if;
+ begin
+   perform public.set_self_service_client_access(operator_id,gen_random_uuid(),true,false,null);
+   raise exception 'Operator edited a workspace outside the setup queue';
+ exception when insufficient_privilege then null; end;
+ for dashboard_on in select unnest(array[true,false]) loop
+   for permitdesk_on in select unnest(array[true,false]) loop
+     perform public.set_self_service_client_access(operator_id,client_id,dashboard_on,permitdesk_on,now()+interval '1 day');
+     result := public.list_self_service_clients(operator_id);
+     if (result->0->>'dashboard_enabled')::bool is distinct from dashboard_on
+       or (result->0->>'permitdesk_enabled')::bool is distinct from permitdesk_on
+     then raise exception 'Setup switches failed independently'; end if;
+     perform set_config('request.jwt.claim.sub',client_user::text,true);
+     if public.missed_call_available(client_id) is distinct from dashboard_on
+       or coalesce((
+         select enabled and expires_at > now()
+         from public.permit_workspace_access where tenant_id=client_id
+       ),false) is distinct from permitdesk_on
+     then raise exception 'Contractor permission differs from queue switch'; end if;
+     if public.has_reactivation_office_access(client_id) is distinct from dashboard_on then
+       raise exception 'Reactivation access differs from dashboard switch';
+     end if;
+     if not dashboard_on and public.delete_job(client_id,fixture_job_id)->>'status' is distinct from 'unavailable' then
+       raise exception 'Disabled dashboard allowed job deletion';
+     end if;
+     perform set_config('request.jwt.claim.sub',operator_user::text,true);
+   end loop;
+ end loop;
+ reset role;
+end;
+$$;
+
 rollback;
