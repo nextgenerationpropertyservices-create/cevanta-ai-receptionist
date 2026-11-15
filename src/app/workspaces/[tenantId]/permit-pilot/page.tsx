@@ -42,18 +42,16 @@ export default async function PermitPilotPage({ params, searchParams }: {
             <h3>{workspace.name}</h3>
             <p>{access}{workspace.expires_at && ` · Ends ${workspace.expires_at.slice(0, 10)} at 00:00 UTC`}</p>
             <input type="hidden" name="client" value={workspace.id} />
-            <label>Product access
-              <select name="mode" defaultValue={workspace.permitdesk_only ? "permits" : "bundle"}>
-                <option value="permits">PermitDesk only</option>
-                <option value="bundle">PermitDesk + existing dashboard plan</option>
-              </select>
-            </label>
+            <fieldset>
+              <legend>Dashboard access</legend>
+              <label><input type="checkbox" name="dashboard" defaultChecked={!workspace.permitdesk_only} /> Existing dashboard plan</label>
+              <label><input type="checkbox" name="permitdesk" defaultChecked={workspace.enabled && !workspace.expired} /> PermitDesk</label>
+            </fieldset>
             <label>Expiration date (00:00 UTC)
               <input name="expiry" type="date" defaultValue={workspace.expires_at?.slice(0, 10)} />
             </label>
             {inactive && <p>Workspace status is {workspace.status}.</p>}
-            <button className="button" name="command" value="enable" disabled={inactive}>Save and enable</button>
-            {workspace.enabled && <button className="button secondary" name="command" value="pause">Pause PermitDesk</button>}
+            <button className="button" name="command" value="save" disabled={inactive}>Save dashboard access</button>
           </form>;
         })}
       </section>

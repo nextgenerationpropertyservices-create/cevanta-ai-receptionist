@@ -298,7 +298,7 @@ export default async function ClientWorkspaces({ params, searchParams }: { param
           <thead><tr><th scope="col">Client</th><th scope="col">Dashboard plan</th><th scope="col">PermitDesk</th></tr></thead>
           <tbody>{clients.map(client => <tr key={client.id}>
             <th scope="row">{client.name}</th>
-            <td>{client.permitdesk_only ? "PermitDesk only" : ({
+            <td>{client.permitdesk_only ? "Off" : ({
               free: "Free Dashboard", dashboard_plus: "Dashboard Plus",
               managed_receptionist: "Managed Receptionist", unavailable: "Plan unavailable",
             }[client.plan] ?? "Plan unavailable")}</td>

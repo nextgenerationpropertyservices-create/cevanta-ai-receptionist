@@ -7,9 +7,11 @@ import { getWorkspaceRecord } from "@/lib/server/queries";
 
 const accessInput = z.object({
   client: z.string().uuid(),
-  command: z.enum(["enable", "pause"]),
+  command: z.enum(["enable", "pause", "save"]),
   expiry: z.string(),
-  mode: z.enum(["permits", "bundle"]),
+  mode: z.enum(["permits", "bundle"]).optional(),
+  dashboard: z.literal("on").optional(),
+  permitdesk: z.literal("on").optional(),
 });
 
 export async function setPermitPilotAccess(operatorId: string, form: FormData) {
@@ -18,7 +20,7 @@ export async function setPermitPilotAccess(operatorId: string, form: FormData) {
   const path = `/workspaces/${operatorId}/permit-pilot`;
   const input = accessInput.safeParse(Object.fromEntries(form));
   if (!input.success) redirect(`${path}?result=invalid`);
-  const enable = input.data.command === "enable";
+  const enable = input.data.command === "save" ? input.data.permitdesk === "on" : input.data.command === "enable";
   const date = input.data.expiry;
   const midnight = new Date(`${date}T00:00:00.000Z`);
   if (enable && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(+midnight) ||
@@ -28,7 +30,7 @@ export async function setPermitPilotAccess(operatorId: string, form: FormData) {
     client_id: input.data.client,
     enable_access: enable,
     end_at: enable ? midnight.toISOString() : null,
-    permits_only: input.data.mode === "permits",
+    permits_only: input.data.command === "save" ? input.data.dashboard !== "on" : input.data.mode === "permits",
   });
   redirect(`${path}?result=${error ? "error" : "saved"}`);
 }
