@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-FREE-TIER-173I
+- Work completed: Added a dedicated neutral unavailable-plan presentation in the authenticated workspace header, Overview, and Billing. An unavailable plan now says that verification is temporarily unavailable, assumes neither free nor managed service, shows no plan price or usage entitlement, and makes clear that connected automation remains unavailable. Free and managed branches are unchanged. Added focused coverage for all three presentation states.
+- Files changed: `src/components/workspace-shell.tsx`, `src/app/workspaces/[tenantId]/page.tsx`, `src/app/workspaces/[tenantId]/billing/page.tsx`, `tests/workspace-shell-ui.test.ts`, `tests/dashboard-ui.test.ts`, `tests/billing-ui.test.ts`, this handoff.
+- Database changes: None.
+- API or contract changes: None. This consumes the existing `WorkspacePlanSummary.plan = "unavailable"` contract.
+- Verification commands and results: Focused Vitest PASS (4 files, 19 tests); focused ESLint PASS; TypeScript `tsc --noEmit --incremental false` PASS. Production `next build --webpack` BLOCKED by the known OneDrive filesystem `EPERM` while creating `.next/static/chunks/app`; no compilation diagnostic was emitted before the filesystem failure.
+- Known limitations: No authenticated browser screenshot or hosted preview was available. This UI does not replace database enforcement of plan boundaries.
+- Risks: The unavailable Overview intentionally returns a minimal status panel rather than rendering operational widgets until plan verification succeeds.
+- Rollback notes: Revert the unavailable branches and their three focused tests; do not remove the underlying unavailable-plan server contract.
+- Exact next action: Morgan should integrate with CEV-FREE-TIER-173H, rerun the complete security suite and a production build outside OneDrive, then obtain Quinn and Atlas acceptance before release.

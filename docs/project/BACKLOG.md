@@ -1,5 +1,27 @@
 # Prioritized backlog
 
+## Active priorities — 2026-10-26
+
+This short list is the current operating backlog. The larger table below is retained as historical task evidence and may include older statuses that should not be used as the present product summary.
+
+| Priority | ID | Owner | Work | Status |
+| --- | --- | --- | --- | --- |
+| P0 | CEV-PROJECT-AUDIT-167A | Morgan | Whole-project review, integration, truth pass, and release evidence | In progress |
+| P0 | CEV-PROJECT-AUDIT-167B | Nova; Morgan/Quinn review | Product readiness groups and limited Lead Rescue Starter | Implemented locally; review/release pending |
+| P0 | CEV-PROJECT-AUDIT-167C | Quinn | Independent security, tenant-isolation, destructive-action, and claims review | In progress |
+| P0 | CEV-PROJECT-AUDIT-167D | Echo | Retell/Make/email/SMS/calendar/booking/billing/dispatch readiness matrix | In progress |
+| P0 | CEV-PROJECT-AUDIT-167E | Morgan; Echo/Quinn review | Replace global provider claims with workspace-specific recorded evidence | Implemented locally; review/release pending |
+| P0 | CEV-PROJECT-AUDIT-167G | Phoenix | Align hosted CI with the repository's maintained full check | Implemented locally; release pending |
+| P0 | CEV-PROJECT-AUDIT-167H | Atlas | Define trusted operator launch-evidence and provisioning-gate contract | In progress |
+| P0 | CEV-FIRST-CLIENT-E2E | Unassigned | Invitation → setup → payment request → Retell mapping → fictional call → one correct lead → rollback proof | Ready to scope after audit |
+| P1 | CEV-EMAIL-CALENDAR-EXEC | Unassigned | Actual approved email and external calendar execution with status, retries, dedupe, audit, and rollback | Not started |
+| P1 | CEV-OUTCOME-REPORTING | Unassigned | Calls, delivered leads, response time, confirmed appointments, unresolved requests, and failures from recorded evidence | Not started |
+| P1 | CEV-SMS-COMPLIANCE-EXEC | Unassigned | Registered sender, consent, opt-out, delivery/failure handling, and controlled SMS execution | Blocked on compliance/provider decisions |
+| P1 | CEV-QUOTE-FOLLOWUP | Unassigned | Approved source contract and human-reviewed quote follow-up workflow | Product design only |
+| P2 | CEV-BLUEPRINT-INTAKE | Unassigned | Secure document intake, reviewed extraction, retention, and estimator sign-off | Product design only |
+
+## Historical task ledger
+
 | Priority | ID | Owner | Work | Dependencies | Status |
 | --- | --- | --- | --- | --- | --- |
 | P0 | CEV-JOURNEY-GAP-37 | Morgan + all specialists | Full guided dashboard/onboarding journey gap audit and acceptance plan | Owner-confirmed product outcome | Accepted with limitations |

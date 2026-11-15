@@ -1,0 +1,22 @@
+# CEV-FREE-TIER-173H — Trusted-boundary enforcement repair
+
+- Status: assigned after CEV-FREE-TIER-173D/173F block
+- Owner: Blake (`backend_logic`)
+- Scope: Enforce free-plan restrictions at database RPC/table boundaries and guard Stripe provider-object creation for free clients.
+- Dependencies: CEV-FREE-TIER-173A contract, 173D security findings, 173F architecture review.
+- Allowed files:
+  - `supabase/migrations/202610310002_free_plan_trusted_boundaries.sql`
+  - `src/app/actions/stripe-payment-links.ts`
+  - `tests/stripe-payment-links.test.ts`
+  - `scripts/test-workspace-plans-embedded.mjs`
+  - `tests/workspace-plans-db.test.ts`
+  - `docs/project/handoffs/CEV-FREE-TIER-173H-blake.md`
+- Acceptance criteria:
+  - Direct authenticated reactivation RPCs reject free/unavailable plans before mutation.
+  - Direct automation-control inserts/updates for free workspaces are rejected by a database trigger using the row tenant.
+  - Direct authenticated Retell mapping register/pause RPCs reject free/unavailable plans before mutation.
+  - Stripe objects are not created for free/unavailable client plans.
+  - Managed-plan behavior and existing authorization remain unchanged.
+  - Stable failures contain no tenant/customer data and focused database/action tests pass.
+- Reviewers: Atlas and Quinn.
+- Required evidence: focused tests, embedded database check, typecheck/lint, handoff.

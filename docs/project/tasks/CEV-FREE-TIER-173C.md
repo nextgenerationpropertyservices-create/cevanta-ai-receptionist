@@ -1,0 +1,31 @@
+# CEV-FREE-TIER-173C — Free tier client experience
+
+- Status: ready after CEV-FREE-TIER-173A and 173B contracts are available
+- Owner: Nova (`frontend_ux`)
+- Scope: Add a clean free-plan experience using existing CRM routes, visible usage, contextual upgrade prompts, and a public free-tool signup path without changing the current landing page message unless explicitly required.
+- Dependencies: CEV-FREE-TIER-173A contract and CEV-FREE-TIER-173B query/action interfaces.
+- Allowed files:
+  - `src/app/free-tools/page.tsx`
+  - `src/app/sign-up/page.tsx`
+  - `src/app/workspaces/page.tsx`
+  - `src/app/workspaces/[tenantId]/layout.tsx`
+  - `src/app/workspaces/[tenantId]/page.tsx`
+  - `src/app/workspaces/[tenantId]/billing/page.tsx`
+  - `src/components/workspace-shell.tsx`
+  - `src/app/globals.css`
+  - `tests/free-tier-ui.test.ts`
+  - `tests/workspaces-page-ui.test.tsx`
+  - `tests/workspace-shell-ui.test.ts`
+  - `tests/billing-ui.test.ts`
+  - `tests/dashboard-ui.test.ts`
+  - `docs/project/handoffs/CEV-FREE-TIER-173C-nova.md`
+- Acceptance criteria:
+  - Public free-tool page clearly explains the free value and requires account/email verification through the existing auth flow.
+  - Signed-in users can see their plan, remaining free usage, and benefit-focused upgrade prompts.
+  - Paid/managed workspaces do not show misleading free limits.
+  - Locked automation features explain that activation requires an upgrade, approval, configuration, and testing.
+  - Responsive, keyboard-accessible, readable light/dark UI with loading, empty, and error-safe copy.
+  - No fake success state, payment collection, provider action, or marketing-consent assumption.
+- Reviewers: Morgan; Quinn for cross-module behavior.
+- Required evidence: focused UI tests, responsive/accessibility notes, typecheck/lint/build results, handoff using the project template.
+

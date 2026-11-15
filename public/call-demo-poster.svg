@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Cevanta AI receptionist call demo</title>
+  <desc id="desc">A fictional caller asks for help with an air conditioner, and an AI receptionist captures the request for office review.</desc>
+  <rect width="1280" height="720" fill="#102c3b"/>
+  <circle cx="1070" cy="100" r="220" fill="#16485c" opacity=".8"/>
+  <circle cx="100" cy="650" r="230" fill="#1d524e" opacity=".85"/>
+  <text x="86" y="112" fill="#dcff77" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="5">CEVANTA · SAMPLE CALL</text>
+  <text x="86" y="220" fill="#f4faf4" font-family="Arial, sans-serif" font-size="60" font-weight="700">Missed call →</text>
+  <text x="86" y="290" fill="#f4faf4" font-family="Arial, sans-serif" font-size="60" font-weight="700">clear next step</text>
+  <rect x="86" y="370" width="490" height="130" rx="18" fill="#19445a"/>
+  <text x="116" y="414" fill="#9fd3d3" font-family="Arial, sans-serif" font-size="21" font-weight="700">CALLER</text>
+  <text x="116" y="456" fill="#f4faf4" font-family="Arial, sans-serif" font-size="24">“My AC is not cooling.”</text>
+  <rect x="610" y="370" width="580" height="130" rx="18" fill="#1d524e"/>
+  <text x="640" y="414" fill="#dcff77" font-family="Arial, sans-serif" font-size="21" font-weight="700">AI RECEPTIONIST</text>
+  <text x="640" y="456" fill="#f4faf4" font-family="Arial, sans-serif" font-size="24">Details captured for office review.</text>
+  <text x="86" y="620" fill="#b9d0ca" font-family="Arial, sans-serif" font-size="22">Fictional example · Your team stays in control</text>
+</svg>

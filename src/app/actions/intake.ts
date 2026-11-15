@@ -5,9 +5,25 @@ import { OFFICE_ROLES } from "@/lib/contracts";
 import { leadSchema } from "@/lib/intake-validation";
 import { requireMembership, uuidSchema } from "@/lib/server/authorization";
 import type { ActionState } from "@/lib/server/action-state";
+import { FREE_ACTIVE_LEAD_LIMIT, FREE_ACTIVE_LEAD_LIMIT_MESSAGE, isFreePlanLimitError } from "@/lib/workspace-plans";
 
 function recordId(form: FormData, field: string) {
   return uuidSchema.parse(form.get(field));
+}
+const activeLeadStatuses = ["new", "contacted", "scheduled"] as const;
+async function preflightFreeLeadCapacity(client: Awaited<ReturnType<typeof requireMembership>>["client"], tenantId: string, targetId: string, editing: boolean, nextStatus: string) {
+  if (!activeLeadStatuses.includes(nextStatus as (typeof activeLeadStatuses)[number])) return false;
+  if (editing) {
+    const existing = await client.from("leads").select("status").eq("tenant_id", tenantId).eq("id", targetId).maybeSingle();
+    if (existing.error || !existing.data) throw new Error("Lead lookup failed.");
+    if (activeLeadStatuses.includes(existing.data.status as (typeof activeLeadStatuses)[number])) return false;
+  }
+  const tenant = await client.from("tenants").select("plan").eq("id", tenantId).single();
+  if (tenant.error || !tenant.data) throw new Error("Plan lookup failed.");
+  if (tenant.data.plan !== "free") return false;
+  const usage = await client.from("leads").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).in("status", [...activeLeadStatuses]);
+  if (usage.error) throw new Error("Lead usage lookup failed.");
+  return (usage.count ?? 0) >= FREE_ACTIVE_LEAD_LIMIT;
 }
 async function saveLead(form: FormData, editing: boolean): Promise<ActionState> {
   try {
@@ -30,9 +46,15 @@ async function saveLead(form: FormData, editing: boolean): Promise<ActionState> 
       const parent = await client.from("customers").select("id").eq("tenant_id", tenantId).eq("id", parsed.data.customer_id).maybeSingle();
       if (parent.error || !parent.data) throw new Error("Invalid customer.");
     }
+    if (await preflightFreeLeadCapacity(client, tenantId, targetId, editing, parsed.data.status)) {
+      return { status: "error", message: FREE_ACTIVE_LEAD_LIMIT_MESSAGE };
+    }
     const result = editing
       ? await client.from("leads").update({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, description: parsed.data.description, priority: parsed.data.priority, status: parsed.data.status, follow_up_date: parsed.data.follow_up_date }).eq("tenant_id", tenantId).eq("id", targetId).select("id").single()
       : await client.from("leads").insert({ ...parsed.data, tenant_id: tenantId, submission_id: targetId }).select("id").single();
+    if (isFreePlanLimitError(result.error, "free_plan_active_lead_limit")) {
+      return { status: "error", message: FREE_ACTIVE_LEAD_LIMIT_MESSAGE };
+    }
     if (!editing && result.error?.code === "23505") {
       const existing = await client.from("leads").select("id").eq("tenant_id", tenantId).eq("submission_id", targetId).maybeSingle();
       if (existing.error || !existing.data) throw new Error("Save failed.");

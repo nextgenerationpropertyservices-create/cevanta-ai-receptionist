@@ -69,14 +69,24 @@ async function saveJob(form:FormData,editing:boolean):Promise<ActionState> {
 }
 export async function createJob(_previous:ActionState,form:FormData):Promise<ActionState>{return saveJob(form,false);}
 export async function updateJob(_previous:ActionState,form:FormData):Promise<ActionState>{return saveJob(form,true);}
+type DeleteJobStatus = "deleted" | "protected" | "unavailable";
+const parseDeleteJobStatus=(value:unknown):DeleteJobStatus|null=>{
+ if(!value || typeof value!=="object" || Array.isArray(value)) return null;
+ const record=value as Record<string,unknown>;
+ if(Object.keys(record).length!==1 || typeof record.status!=="string") return null;
+ return (["deleted","protected","unavailable"] as const).includes(record.status as DeleteJobStatus)
+  ? record.status as DeleteJobStatus
+  : null;
+};
 export async function deleteJob(_previous:ActionState,form:FormData):Promise<ActionState>{
  try {
   const tenantId=uuidSchema.parse(form.get("tenantId"));
   const {client}=await requireMembership(tenantId,OFFICE_ROLES);
   const jobId=uuidSchema.parse(form.get("jobId"));
-  const result=await client.from("jobs").delete().eq("tenant_id",tenantId).eq("id",jobId).select("id").single();
-  if(missing(result.error?.code)) return {status:"error",message:"Jobs need their database migration before deleting."};
-  if(result.error || !result.data) return {status:"error",message:"Unable to delete this job. It may already be removed or linked to records that must be handled first."};
+  const result=await client.rpc("delete_job",{target_tenant:tenantId,target_job:jobId});
+  const status=result.error?null:parseDeleteJobStatus(result.data);
+  if(status==="protected") return {status:"error",message:"Unable to delete this job because it is linked to records that must be handled first."};
+  if(status!=="deleted") return {status:"error",message:"Unable to delete this job. Check your permissions, then try again."};
   revalidatePath(`/workspaces/${tenantId}/jobs`);
   revalidatePath(`/workspaces/${tenantId}/calendar`);
   revalidatePath(`/workspaces/${tenantId}/notifications`);

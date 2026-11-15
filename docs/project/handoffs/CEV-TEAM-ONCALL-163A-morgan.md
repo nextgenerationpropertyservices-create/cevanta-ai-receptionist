@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-TEAM-ONCALL-163A
+- Work completed: Marked Atlas Architecture/Data and Phoenix DevOps/Release as on-call roles. Their role instructions now state the specific architecture and release conditions that should trigger engagement. Morgan, Nova, Blake, Echo and Quinn remain the normal active project team.
+- Files changed: `.codex/agents/architect_data.toml`, `.codex/agents/devops_release.toml`, `docs/project/tasks/CEV-TEAM-ONCALL-163A.md`, `docs/project/PROJECT_STATUS.md`, this handoff.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: Read back both TOML definitions and the project-status entry; PASS. Application typecheck, lint, tests and build were not run because this is a team-configuration/documentation-only change.
+- Known limitations: The on-call label is organizational guidance; it does not disable the role definitions or forcibly stop any separately running chat.
+- Risks: A future task that changes schema, shared contracts, deployment or release configuration must still engage the relevant on-call role before implementation or release.
+- Rollback notes: Remove the `ON-CALL ROLE` lines and restore the two descriptions if the team should return to seven always-active roles; revert the task/status/handoff records only as a coordinated documentation rollback.
+- Exact next action: Use the five-role active team for routine work and engage Atlas or Phoenix only when their on-call triggers apply.

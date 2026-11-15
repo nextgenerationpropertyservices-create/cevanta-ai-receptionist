@@ -23,15 +23,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm agents:validate
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm test
-      - run: pnpm test:db:embedded
-      - run: pnpm test:intake:db
-      - run: pnpm test:jobs:db
-      - run: pnpm test:appointments:db
-      - run: pnpm build
+      - name: Validate agent definitions
+        run: pnpm agents:validate
+      - name: Run full application, embedded database, and production build checks
+        run: pnpm check
 
   tenant-isolation:
     runs-on: ubuntu-latest

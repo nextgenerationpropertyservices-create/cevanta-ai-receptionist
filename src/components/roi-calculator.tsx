@@ -40,17 +40,19 @@ export function RoiCalculator({
   const netEstimate = recoveredEstimate - inputs.monthlyCost;
 
   const update = (key: keyof RoiInputs, min: number, max: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs(current => ({ ...current, [key]: safeNumber(event.currentTarget.value, current[key], min, max) }));
+    const value = event.currentTarget.value;
+    setInputs(current => ({ ...current, [key]: safeNumber(value, current[key], min, max) }));
   };
 
   return (
     <div className="roi-card roi-editor">
-      <span className="eyebrow">RECOVERED LOSS SNAPSHOT</span>
+      <span className="roi-caption">Estimated recovered revenue</span>
       <strong>{money.format(recoveredEstimate)}</strong>
       <p>
         Estimated recovered revenue from {capturedLeadCount} AI-captured lead{capturedLeadCount === 1 ? "" : "s"}.
-        Adjust the numbers below to match your business.
       </p>
+      <details className="roi-assumptions">
+      <summary>Adjust assumptions</summary>
       <div className="roi-fields" aria-label="Editable ROI assumptions">
         <label>
           <span>Average job value</span>
@@ -70,6 +72,8 @@ export function RoiCalculator({
           ? `${money.format(netEstimate)} estimated after ${money.format(inputs.monthlyCost)} monthly pilot cost.`
           : `Needs ${money.format(Math.abs(netEstimate))} more recovered value to cover the monthly pilot.`} This is an estimator only.
       </small>
+      </details>
+      <span className="roi-estimate-note">Estimate only · Based on your assumptions</span>
     </div>
   );
 }

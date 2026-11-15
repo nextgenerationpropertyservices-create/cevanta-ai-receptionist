@@ -11,6 +11,10 @@ playwright-report/
 .worktrees/
 .pnpm-store/
 desktop-resources/
+.deploy-worktree/
+demo-video-output/
+tools/downloads/
+tools/ffmpeg/
 docs/**/*.png
 docs/**/*.jpg
 docs/**/*.jpeg

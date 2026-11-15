@@ -1,0 +1,16 @@
+# Agent handoff
+- Task ID: CEV-FREE-TIER-173E
+- Work completed: Updated both authenticated Retell lead-ingress paths to recognize the trusted database `plan_restricted` result. A restricted event now returns HTTP 403 with `{ status: "plan_restricted", persisted: false, bookingCreated: false }` instead of falling through to a retryable error or claiming success. Existing signature, mapping, validation, duplicate, retry, and disabled-writer behavior is unchanged. Added focused coverage for both routes.
+- Files changed: `src/app/api/integrations/retell/route.ts`, `src/app/api/integrations/make/retell-lead/route.ts`, `tests/retell-lead-writer.test.ts`, `tests/make-retell-lead-ingress.test.ts`, `docs/project/handoffs/CEV-FREE-TIER-173E-echo.md`.
+- Database changes: None in this task. This implementation depends on CEV-FREE-TIER-173B returning `{ status: "plan_restricted" }` before any lead or outbox write.
+- API or contract changes: Both ingress endpoints add one safe response state for free-plan rejection: HTTP 403, `status = plan_restricted`, `persisted = false`, and `bookingCreated = false`.
+- Verification commands and results:
+  - `pnpm test -- tests/retell-lead-writer.test.ts tests/make-retell-lead-ingress.test.ts` — BLOCKED before tests by the known OneDrive pnpm project-registration symlink `EPERM`.
+  - `node_modules/.bin/vitest.cmd run tests/retell-lead-writer.test.ts tests/make-retell-lead-ingress.test.ts` — PASS, 2 files and 26 tests.
+  - `node_modules/.bin/eslint.cmd` on both routes and both focused tests — PASS (no findings).
+  - `node_modules/.bin/tsc.cmd --noEmit` — BLOCKED by concurrent CEV-FREE-TIER-173C edits: `tests/workspace-shell-ui.test.ts` fixtures were temporarily missing the new required `Tenant.plan`; no type error was reported in this task's files.
+  - Production build and live-provider tests — not run in this specialist slice; coordinator integration verification remains required.
+- Known limitations: Route-level tests mock the database result. They do not prove the new database plan guard, hosted migration state, Retell delivery, Make delivery, or absence of side effects inside the live database function. Those require CEV-FREE-TIER-173B database evidence and Quinn's security review.
+- Risks: If the database migration does not return the exact `plan_restricted` status before writes, the route cannot enforce the entitlement by itself. The route intentionally trusts the tenant-safe database mapping rather than accepting a client-supplied tenant or plan.
+- Rollback notes: Remove the `plan_restricted` member from each response schema, remove its HTTP 403 mapping branch, and remove the two table-driven test cases. No data rollback is needed.
+- Exact next action: Morgan should integrate this with CEV-FREE-TIER-173B, run the complete free-plan database and route suites, obtain Quinn security review, and verify that a mapped free workspace creates no lead or notification before accepting the feature.

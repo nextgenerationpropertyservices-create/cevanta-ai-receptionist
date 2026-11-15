@@ -5,6 +5,7 @@ import { unstable_rethrow } from "next/navigation";
 import { automationControlSchema, AUTOMATION_CONTROL_DEFINITIONS } from "@/lib/automation-controls";
 import { requireAutomationControlManager } from "@/lib/server/automation-control-queries";
 import type { ActionState } from "@/lib/server/action-state";
+import { getAuthoritativeWorkspacePlan, FREE_PLAN_LOCKED_MESSAGE } from "@/lib/workspace-plans";
 
 const missing = (code?: string) => code === "42P01" || code === "PGRST205";
 
@@ -28,6 +29,8 @@ export async function saveAutomationControl(_previous: ActionState, form: FormDa
     const definition = AUTOMATION_CONTROL_DEFINITIONS.find(item => item.capability === input.capability);
     if (!definition) return { status: "error", message: "Unknown automation option." };
     const { client, user } = await requireAutomationControlManager(input.tenantId);
+    const plan = await getAuthoritativeWorkspacePlan(client, input.tenantId);
+    if (plan === null || plan === "free") return { status: "error", message: FREE_PLAN_LOCKED_MESSAGE };
     const mutablePayload = {
       requested: input.requested,
       client_visible: input.client_visible,

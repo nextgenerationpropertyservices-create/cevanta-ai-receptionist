@@ -1,0 +1,11 @@
+# Agent handoff
+- Task ID: CEV-DASHBOARD-POLISH-149A
+- Work completed: Polished the shared dashboard shell and overview presentation. Added explicit Internal operations / Client workspace context, a compact count on the More menu, keyboard-friendly focus and hover treatment for clickable overview widgets, direct attention-queue actions, and internal owner shortcuts for onboarding and launch readiness. Added mobile rules so the top bar and secondary navigation remain readable without page-wide horizontal overflow.
+- Files changed: `src/components/workspace-shell.tsx`, `src/components/workspace-nav.tsx`, `src/app/workspaces/[tenantId]/page.tsx`, `src/app/globals.css`, `tests/dashboard-ui.test.ts`, `tests/workspace-shell-ui.test.ts`.
+- Database changes: None.
+- API or contract changes: None.
+- Verification commands and results: `pnpm test -- tests/dashboard-ui.test.ts tests/workspace-shell-ui.test.ts` PASS (49 files, 882 tests under the configured runner); `pnpm typecheck` PASS; `pnpm lint` PASS; `pnpm build` BLOCKED by a repeatable Next.js 16 Turbopack process panic while parsing `src/app/globals.css` (`creating new process`, exit code 0). `pnpm exec next build --webpack` compiled and completed TypeScript, then was blocked by a Windows/OneDrive `EPERM` creating `.next/server/app/_not-found.segments/_not-found` during prerender. No application type or compile error was reported.
+- Known limitations: Authenticated browser review was not available in this turn. The build blocker is environment/tooling-level and should be retried in the normal release environment or with the repository's approved non-Turbopack build path.
+- Risks: The new context badge and mobile layout change shared shell geometry on narrow screens; verify a real client and internal workspace at phone width before production release.
+- Rollback notes: Revert the dashboard polish additions in the six files above. Data, permissions, and provider integrations are unaffected.
+- Exact next action: Open an authenticated preview at desktop and narrow mobile widths, then request explicit owner approval before production deployment.

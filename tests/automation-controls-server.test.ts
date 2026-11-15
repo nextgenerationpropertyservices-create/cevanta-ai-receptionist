@@ -4,6 +4,7 @@ const harness = vi.hoisted(() => ({
   requireMembership: vi.fn(),
   revalidate: vi.fn(),
   calls: [] as { table: string; method: string; args: unknown[] }[],
+  plan: "managed_receptionist" as string | null,
 }));
 
 vi.mock("@/lib/server/authorization", () => ({ requireMembership: harness.requireMembership }));
@@ -30,7 +31,7 @@ function clientWithResponses(responses: unknown[]) {
       insert: (...args: unknown[]) => { harness.calls.push({ table, method: "insert", args }); return clientWithResponses(responses).from(table); },
       update: (...args: unknown[]) => { harness.calls.push({ table, method: "update", args }); return clientWithResponses(responses).from(table); },
       maybeSingle: async () => responses.shift(),
-      single: async () => responses.shift(),
+      single: async () => table === "tenants" ? { data: { plan: harness.plan }, error: null } : responses.shift(),
       then: (resolve: (value: unknown) => unknown) => Promise.resolve(responses.shift()).then(resolve),
     }),
   };
@@ -40,6 +41,7 @@ beforeEach(() => {
   harness.requireMembership.mockReset();
   harness.revalidate.mockReset();
   harness.calls = [];
+  harness.plan = "managed_receptionist";
 });
 
 describe("automation-control server boundaries", () => {
@@ -72,5 +74,16 @@ describe("automation-control server boundaries", () => {
     expect(result.status).toBe("success");
     expect(harness.calls.some(call => call.method === "update" && JSON.stringify(call.args).includes("tenant_id"))).toBe(false);
     expect(harness.revalidate).toHaveBeenCalledWith(`/workspaces/${tenant}`, "layout");
+  });
+
+  it.each(["free", null])("blocks %s plan before automation-control mutation", async plan => {
+    harness.plan = plan;
+    harness.requireMembership.mockResolvedValue({ client: clientWithResponses([]), role: "owner", user: { id: user } });
+
+    const result = await saveAutomationControl(idle, form({ tenantId: tenant, capability: "sms", requested: true, client_visible: true, owner_approved: false, activation_state: "testing", test_evidence: "tested", rollback_plan: "pause it", provider_notes: "" }));
+
+    expect(result.status).toBe("error");
+    expect(harness.calls.some(call => call.method === "insert" || call.method === "update")).toBe(false);
+    expect(harness.revalidate).not.toHaveBeenCalled();
   });
 });

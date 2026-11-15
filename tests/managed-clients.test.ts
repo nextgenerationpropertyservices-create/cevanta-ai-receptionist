@@ -5,12 +5,16 @@ const harness = vi.hoisted(() => ({
   list: vi.fn(),
   snapshot: vi.fn(),
   rpc: vi.fn(),
+  milestones: vi.fn(),
+  freeUsers: vi.fn(),
   redirect: vi.fn((path: string) => { throw new Error(`NEXT_REDIRECT:${path}`); }),
   configured: true,
 }));
 
 vi.mock("@/lib/server/queries", () => ({ getManagedClientWorkspaces: harness.list }));
 vi.mock("@/lib/server/onboarding-rpc", () => ({ getOnboardingSnapshot: harness.snapshot }));
+vi.mock("@/lib/server/onboarding-milestones", () => ({ getOnboardingMilestones: harness.milestones }));
+vi.mock("@/lib/server/free-tool-users", () => ({ FREE_TOOL_USERS_PAGE_SIZE: 50, getFreeToolUsers: harness.freeUsers }));
 vi.mock("@/lib/supabase/config", () => ({ isSupabaseConfigured: () => harness.configured }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ rpc: harness.rpc }) }));
 vi.mock("next/navigation", () => ({ redirect: harness.redirect }));
@@ -42,9 +46,9 @@ function form(overrides: Record<string, string> = {}) {
   return data;
 }
 
-async function renderClients(payload: unknown) {
+async function renderClients(payload: unknown, stage?: string, q?: string, queryOverrides: Record<string, string> = {}) {
   harness.list.mockResolvedValue(payload);
-  return renderToStaticMarkup(await Page({ params: Promise.resolve({ tenantId: operatorTenant }) }));
+  return renderToStaticMarkup(await Page({ params: Promise.resolve({ tenantId: operatorTenant }), searchParams: Promise.resolve({ ...queryOverrides, ...(stage ? { stage } : {}), ...(q ? { q } : {}) }) }));
 }
 
 beforeEach(() => {
@@ -52,6 +56,8 @@ beforeEach(() => {
   harness.configured = true;
   harness.snapshot.mockResolvedValue({ status: "available", snapshot: { projection: "owner_setup", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York" }, flow_version: "onboarding-v1", config_revision: 3, profile: { business_contact_name: "Fictional Owner", business_email: "owner@example.invalid", business_phone: null }, services: [{ id: "30000000-0000-4000-8000-000000000001", name: "Heating", description: "Fictional service", enabled: true, position: 0, version: 1 }], weekly_hours: [], exceptions: [], booking: { mode: "request_only", lead_time_minutes: null, buffer_before_minutes: null, buffer_after_minutes: null, horizon_days: null, notes: "Office review. Service area: Lewiston and Auburn. Never promise confirmed appointments or exact pricing.", acknowledged: true }, escalation: [], resume_step: "booking", resume_version: 1, readiness: { configuration_state: "not_evaluated", manual_workspace_state: "not_evaluated", reason: "setup_policy_pending", next_action: "platform_operator", booking_state: "blocked", release_state: "not_evaluated", hostedReady: false, providerConnectionAuthorized: false } } });
   harness.rpc.mockResolvedValue({ data: { status: "saved", workspace: { id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", account_type: "client", status: "onboarding" } }, error: null });
+  harness.milestones.mockResolvedValue(new Map());
+  harness.freeUsers.mockResolvedValue({ rows: [], hasNext: false });
 });
 
 describe("managed client workspace dashboard", () => {
@@ -67,9 +73,14 @@ describe("managed client workspace dashboard", () => {
     expect(harness.snapshot).toHaveBeenCalledWith(clientTenant);
     expect(html).toContain("Internal owner operations dashboard");
     expect(html).toContain("OWNER PRIORITY QUEUE");
+    expect(html).toContain("Filter clients by onboarding stage");
+    expect(html).toContain("Find a client");
+    expect(html).toContain(`href="/workspaces/${operatorTenant}/clients?stage=setup"`);
     expect(html).toContain("Paperwork, launch, payment, and support monitor");
     expect(html).toContain("CLIENT INTAKE DETAILS");
     expect(html).toContain("What each client has filled out");
+    expect(html).toContain("Payment");
+    expect(html).toContain("Save milestones");
     expect(html).toContain("PRIVATE CLIENT ACCESS");
     expect(html).toContain("Create private invite");
     expect(html).toContain("The client must confirm this Cevanta account first");
@@ -89,6 +100,9 @@ describe("managed client workspace dashboard", () => {
     expect(html).toContain(`/workspaces/${clientTenant}/integrations`);
     expect(html).toContain("does not connect Retell, enable Make, send messages, write calendars, dispatch technicians, book appointments, quote work, collect payments or start billing");
     expect(html).toContain("Create client workspace");
+    expect(html).toContain("MANUAL STRIPE REQUEST");
+    expect(html).toContain("Create Stripe payment link");
+    expect(html).toContain("one-time Stripe-hosted request");
     expect(html).toContain("Remove a client workspace");
     expect(html).toContain("Type DELETE WORKSPACE to confirm");
     expect(html).toContain("LAUNCH CONTROL");
@@ -96,12 +110,96 @@ describe("managed client workspace dashboard", () => {
     expect(html).not.toMatch(/service-role|secret|webhook|api key|billing started|booking confirmed/i);
   });
 
+  it("ignores legacy payment-result query values instead of rendering them", async () => {
+    const html = await renderClients({
+      operator,
+      role: "owner",
+      allowed: true,
+      clients: [{ id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", status: "onboarding", created_at: "2026-10-11T00:00:00.000Z", updated_at: "2026-10-11T00:00:00.000Z" }],
+    }, undefined, undefined, {
+      payment_link: "https://buy.stripe.com/query-value-must-not-render",
+      payment_client: "Injected client name",
+      payment_type: "Injected payment label",
+      payment_amount: "999999.99",
+    });
+
+    expect(html).not.toContain("query-value-must-not-render");
+    expect(html).not.toContain("Injected client name");
+    expect(html).not.toContain("Injected payment label");
+    expect(html).not.toContain("999999.99");
+  });
+
+  it("filters the priority queue and intake cards by onboarding stage", async () => {
+    const html = await renderClients({
+      operator,
+      role: "owner",
+      allowed: true,
+      clients: [{ id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", status: "onboarding", created_at: "2026-10-11T00:00:00.000Z", updated_at: "2026-10-11T00:00:00.000Z" }],
+    }, "live");
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain("No live workspaces");
+    expect(html).toContain("0 shown · Internal review");
+  });
+
+  it("promotes a client to live only when the persisted launch gates are complete", async () => {
+    harness.milestones.mockResolvedValue(new Map([[clientTenant, {
+      payment_status: "paid",
+      setup_status: "complete",
+      test_call_status: "passed",
+      retell_status: "verified",
+      make_status: "verified",
+      launch_approval_status: "approved",
+      updated_at: "2026-10-20T00:00:00.000Z",
+    }]]));
+    const html = await renderClients({
+      operator,
+      role: "owner",
+      allowed: true,
+      clients: [{ id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", status:
+        "onboarding", created_at: "2026-10-11T00:00:00.000Z", updated_at: "2026-10-11T00:00:00.000Z" }],
+    }, "live");
+    expect(html).toContain("Northstar HVAC");
+    expect(html).toContain("1 shown · Internal review");
+    expect(html).not.toContain("No live workspaces");
+  });
+
+  it("keeps search state in the filtered client view", async () => {
+    const html = await renderClients({ operator, role: "owner", allowed: true, clients: [{ id: clientTenant, name: "Northstar HVAC", trade: "HVAC", timezone: "America/New_York", status: "onboarding", created_at: "2026-10-11T00:00:00.000Z", updated_at: "2026-10-11T00:00:00.000Z" }] }, "setup", "Northstar");
+    expect(html).toContain('value="Northstar"');
+    expect(html).toContain("Northstar HVAC");
+    expect(html).toContain('name="stage" value="setup"');
+  });
+
   it("keeps non-internal or limited roles from seeing the create form", async () => {
     const html = await renderClients({ operator: { ...operator, account_type: "client" }, role: "admin", allowed: false, clients: [] });
     expect(html).toContain("Internal access required");
     expect(html).toContain("Return to dashboard");
     expect(harness.snapshot).not.toHaveBeenCalled();
+    expect(harness.freeUsers).not.toHaveBeenCalled();
     expect(html).not.toMatch(/Create client workspace|name="name"|operator_tenant_id|request_id/);
+  });
+
+  it("shows verified signup and recorded use separately with the current plan", async () => {
+    harness.freeUsers.mockResolvedValue({
+      rows: [{
+        workspace_id: clientTenant,
+        workspace_name: "Fictional Trade Shop",
+        email: "trade-owner@example.invalid",
+        signed_up_at: "2026-11-01T12:00:00Z",
+        last_opened_at: null,
+        last_tool_activity_at: "2026-11-02T12:00:00Z",
+        tools_used: ["leads", "jobs"],
+        plan: "dashboard_plus",
+      }],
+      hasNext: true,
+    });
+    const html = await renderClients({ operator, role: "owner", allowed: true, clients: [] }, "setup", "Northstar", { freePage: "2" });
+    expect(harness.freeUsers).toHaveBeenCalledWith(operatorTenant, 50);
+    expect(html).toContain("trade-owner@example.invalid");
+    expect(html).toContain("None recorded");
+    expect(html).toContain("Leads, Jobs");
+    expect(html).toContain("Dashboard Plus");
+    expect(html).toContain("freePage=3#free-tool-users");
   });
 });
 

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { automationStateLabel } from '@/lib/automation-controls';
 import { getAutomationControls } from '@/lib/server/automation-control-queries';
 import {getWorkspace} from '@/lib/server/queries';
+import {getWorkspacePlanSummary} from '@/lib/server/workspace-plan-queries';
 
 const paymentExpectations = [
   'The current pilot offer is $497 setup plus $297 per month.',
@@ -18,10 +19,19 @@ const disabled = [
 
 export default async function BillingPage({params}:{params:Promise<{tenantId:string}>}) {
  const {tenantId}=await params;
- const {tenant,role}=await getWorkspace(tenantId);
+ const [{tenant,role},planSummary]=await Promise.all([getWorkspace(tenantId),getWorkspacePlanSummary(tenantId)]);
+ const base=`/workspaces/${tenant.id}`;
+ if (planSummary.plan === 'unavailable') return <>
+  <div className="page-heading"><span className="eyebrow">BILLING</span><h1>Plan information is temporarily unavailable.</h1><p>We cannot safely show pricing or plan benefits until this workspace&apos;s plan is verified.</p></div>
+  <section className="panel" role="status"><span className="eyebrow">NO PLAN ASSUMED</span><h2>Billing and connected services remain unchanged.</h2><p>This page has not assumed a free or managed plan. No payment, subscription, messaging, booking, calendar, or dispatch action was started.</p><div className="button-row"><Link className="button secondary" href={base}>Return to overview</Link><Link className="button secondary" href={`${base}/manual`}>Open the dashboard guide</Link></div></section>
+ </>;
+ if (planSummary.plan === 'free') return <>
+  <div className="page-heading"><span className="eyebrow">BILLING</span><h1>Your free Cevanta workspace.</h1><p>Use the dashboard at no charge and upgrade only when managed answering or connected automation is a good fit.</p></div>
+  <section className="front-office-hero"><div><span className="eyebrow">CURRENT PLAN</span><h2>$0/month</h2><p>No payment method is required. Your free workspace includes customer records, manual jobs, the internal calendar, reports, up to 50 active leads, and up to two technician roster entries.</p><div className="button-row"><Link className="button secondary" href={`${base}/manual`}>Read the dashboard guide ↗</Link><Link className="button secondary" href={`${base}`}>Return to overview</Link></div></div><div className="roi-card"><span className="eyebrow">CURRENT USAGE</span><strong>{planSummary.remaining.activeLeads}</strong><p>active lead spaces remaining</p><small>{planSummary.usage.technicianRoster} of {planSummary.limits.technicianRoster} technician roster spots used.</small></div></section>
+  <div className="split-layout"><section className="panel"><span className="eyebrow">INCLUDED FREE</span><h2>Run the manual front office</h2><ul className="setup-readiness-list"><li>Customer, location, and equipment records.</li><li>Manual leads, jobs, follow-up, and internal calendar.</li><li>Reports and an editable ROI estimator.</li><li>No trial deadline and no automatic charge.</li></ul></section><section className="panel"><span className="eyebrow">UPGRADE WHEN READY</span><h2>Add managed services later</h2><p>AI phone answering, SMS/email, external calendar writes, live booking, payment collection, automatic dispatch, and reactivation are not active on the free plan.</p><p>Activation requires the right plan, owner approval, provider configuration, a successful test, and a rollback plan.</p><Link className="button" href={`${base}/integrations`}>Review available upgrades ↗</Link></section></div>
+ </>;
  const {controls,canManage}=await getAutomationControls(tenantId);
  const paymentControls=controls.filter(control => control.capability === 'payment_collection' || control.capability === 'subscription_billing');
- const base=`/workspaces/${tenant.id}`;
  return <>
   <div className="page-heading"><span className="eyebrow">BILLING</span><h1>Your Cevanta pilot billing.</h1><p>See the current pilot price, what is included, and which payment features still require approval before they go live.</p></div>
   <section className="front-office-hero"><div><span className="eyebrow">CURRENT PILOT PLAN</span><h2>$497 setup + $297/month</h2><p>{tenant.name} is on a managed pilot path. The setup fee covers guided setup and readiness review. The monthly pilot covers dashboard access, office-review workflow, and managed support while live automation remains controlled.</p><div className="button-row"><Link className="button secondary" href={`${base}/manual`}>Read billing guide ↗</Link><Link className="button secondary" href={`${base}/integrations`}>Review payment options ↗</Link><Link className="button secondary" href={`${base}/go-live`}>Go Live billing gates ↗</Link></div></div><div className="roi-card"><span className="eyebrow">PAYMENT STATUS</span><strong>Manual confirmation</strong><p>Your operator confirms payment outside this dashboard using an approved invoice or payment link. Cevanta does not collect card details on this page.</p><small>Your access: {role}. Billing visibility does not change workspace permissions.</small></div></section>

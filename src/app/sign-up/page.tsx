@@ -10,9 +10,9 @@ export default function SignUp() {
     <main id="main" className="auth-page">
       <Brand />
       <div className="auth-card panel">
-        <span className="eyebrow">START YOUR WORKSPACE</span>
-        <h1>Create your owner account.</h1>
-        <p>Use this to set up the first workspace for an HVAC receptionist demo.</p>
+        <span className="eyebrow">START FREE</span>
+        <h1>Create your workspace.</h1>
+        <p>Organize leads, customers, jobs, and your field team in one free workspace for your service business.</p>
         <ActionForm action={signUp} submitLabel="Create account">
           <Field label="Email address" name="email" type="email" required autoComplete="email" />
           <Field label="Password" name="password" type="password" required maxLength={256} autoComplete="new-password" />
@@ -21,7 +21,7 @@ export default function SignUp() {
         <p>
           <Link className="button secondary" href="/sign-in">I already have an account</Link>
         </p>
-        <p className="small muted">After email confirmation, sign in and create your workspace.</p>
+        <p className="small muted">No credit card required. Confirm your email, then sign in and create your workspace. Creating an account does not enroll you in marketing messages.</p>
       </div>
     </main>
   );

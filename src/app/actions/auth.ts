@@ -1,11 +1,13 @@
 "use server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { signInSchema, signUpSchema, workspaceProvisionSchema } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { ActionState } from "@/lib/server/action-state";
 import { passwordRecoveryOrigin } from "@/lib/server/password-recovery-origin";
+import { INVITATION_CONTINUATION_COOKIE } from "@/lib/server/invitation-continuations";
 
 function signInFailure(error: unknown): ActionState {
   const metadata = error && typeof error === "object" ? error as { code?: unknown; status?: unknown } : {};
@@ -45,7 +47,8 @@ export async function signIn(_previous: ActionState, form: FormData): Promise<Ac
     console.warn("[auth.signIn]", { category: "unavailable" });
     return { status: "error", message: "Sign-in is temporarily unavailable. Please try again." };
   }
-  redirect("/workspaces");
+  const hasInvitationContinuation = (await cookies()).has(INVITATION_CONTINUATION_COOKIE);
+  redirect(hasInvitationContinuation ? "/invite/continue" : "/workspaces");
 }
 
 function signUpFailure(error: unknown): ActionState {

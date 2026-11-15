@@ -1,0 +1,29 @@
+# Agent handoff
+
+- **Task ID:** CEV-AI-SEARCH-168A
+- **Work completed:** Upgraded the public landing surface for conventional and AI-powered search while preserving the current operator-reviewed product boundary. Added stable production metadata, canonical/social fields, public-only robots and sitemap routes, crawlable service/audience/control explanations, a visible FAQ, and sanitized JSON-LD for the organization, managed answering service, office-review dashboard, and the same visible FAQ answers. Googlebot, Bingbot, and OAI-SearchBot may crawl the public root/demo while authenticated, setup, invitation, recovery, workspace, and API paths are disallowed. No `llms.txt`, hidden keyword block, invented rating, customer count, location, price, or unsupported automation claim was added.
+- **Files changed:**
+  - `src/app/layout.tsx`
+  - `src/app/page.tsx`
+  - `src/components/ui.tsx`
+  - `src/app/globals.css`
+  - `src/app/robots.ts`
+  - `src/app/sitemap.ts`
+  - `tests/landing-page.test.ts`
+  - `tests/seo-metadata.test.ts`
+  - `docs/project/handoffs/CEV-AI-SEARCH-168A-nova.md`
+- **Database changes:** None.
+- **API or contract changes:** Added static public `/robots.txt` and `/sitemap.xml` metadata routes. The public root now exports canonical metadata and sanitized JSON-LD. No authenticated API, provider, database, or dashboard contract changed.
+- **Verification commands and results:**
+  - `node node_modules/vitest/vitest.mjs run --configLoader native tests/landing-page.test.ts tests/seo-metadata.test.ts tests/pwa-install.test.ts` — PASS, 3 files / 11 tests.
+  - `node node_modules/typescript/bin/tsc --noEmit` — PASS.
+  - `node node_modules/eslint/bin/eslint.js <owned TS/TSX/test files>` — PASS.
+  - `node node_modules/vitest/vitest.mjs run --configLoader native` — PASS, 57 files / 961 tests.
+  - Workspace `next build --webpack` — BLOCKED by the known OneDrive `EPERM` while creating `.next/server/app/auth`; not counted as pass.
+  - Fresh non-OneDrive copy `node node_modules/next/dist/bin/next build --webpack` — PASS outside the restricted filesystem; 18 static pages generated, including `/`, `/robots.txt`, and `/sitemap.xml`.
+  - `git diff --check` on owned implementation/test files — PASS apart from expected Windows line-ending notices.
+  - React checklist — PASS for this slice: static server-rendered content, no client hooks or browser listeners, no new bundle dependency, semantic sections/headings/details/summary, keyboard-native FAQ interaction, mobile single-column layouts, and no duplicate network work.
+- **Known limitations:** Search crawling, indexing, ranking, citations, and AI answer inclusion are never guaranteed and were not observed live. Google Search Console, Bing Webmaster Tools, a deployed robots/sitemap response, Rich Results Test, Schema Markup Validator, OAI-SearchBot fetch, performance metrics, and production page screenshots remain unverified. The canonical host is the current stable Vercel production domain; a future custom-domain launch must update metadata, robots, sitemap, Search Console, and redirects together.
+- **Risks:** A later deployment on a different canonical host would create conflicting signals until the static host values are updated. Robots directives guide compliant crawlers but are not access control; authenticated routes still require the existing server authorization. Structured data must be kept synchronized with visible claims if product capabilities change.
+- **Rollback notes:** Revert the eight owned source/test files and this handoff. Removing robots or sitemap support does not affect authenticated app behavior, but it reduces public discovery signals.
+- **Exact next action:** Quinn reviews public claims, JSON-LD/visible-text parity, private-route crawl boundaries, and absence of sensitive or unsupported statements. After review, Phoenix should verify the exact combined release candidate and Morgan may request explicit production approval. No deployment occurred.

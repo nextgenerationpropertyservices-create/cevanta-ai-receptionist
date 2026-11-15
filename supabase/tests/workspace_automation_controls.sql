@@ -1,5 +1,8 @@
 -- CEV-AUTOMATION-105A. Fictional embedded automation-control checks, not live JWT/PostgREST proof.
 begin;
+-- The seeded workspace exercises paid automation in this fixture.
+update public.tenants set plan = 'managed_receptionist'
+where id = '10000000-0000-4000-8000-000000000001';
 insert into auth.users(id,email) values
  ('95000000-0000-4000-8001-000000000001','automation-owner@example.invalid'),
  ('95000000-0000-4000-8001-000000000002','automation-admin@example.invalid'),

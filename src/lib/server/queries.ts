@@ -52,19 +52,19 @@ export async function getWorkspace(tenantId: string) {
   return workspace;
 }
 
-export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; status: string; created_at: string; updated_at: string; permitdesk_enabled: boolean; permitdesk_expires_at: string | null; permitdesk_status: "off" | "enabled" | "expired" | "unavailable"; permitdesk_only: boolean }
+export interface ManagedClientWorkspace { id: string; name: string; trade: string; timezone: string; plan: Tenant["plan"]; status: string; created_at: string; updated_at: string; permitdesk_enabled: boolean; permitdesk_expires_at: string | null; permitdesk_status: "off" | "enabled" | "expired" | "unavailable"; permitdesk_only: boolean }
 
 export async function getManagedClientWorkspaces(operatorTenantId: string): Promise<{ operator: Tenant; role: string; clients: ManagedClientWorkspace[]; allowed: boolean }> {
   const { tenant, role } = await getWorkspace(operatorTenantId);
   const allowed = tenant.account_type === "internal" && (role === "owner" || role === "admin");
   if (!allowed) return { operator: tenant, role, clients: [], allowed: false };
   const { client } = await requireMembership(operatorTenantId, ["owner", "admin"]);
-  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,permitdesk_only,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).neq("status", "archived").order("created_at", { ascending: false });
+  const result = await client.from("managed_client_workspaces").select("status,created_at,client:client_tenant_id(id,name,trade,timezone,account_type,plan,permitdesk_only,created_at,updated_at)").eq("operator_tenant_id", operatorTenantId).neq("status", "archived").order("created_at", { ascending: false });
   if (result.error) throw new Error("Could not load client workspaces.");
   const clients: ManagedClientWorkspace[] = (result.data ?? []).flatMap(row => {
     const clientRow = Array.isArray(row.client) ? row.client[0] : row.client;
     if (!clientRow) return [];
-    return [{ id: clientRow.id, name: clientRow.name, trade: clientRow.trade, timezone: clientRow.timezone, status: row.status, created_at: row.created_at, updated_at: clientRow.updated_at, permitdesk_enabled: false, permitdesk_expires_at: null, permitdesk_status: "off" as const, permitdesk_only: Boolean(clientRow.permitdesk_only) }];
+    return [{ id: clientRow.id, name: clientRow.name, trade: clientRow.trade, timezone: clientRow.timezone, plan: clientRow.plan, status: row.status, created_at: row.created_at, updated_at: clientRow.updated_at, permitdesk_enabled: false, permitdesk_expires_at: null, permitdesk_status: "off" as const, permitdesk_only: Boolean(clientRow.permitdesk_only) }];
   });
   const access = clients.length
     ? await client.from("permit_workspace_access").select("tenant_id,enabled,expires_at").in("tenant_id", clients.map(item => item.id))

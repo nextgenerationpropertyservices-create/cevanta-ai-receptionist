@@ -45,7 +45,7 @@ export default async function PermitPilotPage({ params, searchParams }: {
             <label>Product access
               <select name="mode" defaultValue={workspace.permitdesk_only ? "permits" : "bundle"}>
                 <option value="permits">PermitDesk only</option>
-                <option value="bundle">PermitDesk and Missed Call</option>
+                <option value="bundle">PermitDesk + existing dashboard plan</option>
               </select>
             </label>
             <label>Expiration date (00:00 UTC)

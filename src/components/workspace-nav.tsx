@@ -47,5 +47,5 @@ export function WorkspaceNav({links}: {links: WorkspaceNavLink[]}) {
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [moreOpen]);
-  return <nav className="workspace-topnav-menu" aria-label="Workspace"><div className="workspace-topnav-primary">{primary.map(link => renderLink(link))}</div>{secondary.length > 0 && <details ref={moreRef} open={moreOpen} onToggle={event => setMoreOpen(event.currentTarget.open)} className={secondaryActive ? 'workspace-nav-more active' : 'workspace-nav-more'}><summary aria-expanded={moreOpen}>More</summary><div className="workspace-nav-more-menu">{secondary.map(link => renderLink(link))}</div></details>}</nav>;
+  return <nav className="workspace-topnav-menu" aria-label="Workspace destinations"><div className="workspace-topnav-primary">{primary.map(link => renderLink(link))}</div>{secondary.length > 0 && <details ref={moreRef} open={moreOpen} onToggle={event => setMoreOpen(event.currentTarget.open)} className={secondaryActive ? 'workspace-nav-more active' : 'workspace-nav-more'}><summary aria-expanded={moreOpen}>More <span className="workspace-nav-more-count">{secondary.length}</span></summary><div className="workspace-nav-more-menu">{secondary.map(link => renderLink(link))}</div></details>}</nav>;
 }

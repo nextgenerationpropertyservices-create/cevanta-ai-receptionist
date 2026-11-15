@@ -2,11 +2,13 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireMembership } from "@/lib/server/authorization";
-import { acceptOnboardingAccess } from "@/app/actions/onboarding";
 import type { ActionState } from "@/lib/server/action-state";
 import { isCanonicalInvitationToken } from "@/lib/onboarding-validation";
+import { acceptInvitationContinuation, INVITATION_CONTINUATION_COOKIE } from "@/lib/server/invitation-continuations";
 import { passwordRecoveryOrigin } from "@/lib/server/password-recovery-origin";
 
 const issueSchema = z.object({
@@ -22,12 +24,19 @@ const responseSchema = z.discriminatedUnion("status", [
 
 type InvitationState = ActionState & { inviteUrl?: string; expiresAt?: string };
 
+function invitationTokenDigest(token: string): string | null {
+  if (!isCanonicalInvitationToken(token)) return null;
+  const tokenBytes = Buffer.from(token, "base64url");
+  if (tokenBytes.byteLength !== 32 || tokenBytes.toString("base64url") !== token) return null;
+  return createHash("sha256").update(tokenBytes).digest("hex");
+}
+
 export async function issueClientInvitation(_previous: InvitationState, form: FormData): Promise<InvitationState> {
   const parsed = issueSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { status: "error", message: "Enter a confirmed client account email and try again." };
   const token = randomBytes(32).toString("base64url");
-  if (!isCanonicalInvitationToken(token)) return { status: "error", message: "Could not prepare the invitation. Please retry." };
-  const tokenDigestHex = createHash("sha256").update(token, "utf8").digest("hex");
+  const tokenDigestHex = invitationTokenDigest(token);
+  if (!tokenDigestHex) return { status: "error", message: "Could not prepare the invitation. Please retry." };
   let origin: string;
   try { origin = passwordRecoveryOrigin(); } catch { return { status: "error", message: "The application origin is not configured for invite links." }; }
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -59,7 +68,7 @@ export async function issueClientInvitation(_previous: InvitationState, form: Fo
       };
       return { status: "error", message: messages[response.data.status] ?? "The invitation could not be created." };
     }
-    const inviteUrl = `${origin}/invite?request_id=${encodeURIComponent(parsed.data.request_id)}&token=${encodeURIComponent(token)}`;
+    const inviteUrl = `${origin}/invite#v=1&r=${parsed.data.request_id}&t=${token}`;
     revalidatePath(`/workspaces/${parsed.data.operator_tenant_id}/clients`);
     return { status: "success", message: "Private invitation created. Copy it now; the token is shown only once.", inviteUrl, expiresAt: response.data.expires_at };
   } catch {
@@ -67,16 +76,15 @@ export async function issueClientInvitation(_previous: InvitationState, form: Fo
   }
 }
 
-export async function acceptClientInvitation(_previous: ActionState, form: FormData): Promise<ActionState> {
-  const requestId = String(form.get("request_id") ?? "");
-  const token = String(form.get("token") ?? "");
-  const result = await acceptOnboardingAccess({ request_id: requestId, token });
-  if (["accepted", "already_accepted", "replayed"].includes(result.result.status) && "workspace" in result.result) {
-    const workspaceId = result.result.workspace.id;
-    const { redirect } = await import("next/navigation");
-    redirect(`/workspaces/${workspaceId}/onboarding`);
-  }
-  return { status: "error", message: result.message };
+export async function acceptClientInvitation(_previous: ActionState, _form: FormData): Promise<ActionState> {
+  void _previous;
+  void _form;
+  const cookieStore = await cookies();
+  const continuation = cookieStore.get(INVITATION_CONTINUATION_COOKIE)?.value ?? "";
+  cookieStore.delete(INVITATION_CONTINUATION_COOKIE);
+  const result = await acceptInvitationContinuation(continuation);
+  if (result.status === "accepted") redirect(`/workspaces/${result.workspace.id}/onboarding`);
+  return { status: "error", message: "This invitation is unavailable. Ask the Cevanta operator for a new private invitation." };
 }
 
 

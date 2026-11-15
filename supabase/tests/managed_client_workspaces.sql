@@ -28,6 +28,11 @@ begin
  result:=public.provision_managed_client_workspace(input);
  if result->>'status'<>'saved' then raise exception 'Managed provision failed: %',result; end if;
  created_tenant_id:=(result->'workspace'->>'id')::uuid;
+ if result->'workspace'->>'plan' is distinct from 'free' or not exists(
+   select 1 from public.tenants where id=created_tenant_id and plan='free' and not permitdesk_only
+ ) or exists(
+   select 1 from public.permit_workspace_access where tenant_id=created_tenant_id and enabled
+ ) then raise exception 'New managed clients must start on Free Dashboard with PermitDesk off'; end if;
  if result->'workspace'->>'name'<>'Fictional Client HVAC' or result->'workspace'->>'account_type'<>'client' then raise exception 'Managed result shape'; end if;
  if not exists(select 1 from public.managed_client_workspaces where operator_tenant_id='49000000-0000-4000-8000-000000000001' and client_tenant_id=created_tenant_id and created_by='49000000-0000-4000-8001-000000000001' and status='onboarding') then raise exception 'Managed link missing'; end if;
  if not exists(select 1 from public.memberships where tenant_id=created_tenant_id and user_id='49000000-0000-4000-8001-000000000001' and role='owner') then raise exception 'Cevanta operator client owner membership missing'; end if;

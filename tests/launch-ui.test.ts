@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn(), retellHealth: vi.fn() }));
+const harness = vi.hoisted(() => ({ workspace: vi.fn(), onboarding: vi.fn(), automation: vi.fn(), retellHealth: vi.fn(), milestones: vi.fn() }));
 vi.mock('@/lib/server/queries', () => ({ getWorkspace: harness.workspace }));
 vi.mock('@/lib/server/onboarding-rpc', () => ({ getOnboardingSnapshot: harness.onboarding }));
 vi.mock('@/lib/server/automation-control-queries', () => ({ getAutomationControls: harness.automation }));
 vi.mock('@/app/actions/retell-provisioning', () => ({ getRetellAgentMappingHealth: harness.retellHealth }));
+vi.mock('@/lib/server/onboarding-milestones', () => ({ getOnboardingMilestones: harness.milestones }));
 
 import { AUTOMATION_CONTROL_DEFINITIONS, defaultAutomationControl } from '@/lib/automation-controls';
 import LaunchReadiness from '@/app/workspaces/[tenantId]/launch/page';
@@ -17,6 +18,7 @@ beforeEach(() => {
   harness.workspace.mockResolvedValue({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'owner' });
   harness.automation.mockResolvedValue({ ready: true, canManage: true, controls: AUTOMATION_CONTROL_DEFINITIONS.map(definition => defaultAutomationControl(tenant, definition)) });
   harness.retellHealth.mockResolvedValue({ status: 'active' });
+  harness.milestones.mockResolvedValue(new Map());
   harness.onboarding.mockResolvedValue({
     status: 'available',
     snapshot: {
@@ -45,6 +47,8 @@ describe('launch readiness page', () => {
   it('shows the controlled self-service client path and shared onboarding boundaries', async () => {
     const output = await html();
     expect(output).toContain('PROVISIONING READINESS');
+    expect(output).toContain('STORED ONBOARDING STATE');
+    expect(output).toContain('What has been recorded for this workspace');
     expect(output).toContain('Client go-live checklist');
     expect(output).toContain('Client setup data');
     expect(output).toContain('Trusted tenant route');
@@ -66,5 +70,33 @@ describe('launch readiness page', () => {
     expect(output).toContain(`/workspaces/${tenant}/go-live`);
     expect(output).toContain('does not expose webhook URLs, API keys, provider secrets');
     expect(output).not.toMatch(/booking confirmed|payment collected|dispatch confirmed|sk_live_|Bearer /i);
+  });
+
+  it('does not reuse another workspace’s provider test claims', async () => {
+    const output = await html();
+    expect(output).toContain('Mapped — test needed');
+    expect(output).toContain('No client-specific Make connection is recorded');
+    expect(output).toContain('Not ready for live activation');
+    expect(output).not.toContain('Live phone test passed');
+    expect(output).not.toContain('Safe dry run passed');
+  });
+
+  it('shows verified wording only when this workspace has matching evidence', async () => {
+    harness.milestones.mockResolvedValueOnce(new Map([[tenant, {
+      payment_status: 'paid', setup_status: 'complete', test_call_status: 'passed', retell_status: 'verified', make_status: 'verified', launch_approval_status: 'approved', updated_at: '2026-10-26T00:00:00.000Z',
+    }]]));
+    const output = await html();
+    expect(output).toContain('Verification evidence recorded');
+    expect(output).toContain('Verified evidence recorded');
+    expect(output).toContain('Operator verification required');
+    expect(output).toContain('provisioning activation gate remains blocked');
+  });
+
+  it('does not diagnose server configuration for roles that cannot view route health', async () => {
+    harness.workspace.mockResolvedValueOnce({ tenant: { id: tenant, name: 'Fictional HVAC', trade: 'HVAC', timezone: 'America/New_York' }, role: 'dispatcher' });
+    const output = await html();
+    expect(output).toContain('Status unavailable');
+    expect(output).not.toContain('Server setup needed');
+    expect(harness.retellHealth).not.toHaveBeenCalled();
   });
 });
