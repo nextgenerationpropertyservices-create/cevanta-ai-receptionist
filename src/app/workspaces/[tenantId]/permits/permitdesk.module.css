@@ -68,21 +68,35 @@
   border-color: #e3e9e3;
   box-shadow: none;
 }
-.shell .content :global(.muted), .shell .content :global(.page-heading p) { color: #40564e; }
-.shell .content :is(p, label, td, th, summary) { line-height: 1.55; }
-.shell .content :is(small, :global(.small), th, :global(.eyebrow)) { font-size: .875rem; }
+.shell .content p, .shell .content :global(.muted), .shell .content :global(.page-heading p) {
+  color: #344b42;
+}
+.shell .content :is(p, label, td, th, summary) {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.shell .content :is(label, th, summary) { font-weight: 650; }
+.shell .content :is(small, :global(.small), :global(.eyebrow)) { font-size: .9375rem; }
 .shell .content :is(a, button, input, select, textarea):focus-visible {
   outline: 3px solid #197452;
   outline-offset: 3px;
 }
 .shell .content :global(.eyebrow), .shell .content :global(.card-link) { color: #1e6454; }
-.shell .content :global(.button) { background: #103c35; border-color: #103c35; color: white; }
+.shell .content :global(.button) {
+  background: #103c35;
+  border-color: #103c35;
+  color: white;
+  font-size: .9375rem;
+  min-height: 44px;
+}
 .shell .content :global(.button.secondary) { background: white; border-color: #cddbd1; color: #103c35; }
 .shell .content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
   background: white;
-  border-color: #cddbd1;
+  border-color: #748c81;
   color: #192c28;
+  font-size: 1rem;
 }
+.shell .content :is(input, textarea)::placeholder { color: #526a60; opacity: 1; }
 .content :global(.permitdesk-subnav) { display: none; }
 .metrics {
   display: grid;
@@ -98,4 +112,6 @@
 @media (max-width: 760px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
   .group a { display: inline-block; }
+  .topbar { flex-wrap: wrap; }
+  .shell .content :global(.panel) { padding: 1rem; }
 }
